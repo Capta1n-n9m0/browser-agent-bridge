@@ -22,6 +22,14 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   falls under which license), `tsconfig.types.json`. The root `package.json` stays `private`. Tests:
   `scripts/test/s15-package.test.ts`, `s15-doctor-package.test.ts`.
 - `scripts/native-host/` (Step 15 S4): `host.mjs` and `pair.mjs`, the native messaging host (Runtime gotchas).
+- `scripts/bridge/host-register.mjs` (Step 15 S5): the native host registration's I/O (`writeHostRegistration`, shared by
+  setup and the MCP server) and `firstStartRegistration`, the MCP server's first start (Runtime gotchas); its decision is
+  `lib.firstStartDecision`. Tests: `scripts/test/s15-first-start.test.ts` (temp folder, fake `reg`).
+- `scripts/package/mcpb/` (Step 15 S5): `npm run pack:mcpb` → `build/browser-agent-bridge-<version>.mcpb`. `build.mjs` runs
+  `build:npm`, stages `build/npm/` (without `types/`) plus `node_modules/ws` copied from the root, `manifest.json`
+  (`manifest.mjs`, pure, `manifest_version` 0.3) and `icon.png` (`icon.mjs`, a generated placeholder until S8) in
+  `build/mcpb/`, then `mcpb validate` and `mcpb pack` from the pinned devDependency `@anthropic-ai/mcpb` 2.1.2. Test:
+  `scripts/test/s15-mcpb.test.ts` (the manifest against the official zod schema, the icon's PNG).
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
 - `examples/list-tabs.ts`: the smallest script outside the repo, using the SDK through a `file:` dependency (#430);
   steps in `docs/setup.md`, "Scripts from any folder".
@@ -68,6 +76,16 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   add`, argv, no shell). The doctor reads the key with `reg query` and the manifest's `allowed_origins`
   (`manifestOrigins`); every Native host problem is a hint (a token pasted in Options still works), and an S3-era
   manifest (empty `allowed_origins`) reads "does not admit this extension's ID": run setup again.
+- **The MCP server's first start** (S5, #449): an installed package (npx or the `.mcpb`; a clone does nothing, setup
+  owns it) makes the per-user token when neither `BRIDGE_TOKEN` nor the file holds one (flag `wx`: two servers starting
+  at once keep the first), then registers the native host from where it runs, whenever the manifest, the launcher or the
+  registry value differ (an npx cache folder or a Claude Desktop update that moved the server registers again; an
+  unchanged one writes nothing, one `reg query` per start on Windows). Under Electron (`process.versions.electron`,
+  Claude Desktop's built-in Node) the launcher sets `ELECTRON_RUN_AS_NODE=1`; whether Claude Desktop's Node is Electron
+  is not measured (S9). It never throws; `mcp/src/index.ts` logs one fixed line on `registered` or `failed`.
+  `BRIDGE_NO_HOST_REGISTRATION=1` turns it off: **set it for any real run of a packaged MCP server on Windows**, or it
+  writes the real `HKCU` key (scratch `APPDATA` moves the files, not the registry). Several installs (npx, `.mcpb`,
+  a clone's setup) each register their own host; any of them pairs, the last one to start wins.
 - **Token move (#449):** `tokenPlan` keeps the per-user file, moves a clone's `bridge.token` into it (then deletes the
   clone's copy), keeps both when they differ (the per-user file wins), and never prints a value. Clipboard offer: clip.exe
   on win32, pbcopy on darwin, none on Linux.

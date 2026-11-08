@@ -107,7 +107,8 @@ export const ALLOWED_EXTENSION_IDS = /** @type {readonly string[]} */ (Object.fr
 /**
  * The native host registration (S3 registers; S4's host is `scripts/native-host/host.mjs`). Pure: paths and texts only.
  * @param {{ platform: Platform, env: Record<string, string | undefined>, home: string | null, mode: "clone" | "package",
- *   root: string, nodePath: string }} f
+ *   root: string, nodePath: string, electron?: boolean }} f `electron`: `nodePath` is an Electron binary run as Node
+ *   (Claude Desktop's built-in Node, Step 15 S5), so the launcher sets ELECTRON_RUN_AS_NODE=1 for it
  * @returns {{ manifestPath: string, launcherPath: string, launcherText: string, launcherMode: number,
  *   scriptPath: string, manifest: object, registry?: { key: string, value: string } } | null} null: no home known
  */
@@ -119,7 +120,8 @@ export function nativeHostPlan(f) {
   // The host script: bundled to dist/native-host.js in the package (scripts/package/build.mjs), plain node in a clone.
   const scriptPath = f.mode === "package" ? p.join(f.root, "dist", "native-host.js") : p.join(f.root, "scripts", "native-host", "host.mjs");
   const launcherPath = p.join(folder, win ? "native-host.bat" : "native-host.sh");
-  const launcherText = win ? `@echo off\r\n"${f.nodePath}" "${scriptPath}" %*\r\n` : `#!/bin/sh\nexec "${f.nodePath}" "${scriptPath}" "$@"\n`;
+  const launcherText = win ? `@echo off\r\n${f.electron ? "set ELECTRON_RUN_AS_NODE=1\r\n" : ""}"${f.nodePath}" "${scriptPath}" %*\r\n`
+    : `#!/bin/sh\n${f.electron ? "export ELECTRON_RUN_AS_NODE=1\n" : ""}exec "${f.nodePath}" "${scriptPath}" "$@"\n`;
   const home = /** @type {string} */ (f.home);
   const manifestPath = win ? p.join(folder, `${NATIVE_HOST_NAME}.json`)
     : f.platform === "darwin" ? p.join(home, "Library", "Application Support", "Google", "Chrome", "NativeMessagingHosts", `${NATIVE_HOST_NAME}.json`)
@@ -128,6 +130,31 @@ export function nativeHostPlan(f) {
     type: "stdio", allowed_origins: ALLOWED_EXTENSION_IDS.map((id) => `chrome-extension://${id}/`) };
   return { manifestPath, launcherPath, launcherText, launcherMode: win ? 0o644 : 0o755, scriptPath, manifest,
     ...(win ? { registry: { key: `HKCU\\SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\${NATIVE_HOST_NAME}`, value: manifestPath } } : {}) };
+}
+/** The manifest file's text, as setup and the first start write it. @param {{ manifest: object }} plan */
+export const manifestText = (plan) => JSON.stringify(plan.manifest, null, 2) + "\n";
+/**
+ * Step 15 S5 (#449): what the MCP server does on its start. Only an installed package (npx or the `.mcpb`) acts; a
+ * clone's registration and token are setup's. It registers when the manifest, the launcher or (Windows) the registry
+ * value differ from the plan, so a server that moved (a new npx cache folder, a Claude Desktop update) registers again
+ * and an unchanged one writes nothing. It makes the per-user token only when neither BRIDGE_TOKEN nor that file holds
+ * one (a file token beside BRIDGE_TOKEN would differ from it). Pure: facts in, a decision out.
+ * @param {{ mode: "clone" | "package", disabled: boolean, plan: ReturnType<typeof nativeHostPlan>, script: boolean,
+ *   current: { manifest: string | null, launcher: string | null, registry: string | null }, envToken: boolean,
+ *   userToken: boolean }} f
+ * @returns {{ register: boolean, createToken: boolean,
+ *   reason: "disabled" | "clone" | "no-home" | "no-script" | "up-to-date" | "changed" }}
+ */
+export function firstStartDecision(f) {
+  if (f.disabled) return { register: false, createToken: false, reason: "disabled" };
+  if (f.mode !== "package") return { register: false, createToken: false, reason: "clone" };
+  if (!f.plan) return { register: false, createToken: false, reason: "no-home" };
+  const createToken = !f.envToken && !f.userToken;
+  if (!f.script) return { register: false, createToken, reason: "no-script" };
+  const reg = f.plan.registry;
+  const same = f.current.manifest === manifestText(f.plan) && f.current.launcher === f.plan.launcherText
+    && (!reg || (f.current.registry !== null && f.current.registry.toLowerCase() === reg.value.toLowerCase()));
+  return { register: !same, createToken, reason: same ? "up-to-date" : "changed" };
 }
 /** `reg add` argv (no shell) for the plan's registry key. @param {{ key: string, value: string }} r */
 export const regAddArgv = (r) => ["add", r.key, "/ve", "/t", "REG_SZ", "/d", r.value, "/f"];

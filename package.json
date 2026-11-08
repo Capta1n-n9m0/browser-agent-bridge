@@ -4,7 +4,13 @@
   "version": "0.1.0",
   "license": "AGPL-3.0-only",
   "type": "module",
-  "workspaces": ["shared", "daemon", "sdk", "mcp", "extension"],
+  "workspaces": [
+    "shared",
+    "daemon",
+    "sdk",
+    "mcp",
+    "extension"
+  ],
   "scripts": {
     "typecheck": "tsc -p shared/tsconfig.json && tsc -p daemon/tsconfig.json && tsc -p sdk/tsconfig.json && tsc -p mcp/tsconfig.json && tsc -p extension/tsconfig.json && tsc -p scripts/tsconfig.json",
     "test": "vitest run",
@@ -14,9 +20,11 @@
     "doctor": "tsx scripts/bridge/doctor.ts",
     "bridge-update": "node scripts/bridge/update.mjs",
     "build:npm": "node scripts/package/build.mjs",
-    "pack:npm": "node scripts/package/build.mjs --pack"
+    "pack:npm": "node scripts/package/build.mjs --pack",
+    "pack:mcpb": "node scripts/package/mcpb/build.mjs"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "2.1.2",
     "@types/node": "^22.10.0",
     "esbuild": "^0.24.0",
     "jsdom": "^25.0.0",

@@ -6,12 +6,13 @@
 // `--platform=win32|darwin|linux` is accepted with `--dry-run` only, to show another OS's plan.
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, unlinkSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { createInterface } from "node:readline/promises";
 import { fileURLToPath } from "node:url";
 import * as lib from "./lib.mjs";
+import { writeHostRegistration } from "./host-register.mjs";
 
 const args = process.argv.slice(2).filter((a, i) => !(i === 0 && a === "setup"));
 const flags = new Set(args), dry = flags.has("--dry-run");
@@ -156,14 +157,7 @@ else {
   if (plan.registry) say(`registry: ${plan.registry.key} (default value = the manifest path)`);
   if (!dry) {
     try {
-      mkdirSync(path.dirname(plan.manifestPath), { recursive: true });
-      writeFileSync(plan.manifestPath, JSON.stringify(plan.manifest, null, 2) + "\n");
-      writeFileSync(plan.launcherPath, plan.launcherText, { mode: plan.launcherMode });
-      if (plan.launcherMode & 0o100) chmodSync(plan.launcherPath, plan.launcherMode);
-      if (plan.registry) {
-        const r = spawnSync("reg", lib.regAddArgv(plan.registry), { encoding: "utf8" });
-        if (r.status !== 0) throw new Error(`reg add exited ${r.status}`);
-      }
+      writeHostRegistration(plan); // Step 15 S5: the same writes the MCP server's first start makes
       say(`Registered for the extension ${lib.EXTENSION_ID} only: it hands that extension the token and port, nothing else.`);
     } catch (err) { failed.push("native host registration"); say(`FAIL: ${err instanceof Error ? err.message : "write failed"}`); }
   }

@@ -117,6 +117,7 @@ npm run recipe -- recipes/<file>.ts [args]   # a script against the SDK, run wit
 npm run setup        # one-command install on a Windows device; `-- --dry-run`, `-- --replace-mcp` (`scripts/CLAUDE.md`)
 npm run doctor       # one line per part, read-only (`scripts/CLAUDE.md`)
 npm run bridge-update  # pull, rebuild, reload the extension; `-- --no-reload` (`scripts/CLAUDE.md`)
+npm run pack:npm / pack:mcpb  # the npm tarball / the Claude Desktop .mcpb into build/ (`scripts/CLAUDE.md`)
 npm run build:npm    # the npm package in build/npm/ (bundles, types, licenses); `npm run pack:npm` also packs build/*.tgz
 npx tsc --noEmit -p recipes/tsconfig.json # recipes typecheck separately (exit 0, 2026-11-08)
 ```

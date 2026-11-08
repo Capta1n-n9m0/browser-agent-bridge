@@ -76,6 +76,8 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   { file: "mcp/src/index.ts", call: 'console.error("[chrome-bridge] connected to the bridge daemon")', prints: "a fixed text (to the MCP's stderr)" },
   { file: "mcp/src/index.ts", call: "console.error(`[chrome-bridge] bridge daemon unavailable (retrying every 5 s): ${reason}`)", prints: "the SDK's connect() error message (127.0.0.1 port, daemon path, VERSION text; never the token)" },
   { file: "mcp/src/index.ts", call: "console.error(`[chrome-bridge] shutting down: ${reason}`)", prints: "a fixed lifecycle reason (stdin end, a signal name, parent gone)" },
+  { file: "mcp/src/index.ts", call: 'console.error("[chrome-bridge] native host registered for this install")', prints: "a fixed text (Step 15 S5 first start; no path)" },
+  { file: "mcp/src/index.ts", call: 'console.error("[chrome-bridge] native host registration failed (the Options page still takes a token)")', prints: "a fixed text (Step 15 S5 first start; no path, no error message)" },
   { file: "mcp/src/index.ts", call: 'console.error("[chrome-bridge] fatal:", err)', prints: "a start-up Error with its stack (main() before the server runs; no page data exists yet)" },
   { file: "mcp/src/index.ts", call: "process.stdout (as a value): stdout: process.stdout", prints: "nothing: handed to installLifecycle as an EventEmitter, which only listens for `error` (lifecycle.ts:66,84); the MCP SDK's stdio transport writes the JSON-RPC channel itself, outside the scanned packages (S2b fixer r1, F2)" },
   { file: "mcp/src/index.ts", call: "process (as a value): signals: process", prints: "nothing: handed to installLifecycle as an EventEmitter for signal listeners only (lifecycle.ts:67,85) (S2b fixer r1, F2)" },
@@ -83,6 +85,7 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   // ---------------------------------------------------------------- sdk/src (0): the SDK never logs.
 
   // ---------------------------------------------------------------- the npm package's commands (5, Step 15 S2)
+  { file: "scripts/package/mcpb/build.mjs", call: "console.log(`built build/${path.basename(out)} (${Object.keys(want).length} runtime dependency copied)`)", prints: "the .mcpb file name and a count (the build tool, never shipped)" },
   { file: "scripts/package/build.mjs", call: "console.log(`built build/npm: ${entries.length} bundles, ${declarations} declaration files, ${thirdParty.size} third-party packages noticed`)", prints: "three counts (the build tool, never shipped)" },
   { file: "scripts/package/cli.mjs", call: "process.stdout (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },
   { file: "scripts/package/cli.mjs", call: "process.stderr (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },

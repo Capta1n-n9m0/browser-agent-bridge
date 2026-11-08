@@ -3,7 +3,8 @@
 The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
 
 ## Key files
-- `mcp/src/`: `index.ts` (entry → `mcp/dist/index.js`), `link.ts` (`BridgeLink`: the no-crash rule
+- `mcp/src/`: `index.ts` (entry → `mcp/dist/index.js`; since Step 15 S5 it first calls `firstStartRegistration` from
+  `scripts/bridge/host-register.mjs`, so `mcp/tsconfig.json` has `allowJs`; the rule is in `scripts/CLAUDE.md`), `link.ts` (`BridgeLink`: the no-crash rule
   and the 5 s retry), `config.ts` (actor name, `connectOptions()`), `lifecycle.ts` (exit with the
   session), `cursor.ts` (`TabCursor`: claimed on first untargeted touch, moved only as the cursor gotcha below says, lost with a one-line notice on a
   4002 reconnect or a new client), `tools/registry.ts` (the 25 MCP tools — `browser_focus_tab` is
