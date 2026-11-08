@@ -11,7 +11,11 @@ lets an AI agent (Claude) or a script drive the user's **real, logged-in Chrome 
 user-data-dir, breaking CDP-against-your-real-profile; this restores it from *inside* the profile via an
 extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chrome."
 
-## Current state (2026-11-08: lean mode in place; Step 15 is next)
+## Current state (2026-11-08: Step 15 paused after S1; S2 is next)
+
+- **Step 15 resume point:** S0, S1 and U4 are done, committed and not pushed (`main` is ahead of `origin/main`). S2 was
+  started and then stopped before any edit; start it again with a fresh step agent from the phase doc. Open: the license
+  (U6; the user may leave MIT). The user still has to run `npm run setup` so the MCP entry gets the new name.
 
 - **Shipped:** Steps 1–14, public on GitHub (MIT). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
   install by `npm run setup` / `doctor` / `bridge-update`; also run by others on macOS and on Linux over an SSH tunnel.

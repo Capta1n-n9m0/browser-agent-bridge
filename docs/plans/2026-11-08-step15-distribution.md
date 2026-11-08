@@ -149,6 +149,9 @@ request, #449).
 - **U4** — npm trusted publishing on npmjs.com (one form), or publish by hand with the passkey.
 - **U5** — Claude Desktop is installed on this machine (S9 tests the `.mcpb` there); the macOS and Linux runs of the
   checklist.
+- **U6** — the license: the user is thinking about leaving MIT for something more protective (raised 2026-11-08). It
+  needs a ruling before S2 publishes a `license` field and before S7 and v0.2.0. One small file on `main`
+  (`start-bridge.sh`) is by a second contributor, so changing the license needs their OK or a rewrite of that file.
 - Approvals: README, listing text, icons, screenshots; every push, tag and publish.
 
 ## v1
@@ -189,5 +192,8 @@ numbers are never reused, #79; old logs are not moved); the private `@bridge/*` 
 70 bytes now and `docs/e2e-test-plan.md` has the new size and sha256. Legacy names remain only in migration code
 (`scripts/bridge/lib.mjs` `LEGACY_SERVER_NAMES`, `daemon/src/log.ts` `legacyStateDirs`, `recipes/reload-extension.ps1`), history, and one-line notes.
 User action: `npm run setup` (swaps the real `~/.claude.json` entry), then `/mcp` or a fresh session, then reload the extension.
+
+**S2 — not started (2026-11-08):** the first session was paused while S2's builder was still reading files. It made
+no edits and no commit. Start S2 again with a fresh step agent.
 
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
