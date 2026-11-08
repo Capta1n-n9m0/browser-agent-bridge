@@ -170,9 +170,9 @@ Record outcomes in the [Results template](#results-template). A run "passes" whe
    Enter only while that window is in the foreground and its address bar has the focus). In the page's
    accessibility tree (Chrome builds it when a UIA client asks; no `--force-renderer-accessibility`
    was needed) every card is flattened into a run of siblings that starts at a text with AutomationId
-   `name`. The script takes the run whose name is `Browser Agent Bridge` **and** whose ID line is the ID
-   Chrome derives from the path of `extension/` (sha256 of the absolute path as UTF-16LE, first 16 bytes,
-   nibbles as `a`–`p`: `cpnemjbgecfbeicldpaaegbhjgjgjfep` on this machine), and in it the one Button
+   `name`. The script takes the run whose name is `Browser Agent Bridge` **and** whose ID line is the
+   fixed ID the manifest `key` gives (`iifofgbdljchbdimlalhphmedfmocela`; before Step 15 it was derived from the path of
+   `extension/`), and in it the one Button
    with AutomationId `dev-reload-button` (raw-view parent `itemsList`). Anything else — a new window not on `about:blank` (then it is not closed either), no or two such
    cards, no or two buttons, another page, Chrome not running, more than one new window — presses
    nothing and exits 2. The browser's own toolbar Reload (AutomationId `view_…`), **Update**
@@ -1135,7 +1135,7 @@ test-fixtures` (the 8081 copy is the blocked origin); test patterns are fixture 
 **O** — the options page, opened by typing `chrome-extension://<id>/options.html` into the omnibox of a fresh
 `about:blank` window; **E** — `chrome://extensions/shortcuts`, then `chrome://extensions` (the worker's DevTools
 **D** opens from its card); the SDK's own background tabs `a`, `c` (8081), `b5`, `t4` (`s9.ts setup`, in W).
-`<id>` is `cpnemjbgecfbeicldpaaegbhjgjgjfep` (§1 item 9). Actor **M** is one persistent MCP actor, started before
+`<id>` is `iifofgbdljchbdimlalhphmedfmocela` (§1 item 9). Actor **M** is one persistent MCP actor, started before
 SAFE-1 and ended right after its SAFE-5 leg (its lease on `<T#c>` must end before SAFE-5d); a fresh actor **M2**
 serves SAFE-9 and is ended at the teardown; each cursor is claimed by its first untargeted tool (Step 8 S5).
 (*Amended 2026-10-24, prep fixer r1: was "ended at the teardown", S4-prep-verifier finding 2.*)*

@@ -1,126 +1,127 @@
 # Browser Agent Bridge
 
-Automate your **real, already-logged-in** Chrome (default profile) from an AI agent.
+Let an AI agent use your **real, already-logged-in Chrome**: the browser you use every day, with your accounts, cookies
+and extensions, not a fresh empty one.
 
-Since Chrome 136 (May 2025) blocked `--remote-debugging-port` on the default user-data-dir,
-CDP-against-your-real-profile no longer works for Playwright/Puppeteer/Selenium. This project
-restores agent control of that profile via a Chrome extension + an MCP server, so Claude
-(or any MCP client) can drive the browser you're already signed in to.
+Browser Agent Bridge is a Chrome extension plus a small program on your own computer. An AI agent such as Claude (or
+a script you write) asks the program to read a page, click, type, scroll, take a screenshot or run a bit of
+JavaScript, and the extension does it in your Chrome. Everything stays on your machine: the extension talks only to
+the program on `127.0.0.1`, and you can switch the whole thing off with one click.
 
 > Think of it as "Playwright MCP, but pointed at your real logged-in Chrome."
 
-## Quick start (Windows)
+## Why it exists
 
-```powershell
-git clone https://github.com/Capta1n-n9m0/browser-agent-bridge
-cd browser-agent-bridge
-npm run setup
-```
+Since Chrome 136 (May 2025), Chrome refuses `--remote-debugging-port` on your default profile. That broke the usual
+way to automate it (Playwright, Puppeteer, Selenium). This project gets back in from inside the profile, as an
+extension you install and can remove, with controls only you can change.
 
-Setup installs, builds, creates the token, registers the MCP server in Claude Code and prints the Chrome steps: load
-the `extension\` folder unpacked, set its Options (port `9234` and the token), pin its button. Then run `/mcp` in Claude
-Code (or start a new session) and `npm run doctor`; every line should say `OK`. Update later with `npm run bridge-update`.
-Without Claude Code the MCP entry line fails; scripts do not need it. If PowerShell says running scripts is disabled,
-type `npm.cmd run setup` (likewise `npm.cmd run doctor`). An older clone needs `git pull` first.
-The full walk-through: [`docs/setup.md` → Install on a new device](docs/setup.md#install-on-a-new-device).
+## Who it is for
 
-## Documentation
+- **People who use Claude** (Claude Code or Claude Desktop) and want it to work in the sites they are already signed
+  in to: read an inbox, fill in a form, pull a report, check an order.
+- **Developers** who want a script, in TypeScript, to drive their own logged-in Chrome (a typed SDK, locators by role
+  and name, failure reports that include a screenshot).
 
-All documentation lives in [`docs/`](docs/).
+It is not for running agents on other people's browsers or over the internet. The bridge listens on your own machine
+only.
 
-- **Setup & usage:** [`docs/setup.md`](docs/setup.md)
-- **Progress & roadmap:** [`docs/progress-and-roadmap.md`](docs/progress-and-roadmap.md)
-- **E2E test plan:** [`docs/e2e-test-plan.md`](docs/e2e-test-plan.md) (+ fixture `test-fixtures/e2e-playground.html`)
-- **Design spec:** [`docs/specs/2026-06-04-chrome-real-profile-agent-bridge-design.md`](docs/specs/2026-06-04-chrome-real-profile-agent-bridge-design.md)
+## Install
 
-## Status
+Three routes. Pick the one that fits; they share the same extension and the same program.
 
-**25 tools**, implemented and **E2E-validated** against the real default profile: Phases A–D
-(connection, navigation, perception, action fidelity, robustness) plus `browser_evaluate` and
-network inspection (`browser_network_requests`, `browser_network_clear`, and
-`browser_wait_for({networkIdle:true})`). Since Step 6, a shared localhost daemon sits between the
-extension and its clients (the MCP server and a TypeScript SDK for scripts). Since Step 7, several
-actors work on different tabs at once, through tab handles, one owner per tab, and `browser_focus_tab`.
-Since Step 8, scripts and Claude can name elements by role and name, text or CSS (resolved by the same
-rules as the snapshot), the SDK has a typed `Tab` API whose failures carry a report (snapshot,
-screenshot, recent requests), and a Claude session's tab follows you only when you ask
-(`browser_use_active_tab`). How to write a script: [`docs/setup.md`](docs/setup.md#writing-a-script).
+Status of this release (v0.2.0, in preparation): the Chrome Web Store listing is not live yet. Until it is, install the
+extension from the zip on the [GitHub Releases](https://github.com/Capta1n-n9m0/browser-agent-bridge/releases) page
+(steps in [`docs/setup.md`](docs/setup.md#route-1-claude-code)). The commands below work once the listing is live.
 
-**Your controls (Step 9, Phase E safety).** A toolbar button, the shortcut `Alt+Shift+K` and the options
-page turn the bridge off, so every page call is refused until you turn it back on; a separate switch
-takes `browser_evaluate` away; and a block list keeps agents off the sites you name. All three are
-enforced in the extension itself, so no agent, script or token holder can undo them. The block list is
-not a network firewall — see [`docs/setup.md` → Safety](docs/setup.md#safety).
+### 1. Claude Code
 
-**Step 10 (the Step 8 follow-ups).** Claude's trusted click, type and key press now bring the tab to the
-front of its window first, as a script's already did; an action on an element past the snapshot's
-800-element cap says so; `browser_evaluate {saveTo}` (and `tab.evaluateToFile()` in a script) writes a
-large value to a file and answers only its path, size and sha256, so bulk data never passes through
-Claude's context; and "JavaScript is off" has its own error code, `JS_DISABLED`.
+1. Install the extension **Browser Agent Bridge** from the Chrome Web Store.
+2. Add the bridge to Claude Code (needs Node.js 20 or newer):
 
-**Step 11 (file upload).** `browser_upload_file` (and `tab.upload()` in a script) puts local files into a page's
-file input, as if you had picked them in the file dialog. It is off until you allow it in Chrome: add the
-folders agents may upload from to **Upload folders** on the extension's options page, and turn on **Allow access
-to file URLs** for the extension. A file outside those folders is refused `UPLOAD_REFUSED`, and the bridge never
-opens or acts on `file:` pages. See [`docs/setup.md` → Uploading files](docs/setup.md#uploading-files).
+   ```
+   claude mcp add browser-agent-bridge -- npx -y browser-agent-bridge
+   ```
 
-**Step 11b (closed 2026-10-27, #320):** while a bridge `navigate`, `newTab` with a URL,
-`back`, `forward` or download runs, the block list also stops a redirect hop onto a blocked site (Runs 17 and 17b,
-2026-10-27).
+3. Start Claude Code and run `/mcp`. The first start creates your private token and registers the pairing helper, so
+   the extension pairs by itself: you never copy or type a token.
+4. Ask Claude to call `browser_status`. It should say the daemon and the extension are connected.
 
-**Step 12 (Phase F, ergonomics; built, Runs 18 and 19 run, closed 2026-10-29, #374).** *(Superseded 2026-10-30: was "not closed", because the user ruled the gate on 2026-10-29, #374.)* `browser_evaluate {args}` passes data to a
-function without escaping it into the string (SDK: `{args}` on `evaluate`, `evaluateRef`, `evaluateToFile`; R19-ARGS-2, R19-ARGS-GLOBAL: PASS);
-`browser_console_messages` (SDK `tab.consoleMessages()`) reads the page's console, earlier messages included (R19-CON-1: PASS); the bridge
-keeps one debugger session per tab while an agent works, to avoid the banner flicker (tested: `extension/test/debugger-keeper.test.ts`; the
-live banner reading did not discriminate, R19-KEEP-1); `browser_upload_file {chooser:true}` answers a site's own "Open file" window from your Upload folders (R19-CHOOSE-1, R19-CHOOSE-2: PASS); and a
-trusted click, type or key press (not one sent with `focusEmulation`) holds the screen lock from its focus to 500 ms after its input (tested: `daemon/test/s6-trusted-focus.test.ts`; the live timing row R19-G2-1 failed, cause not established). Run 19 (2026-10-28/29, fixture
-pages): of 58 row ids, 42 passed, 5 failed, 5 did not discriminate, 3 were not measured and 3 are records
-(`docs/plans/2026-10-27-step12-phase-f-steps/S7-run-record.md`). Known limits are in
-[`docs/setup.md`](docs/setup.md#reading-the-console) and under Running JavaScript, Uploading files and Troubleshooting.
+Check at any time with `npx browser-agent-bridge doctor`.
 
-**Step 13 (the Phase F follow-ups; closed 2026-10-30, #420).** A popup opened by a
-background tab now goes to that tab's owner, matched through Chrome's `webNavigation` event, a new permission you granted
-(R20-POP-BG-3: PASS, 3 of 3; `extension/test/opener-join.test.ts`). `browser_evaluate` returns an object's keys in the page's
-order through the SDK too (`extension/test/s13-envelope.test.ts`). When `browser_console_messages` has more than 20 000
-characters it keeps the newest lines and says how many older lines it cut (R20-CON-CAP: PASS;
-`sdk/test/s12-console-cap.test.ts`). A second file-chooser upload on a tab running one is refused with its own text
-(R20-CHOOSE-TWICE: PASS; `mcp/test/s13-chooser-busy.test.ts`). Run 20 (2026-10-29/30, fixture pages), as the user ruled it
-(#420): 24 passed, 4 failed (three popup rows on two sheet clauses, #406; a covered-window screenshot timeout, R20-G2-1),
-1 not measured, 3 not run, 2 records
-(`docs/plans/2026-10-29-step13-phase-f-followups-steps/S5-run-record.md`). Step 13 is pushed (found on origin at Step 14's start). *Corrected 2026-10-30: was "Step 13's build is not pushed".*
+### 2. Claude Desktop
 
-**Step 14 (Phase G, your own devices; built 2026-10-30, not pushed; the gate waits for the user: #432 and the push).** `npm run setup` installs the bridge on a new Windows device,
-`npm run doctor` checks every part, `npm run bridge-update` updates it, and a script in any folder imports the SDK
-([`docs/setup.md`](docs/setup.md#install-on-a-new-device)). The failure report prints a home-folder screenshot path as `~`.
+Download `browser-agent-bridge-<version>.mcpb` from the GitHub Releases page and double-click it. Claude Desktop
+brings its own Node.js. Install the Chrome extension as in route 1.
 
-6089 unit tests green in 255 files (`npm test` 2026-10-30, Step 14). *Superseded 2026-10-30: was "6030 unit tests green in 251 files (`npm test` 2026-10-30, HEAD `f6bafc5`)", because Step 14's tests landed.* The Step 6 daemon split was E2E-tested in
-wave W1 (2026-10-22), Step 7's multi-actor tabs in Runs 8–10 (2026-10-22/23), Step 8 in Runs 11–12
-(2026-10-23/24), Step 9's safety controls in Run 13 (2026-10-24; 24 rows passed, 7 failed — none
-shown to be a product defect; ratified by the user, #202), Step 10 in Runs 14–15 (2026-10-25; Run 15:
-27 passed, 3 failed, none a product defect), and Step 11's upload in Run 16 (2026-10-26; 19 passed, 3 failed,
-3 not measured, 4 recorded; two failures are a banner check that cannot tell the product from the wave's own
-page reads, one is an options-page timing bound with no cause stated), and Step 11b in Runs 17 and 17b (2026-10-27;
-Run 17b: 16 passed, 7 failed — rows carried from Run 16's uploads, on helper or sheet defects —, 3 not measured, 2
-recorded). Before that, live
-in-browser runs of 29 cases (2026-06-04), Phase C (13), Phase D (7) and
-Phase B (6) on 2026-09-03, the evaluate pass (20 of 22) and the network pass (15 of 15) on
-2026-09-07 — 6 runtime bugs found & fixed across them. Details in
-[`docs/progress-and-roadmap.md`](docs/progress-and-roadmap.md).
+What has been tested: the `.mcpb` packs and validates, and its server starts and lists the tools in a scratch run. The
+install into the Claude Desktop app itself is checked at the end of Step 15 and this line is updated with the result.
+macOS has not been tested with the `.mcpb`.
 
-*Corrected 2026-10-23 (Step 7 propagator): was "21 tools" and "542 unit tests green (2026-10-22; … its
-live E2E pending)"; as built Step 7 added `browser_focus_tab` and the tests, and both live waves ran
-(`docs/plans/2026-10-21-step7-multi-actor-tabs-asbuilt.md`).* *Corrected 2026-10-24 (Step 8 S7):
-was "22 tools" and "950 unit tests green in 59 files (2026-10-23)"; Step 8 added `browser_use_active_tab`,
-locators, the `Tab` API and failure reports
-(`docs/plans/2026-10-21-step8-sdk-surface-and-mcp-cursor-asbuilt.md`).* *Corrected 2026-10-24 (Step 9
-S5): was "1714 unit tests green in 85 files"; Step 9 added the safety controls and their tests
-(`docs/plans/2026-10-24-step9-phase-e-safety-asbuilt.md`).* *Corrected 2026-10-25 (Step 10 S8): was
-"2720 unit tests green in 116 files (… at `ba6029e`)" and "the run's ratification is open for the user";
-Step 10 added its features and tests (`docs/plans/2026-10-24-step10-step8-follow-ups-asbuilt.md`), and the
-user ruled Run 13 (#202).*
+### 3. Developers: the SDK, or a clone
 
-Merged to `main` and published as a public GitHub repo (2026-09-03). Licensed under MIT until 2026-11-08, now
-AGPL-3.0 with an Apache-2.0 SDK (below).
+- A script: `npm i browser-agent-bridge`, then `import { connect } from "browser-agent-bridge"`. The SDK is Apache-2.0.
+- A clone, for working on the bridge itself:
+
+  ```
+  git clone https://github.com/Capta1n-n9m0/browser-agent-bridge
+  cd browser-agent-bridge
+  npm run setup
+  ```
+
+  Setup works on Windows, macOS and Linux. The full walk-through, the manual install and how to write a script are in
+  [`docs/setup.md`](docs/setup.md).
+
+Requirements: Google Chrome 116 or newer. The code has branches for Windows, macOS and Linux, and a CI setup for all three (its first run on
+GitHub has not happened yet). Tested by hand so far: Windows (the author's machine), macOS (a friend's) and a Linux server reached over an SSH tunnel (this
+was before the pairing helper existed; the new install routes get their live check at the end of Step 15).
+
+## What the agent can do
+
+25 tools, all named `browser_*`: list and switch tabs, navigate, take a snapshot of the page as text with element
+references, click, type, press keys, scroll, hover, select options, wait, take screenshots, go back and forward, read
+the console, inspect network requests, download a file, upload a file from a folder you allow, and run JavaScript in
+the page. Several agents can work at once, each on its own tabs. Actions use background tabs by default, so Chrome
+does not jump around while an agent works.
+
+## Your controls
+
+These live in Chrome and only you can change them. The agent, the program on your machine and anything holding the
+token cannot.
+
+- **Kill switch.** The toolbar button (or `Alt+Shift+K`) turns the bridge off; every page call is refused until you
+  turn it back on. The badge says `OFF`.
+- **JavaScript switch.** Takes `browser_evaluate` away and keeps everything else.
+- **Block list.** Sites you name are off limits: no reading, no clicking, no navigating there, and redirects onto them
+  are stopped too. It is a rule for the agent's calls, not a firewall for your browser.
+- **Upload folders.** An agent can upload files only from folders you list. The list starts empty.
+- **No local files, no extension pages.** The bridge refuses `file:` pages and its own settings page.
+
+Details: [`docs/setup.md`](docs/setup.md#safety).
+
+## Security in plain words
+
+Short version; the full model is [`docs/security.md`](docs/security.md).
+
+- Whoever can drive the bridge can do what you can do in a signed-in tab. Treat it like handing someone your
+  keyboard.
+- The program listens on `127.0.0.1` only, so other computers cannot reach it, and it needs a secret token. The token
+  sits in a file in your user folder, readable by you.
+- The extension has no outside connections. It connects to the program on your machine and nowhere else.
+- What an agent reads from a page goes to the AI service you chose (for example Anthropic, for Claude), as it would if
+  you pasted the page into a chat. The bridge sends nothing anywhere itself and has no analytics.
+- The most powerful tool is `browser_evaluate`, which runs JavaScript with your login. You can switch it off.
+- Cookies never reach the extension, and sensitive headers are redacted before anything is stored.
+
+Privacy policy: [`docs/privacy.md`](docs/privacy.md).
+
+## Development
+
+The code is a TypeScript monorepo: `shared/` (protocol), `daemon/`, `sdk/`, `mcp/`, `extension/` and `scripts/`. Run
+`npm install`, `npm run build`, `npm test` and `npm run typecheck`. `CLAUDE.md` in the repo root and in each package
+explains the architecture and the measured gotchas. How the project got here, step by step:
+[`docs/history.md`](docs/history.md). What is next: [`docs/roadmap.md`](docs/roadmap.md). The manual test suite:
+[`docs/e2e-test-plan.md`](docs/e2e-test-plan.md). Changes per release: [`CHANGELOG.md`](CHANGELOG.md).
 
 ## License
 

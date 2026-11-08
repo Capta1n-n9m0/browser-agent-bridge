@@ -1,13 +1,65 @@
 # Setup & Usage
 
-This bridge lets an MCP client (e.g. Claude) drive your **real, logged-in Chrome**
-(default profile). It has three parts: a Node **daemon** that hosts a localhost WebSocket,
-a Chrome extension (loaded into your real profile) that connects to it, and the MCP server
-your client runs, which connects to the daemon as one of its clients.
+Browser Agent Bridge lets an MCP client (e.g. Claude) or a script drive your **real, logged-in Chrome** (default
+profile). It has three parts: a Node **daemon** that hosts a localhost WebSocket, a Chrome extension (in your real
+profile) that connects to it, and the MCP server your client runs, which connects to the daemon as one of its clients.
+You never start the daemon yourself.
+
+## Install
+
+Pick one of three routes. All need Google Chrome 116 or newer. The extension is the same in each.
+
+**The extension, for every route.** The Chrome Web Store listing is not live yet (it is submitted at the end of Step 15).
+Until it is, install the extension from the release zip:
+
+1. Download `browser-agent-bridge-extension-<version>.zip` from the project's GitHub Releases page and unzip it into a
+   folder you will keep.
+2. Open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and choose that folder.
+3. Pin the extension's toolbar button (puzzle-piece menu, pin). It is the kill switch, and so is `Alt+Shift+K`
+   ([Safety](#safety)).
+
+Once the listing is live, install **Browser Agent Bridge** from the store instead and skip steps 1 and 2. The zip
+and the store build share one extension ID, which is what lets the extension pair with no token typed.
+
+**Pairing.** An extension with no stored token asks a small helper on your computer for the token and port, and the
+helper answers only the extension with the fixed ID. The helper is registered by the MCP server on its first start
+(routes 1 and 2) or by `setup` (route 3). If the extension started first it retries on its own, after 30 seconds and
+then with longer waits up to 30 minutes; reload the extension at `chrome://extensions` to pair at once. If pairing is
+not possible, type the port and token by hand in the extension's Options page ([Manual install](#manual-install)).
+
+### Route 1: Claude Code
+
+Needs Node.js 20 or newer and the `claude` command.
+
+```
+claude mcp add browser-agent-bridge -- npx -y browser-agent-bridge
+```
+
+Then run `/mcp` in Claude Code, or start a new session. The first start creates the token in your per-user folder
+(Windows `%APPDATA%\browser-agent-bridge\`, macOS `~/Library/Application Support/browser-agent-bridge/`, Linux
+`$XDG_CONFIG_HOME` or `~/.config/browser-agent-bridge/`) and registers the helper. Ask Claude for `browser_status`: it
+should say the daemon and the extension are connected. Check with `npx browser-agent-bridge doctor`. Running
+`npx browser-agent-bridge setup` does the same registration from the terminal and also moves a clone's token.
+
+### Route 2: Claude Desktop
+
+Download `browser-agent-bridge-<version>.mcpb` from GitHub Releases and double-click it. Claude Desktop brings its own
+Node.js. Install the extension as above. The first start creates the token and registers the helper, as in route 1.
+Tested so far: the bundle packs and validates, and the server starts and lists 25 tools in a scratch run. The install
+into the Claude Desktop app is checked at the end of Step 15; macOS is untested for the `.mcpb`.
+
+### Route 3: Developers
+
+- **A script:** `npm i browser-agent-bridge`, then `import { connect } from "browser-agent-bridge"` (the SDK is its
+  main export, Apache-2.0). Run it with `tsx` or compile it. The token is found for you: `BRIDGE_TOKEN`, else the
+  per-user file. See [Writing a script](#writing-a-script).
+- **A clone:** the next section, [Install on a new device](#install-on-a-new-device), and the
+  [Manual install](#manual-install) below it.
 
 ## Install on a new device
 
-For a Windows device that has never run the bridge. Total time: a few minutes, most of it `npm ci` and the build.
+The developer route: a clone of this repository. Written for Windows; `npm run setup` also runs on macOS and Linux, and
+the [Manual install](#manual-install) shows each step. For a device that has never run the bridge. Total time: a few minutes, most of it `npm ci` and the build.
 
 **You need:** Node.js 20 or newer (with npm), git, Google Chrome 116 or newer. Claude Code is optional: without it
 the bridge still works for scripts, and setup prints the one command to register it later. Use PowerShell. The
