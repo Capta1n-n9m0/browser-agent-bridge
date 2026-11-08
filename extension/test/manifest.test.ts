@@ -31,7 +31,9 @@ const manifest = JSON.parse(readFileSync(fileURLToPath(new URL("../manifest.json
 const BEFORE: Record<string, unknown> = {
   manifest_version: 3,
   name: "Browser Agent Bridge",
-  version: "0.1.0",
+  // Since Step 15 S6 the version moves with each release (#447) and `npm run version:check` keeps it equal to the root
+  // package.json's; the pin follows that file instead of a literal.
+  version: (JSON.parse(readFileSync(fileURLToPath(new URL("../../package.json", import.meta.url)), "utf8")) as { version: string }).version,
   description: "Bridges your real Chrome profile to a local MCP server for AI agent control.",
   minimum_chrome_version: "116",
   background: { service_worker: "dist/sw.js", type: "module" },

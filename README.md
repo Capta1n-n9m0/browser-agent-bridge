@@ -30,7 +30,7 @@ only.
 
 Three routes. Pick the one that fits; they share the same extension and the same program.
 
-Status of this release (v0.2.0, in preparation): the Chrome Web Store listing is not live yet. Until it is, install the
+Status of this release (v0.2.0): the Chrome Web Store listing is under review, not live yet. Until it is, install the
 extension from the zip on the [GitHub Releases](https://github.com/Capta1n-n9m0/browser-agent-bridge/releases) page
 (steps in [`docs/setup.md`](docs/setup.md#route-1-claude-code)). The commands below work once the listing is live.
 
@@ -51,12 +51,8 @@ Check at any time with `npx browser-agent-bridge doctor`.
 
 ### 2. Claude Desktop
 
-Download `browser-agent-bridge-<version>.mcpb` from the GitHub Releases page and double-click it. Claude Desktop
-brings its own Node.js. Install the Chrome extension as in route 1.
-
-What has been tested: the `.mcpb` packs and validates, and its server starts and lists the tools in a scratch run. The
-install into the Claude Desktop app itself is checked before the v0.2.0 release and this line is updated with the result.
-macOS has not been tested with the `.mcpb`.
+Coming in a later release. Each release already carries a `.mcpb` bundle as a preview (it packs, validates and runs
+its server), but the current Claude Desktop settings have no page to install it from. Until then, use Claude Code.
 
 ### 3. Developers: the SDK, or a clone
 

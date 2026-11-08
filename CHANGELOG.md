@@ -4,7 +4,7 @@ Versions follow `vX.Y.Z`. The npm package, the extension and the Claude Desktop 
 
 ## 0.2.0
 
-Distribution: Browser Agent Bridge for people who do not work from a clone. Not released yet.
+Distribution: Browser Agent Bridge for people who do not work from a clone.
 
 - Renamed from "Chrome Agent Bridge" to **Browser Agent Bridge**. The MCP server is `browser-agent-bridge`, the state
   folder is `~/.browser-agent-bridge/`. Setup and doctor replace an old `chrome-agent-bridge` MCP entry.
@@ -14,7 +14,10 @@ Distribution: Browser Agent Bridge for people who do not work from a clone. Not 
 - A fixed extension ID, and pairing with no pasted token: a small helper registered per user answers only the
   extension's ID and returns the token and port. The Options page keeps manual entry. Fresh install means fresh
   extension storage: redo the block list, Upload folders and the JavaScript switch.
-- A Claude Desktop extension (`.mcpb`): double-click to install.
+- A Claude Desktop extension (`.mcpb`), attached to the release as a preview: it packs, validates and runs, but the
+  current Claude Desktop settings have no page to install it from, so the supported route is Claude Code. A Claude
+  Desktop install route follows in a later release.
+- The extension no longer requests `activeTab` (unused; `<all_urls>` covers it).
 - Setup and doctor work on Windows, macOS and Linux.
 - GitHub Actions: tests on three operating systems for every push; a `v*` tag builds the extension zip, the `.mcpb`
   and the npm package and creates the release.

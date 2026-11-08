@@ -43,10 +43,11 @@ should say the daemon and the extension are connected. Check with `npx browser-a
 
 ### Route 2: Claude Desktop
 
-Download `browser-agent-bridge-<version>.mcpb` from GitHub Releases and double-click it. Claude Desktop brings its own
-Node.js. Install the extension as above. The first start creates the token and registers the helper, as in route 1.
-Tested so far: the bundle packs and validates, and the server starts and lists 25 tools in a scratch run. The install
-into the Claude Desktop app is checked at the end of Step 15; macOS is untested for the `.mcpb`.
+Not supported yet. Each GitHub Release carries `browser-agent-bridge-<version>.mcpb` as a preview: the bundle packs and
+validates, and its server starts and lists 25 tools in a scratch run (the first start creates the token and registers
+the helper, as in route 1). But the current Claude Desktop settings (Customize: connectors, skills, plugins) have no
+page that installs a `.mcpb`, so it has not been installed into the app. A Claude Desktop route follows in a later
+release; until then use Claude Code (route 1).
 
 ### Route 3: Developers
 

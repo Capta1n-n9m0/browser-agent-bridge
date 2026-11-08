@@ -317,4 +317,16 @@ Chrome exited; the user reopens Chrome and the extension reconnects paired. Open
 client hands it over" against a same-version clone daemon that is in fact used as it is (wrong text). Not run here: the `.mcpb` in
 Claude Desktop (U5), macOS and Linux.
 
+**After S9 (2026-11-08):** the user approved the three store screenshots. Chrome reopened without the extension; the user
+loaded `extension/` unpacked by hand and it paired with no token typed (doctor: Daemon OK, Extension connected).
+
+**U5 — Claude Desktop has no `.mcpb` install page now (the user, 2026-11-08):** its settings moved to Customize, which adds
+connectors (an HTTPS MCP URL), skills (`SKILL.md`) and plugins (a `.zip` with `.claude-plugin/plugin.json`); none takes a
+`.mcpb`. v0.2.0 ships the `.mcpb` as a preview and the README, `docs/setup.md` and `CHANGELOG.md` name Claude Code as the
+supported route; a Claude Desktop route (likely a plugin) is for a later release.
+
+**S10 — release (the user's approval, 2026-11-08):** version 0.2.0 by `npm run version:set`; `extension/test/manifest.test.ts`
+now reads the version from the root `package.json` instead of pinning `0.1.0`; `npm test` 4333 passed;
+`npm run release:build -- --tag v0.2.0` passed locally.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
