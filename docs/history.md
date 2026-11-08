@@ -167,12 +167,24 @@ Minimal packaging for the user's other Windows devices.
 
 Decisions that still matter: the token reaches the extension through the clipboard and is never printed. The MCP entry is added with `claude mcp add` at user scope.
 
+## Step 15: distribution, v0.2.0 (2026-11-08)
+
+Browser Agent Bridge for people who don't clone the repo.
+
+- Renamed in code and docs; one npm package `browser-agent-bridge` (daemon, MCP server, SDK, doctor, native host).
+- A fixed extension ID from the store's key, and pairing through a native messaging host: no token typed.
+- Setup and doctor on Windows, macOS and Linux; CI on all three; a release pipeline on `v*` tags (GitHub Release, npm by trusted publishing).
+- License AGPL-3.0-only, the SDK Apache-2.0 (#450). A product-first README, `docs/security.md`, `docs/privacy.md`.
+- v0.2.0 released on GitHub and npm; the Web Store listing submitted by hand (Chrome lets no extension script the store), under review.
+
+Decisions that still matter: the store zip drops `key`, the release zip keeps it; Claude Code is the supported route, the `.mcpb` a preview.
+
 ## What the product is now
 
 - 25 tools, a daemon, an SDK, an MCP server and an extension.
 - The safety model above, enforced in the extension.
-- Public on GitHub under the MIT license.
-- On 2026-11-08 the user decided on the product name **Browser Agent Bridge**. The next step is Step 15, distribution. See `docs/roadmap.md`.
+- Public on GitHub under AGPL-3.0-only (the SDK Apache-2.0), on npm as `browser-agent-bridge`, the Web Store listing under review.
+- See `docs/roadmap.md` for what is next.
 
 ## How we worked
 

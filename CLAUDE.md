@@ -11,14 +11,12 @@ lets an AI agent (Claude) or a script drive the user's **real, logged-in Chrome 
 user-data-dir, breaking CDP-against-your-real-profile; this restores it from *inside* the profile via an
 extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chrome."
 
-## Current state (2026-11-08: v0.2.0 released; Step 15 waits on the Web Store submission)
+## Current state (2026-11-08: Step 15 done; v0.2.0 released; the Web Store review is pending)
 
-- **Step 15 resume point:** S0–S9 are done and pushed, and v0.2.0 is released: the GitHub Release (extension zip with
-  `key`, `.mcpb` preview, `.tgz`, checksums) and `browser-agent-bridge@0.2.0` on npm (trusted publishing, provenance). Left:
-  the Web Store submission (U3), driven through the bridge with the user watching; then the closeout. The six submission
-  files are in `build/store-upload/` (gitignored; rebuild with `npm run release:build` and copy if missing). Open: a Claude
-  Desktop install route (its settings no longer take a `.mcpb`, likely a plugin later); doctor's wrong "hands it over" text
-  against a same-version clone daemon.
+- **Step 15 is closed.** v0.2.0 is on GitHub Releases (extension zip with `key`, `.mcpb` preview, `.tgz`, checksums) and
+  npm (`browser-agent-bridge@0.2.0`, trusted publishing). The user submitted the Web Store listing by hand (Chrome lets no
+  extension script the store, so the bridge could not); it is under review. Next is the user's choice from
+  `docs/roadmap.md` § Ahead: the store review, a Claude Desktop route, macOS/Linux runs, small fixes.
 
 - **Shipped:** Steps 1–14, then v0.2.0 (Step 15): one npm package, per-user token, fixed extension ID
   `iifofgbdljchbdimlalhphmedfmocela` with pairing through the native host, CI on Windows, macOS and Linux, a release

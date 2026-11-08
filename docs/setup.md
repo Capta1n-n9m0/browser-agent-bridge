@@ -9,7 +9,7 @@ You never start the daemon yourself.
 
 Pick one of three routes. All need Google Chrome 116 or newer. The extension is the same in each.
 
-**The extension, for every route.** The Chrome Web Store listing is not live yet (it is submitted at the end of Step 15).
+**The extension, for every route.** The Chrome Web Store listing is under review, not live yet.
 Until it is, install the extension from the release zip:
 
 1. Download `browser-agent-bridge-extension-<version>.zip` from the project's GitHub Releases page and unzip it into a

@@ -2,31 +2,20 @@
 
 ## Where we are
 
-- Steps 1 to 14 are shipped. The project is public on GitHub under AGPL-3.0-only, with the SDK under Apache-2.0 (MIT until 2026-11-08, #450).
-- The product has 25 tools, a daemon, a TypeScript SDK, an MCP server and a Chrome MV3 extension.
-- It installs on Windows with `npm run setup`. The extension is loaded unpacked.
-- On 2026-11-08 the product was renamed **Browser Agent Bridge**.
-- Next is **Step 15: distribution** to a wider audience.
+- Steps 1 to 15 are shipped. **v0.2.0** is released (2026-11-08): the GitHub Release and `browser-agent-bridge` on npm. AGPL-3.0-only, the SDK Apache-2.0 (#450).
+- The product has 25 tools, a daemon, a TypeScript SDK, an MCP server and a Chrome MV3 extension with a fixed ID and pairing by native messaging.
+- The Chrome Web Store listing is submitted and under review. Until it is live, the extension installs from the release zip.
 
-## Ahead: Step 15, distribution (v0.2.0)
+## Ahead: on the way to v1.0.0
 
-The plan: `docs/plans/2026-11-08-step15-distribution.md`. What v1.0.0 means is our goal (§ v1, #448); the proposals are ruled (#449).
+What v1.0.0 means: § v1 of `docs/plans/2026-11-08-step15-distribution.md` (#448).
 
-These come from the user's rulings of 2026-11-08. The step's first audit proposes the details.
-
-- **Audience.** Less technical people first. The developer route (npm, the SDK, a clone) stays open.
-- **Platforms.** Windows, macOS and Linux. A run on macOS and a run on a Linux server over an SSH tunnel both worked.
-- **npm.** Publish the daemon, the MCP server and the SDK. The package is `browser-agent-bridge`, in the org `@browser-agent-bridge`.
-- **The extension.**
-  - A zip on GitHub Releases for the unpacked route.
-  - A public Chrome Web Store listing, signed by the store. No self-signed `.crx`.
-  - If the store refuses, the product stays on GitHub only.
-- **GitHub Releases** carry everything: the extension zip, the npm package and the installers.
-- **Installers for less technical people.** A Claude Desktop extension (`.mcpb`), a standalone program per OS, or both. The audit proposes which.
-- **A fixed extension ID.** It is required. With it, pairing without a pasted token (native messaging) is required for the non-technical path.
-- **Rename inside the code and docs.** The repo is already renamed. The name inside code, config and docs is Step 15 work.
-- **README.** Rewrite it about the product, with the security model in plain words. Development history becomes a short section near the end.
-- **Install steps.** They change with this step. The planned install test on another device is dropped, because the macOS and Linux runs cover it.
+- **The store review.** Answer it if it asks; if it refuses, the product stays on GitHub only. When it is live, update the README and `docs/setup.md` status lines.
+- **A Claude Desktop route.** Its settings no longer install a `.mcpb`; likely a plugin.
+- **macOS and Linux runs** of the S9 checklist (the user or a friend).
+- **Doctor text:** run from the package, it says "the next client hands it over" against a same-version clone daemon that is in fact used as it is.
+- **Screenshot error on a store page** names `activeTab`, which the extension no longer has; it should say the gallery cannot be scripted, as the other tools do.
+- **The `[chrome-bridge]` log prefix** the rename missed (cosmetic); `scripts/package/build.mjs` is not typechecked.
 
 ## Later
 
@@ -67,7 +56,7 @@ These come from the user's rulings of 2026-11-08. The step's first audit propose
 - Setup and update each keep their own npm lookup. Update prints "Already up to date." twice.
 - Several live-test rows from Runs 19 and 20 were not measured or not discriminating (DevTools open during an upload, a held-tab sweep). They need a better helper before they count.
 - A `subst` or mapped-drive folder in the Upload folders list may be refused. It was not measured live.
-- Packaging for macOS and Linux, a stable extension key, auto-update and a signed build were left out of Step 14. Step 15 now covers them.
+- Auto-update and signed standalone installers are not built (v1 item 6).
 
 ## Open questions
 

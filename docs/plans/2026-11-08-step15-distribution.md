@@ -1,6 +1,6 @@
 # Step 15 — Distribution: Browser Agent Bridge for everyone (v0.2.0)
 
-**Date:** 2026-11-08 · **Status:** Planned · **Builds on:** decisions.md · 2026-11-08 · Distribution to a wider
+**Date:** 2026-11-08 · **Status:** Done (the Web Store review is pending) · **Builds on:** decisions.md · 2026-11-08 · Distribution to a wider
 audience: the shape of Step 15 (#445); The product is renamed Browser Agent Bridge (#444); Running over the network
 waits for a later phase (#443); Lean mode (#446); Versions are tagged vX.Y.Z (#447); v1.0.0 is our goal (#448); The
 user rules Step 15's proposals (#449)
@@ -338,5 +338,24 @@ ran from a scratch folder. The Web Store submission (U3) is next.
 **Paused (2026-11-08):** the session ended before U3. The submission files are gathered in `build/store-upload/`; the next
 session reconnects the MCP server (this session's predated the per-user token), has the user allow that folder and file
 URLs, and fills the dashboard through the bridge (`docs/plans/next-session-prompt.md`).
+
+**U3 — the store submission, sent by the user (2026-11-08):** Chrome refuses every extension on the Web Store, the
+developer dashboard included (`chrome.google.com/webstore/devconsole`): content script ("The extensions gallery cannot be
+scripted"), `chrome.debugger` and screenshots all failed, so the bridge could not fill it. Chrome 156 has no
+`--allow-scripting-gallery` switch; the user declined an untested `--apps-gallery-url` restart. The user filled the
+dashboard by hand from `docs/store-listing.md` and the files in `build/store-upload/` (store zip 0.2.0: no `key`, ten
+permissions plus `<all_urls>`, checked), test instructions written in the session, the optional 1400×560 marquee tile
+skipped, and clicked Submit for review. Pending review. Found: on a store page the screenshot error names `activeTab`,
+which the extension no longer has (roadmap).
+
+**Exit checks (2026-11-08):**
+- `npm test` 4334 passed, `npm run typecheck` exit 0, `npm run build` green; CI green on all three OSes (§ CI on GitHub, S10).
+- `git grep -i chrome-agent-bridge`: migration code, its tests, history and the docs naming the migration only.
+- Scratch-folder install of the packed package ran the MCP server, an SDK script and doctor (S2, S9 row 4).
+- A fresh install paired with no typed token, the token 0 times in output (S9 rows 2–4).
+- Versions equal by test (`version:check`, `extension/test/manifest.test.ts`).
+- The `v0.2.0` tag produced the GitHub Release with the zip, `.mcpb` and tarball (S10).
+- The user approved the README, listing text, icons and screenshots.
+- The store submission is sent (U3 above).
 
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.

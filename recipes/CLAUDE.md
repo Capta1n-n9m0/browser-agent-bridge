@@ -14,6 +14,9 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   2026-11-08; gotchas below that name them are still measured facts about Chrome and Windows.
 
 ## Runtime gotchas (live runs, Windows tooling, driving Chrome from the outside)
+- **The bridge cannot drive the Web Store or its developer dashboard** (Chrome 156, 2026-11-08): on
+  `chrome.google.com/webstore/devconsole` scripting, `chrome.debugger` ("The extensions gallery cannot be scripted") and
+  capture all fail, and Chrome 156 has no `--allow-scripting-gallery`. Store submissions are done by hand.
 - **Windows PowerShell 5.1 mangles `—`** (U+2014): it decodes program output with the console code
   page and writes `Add-Content`/`Set-Content` in ANSI, so `—` becomes `â€"` (D6 fixer; again in W1,
   2026-10-22). Set `[Console]::OutputEncoding = [Text.Encoding]::UTF8`, read with `-Encoding UTF8`, and
