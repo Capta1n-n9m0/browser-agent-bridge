@@ -8,7 +8,9 @@
 - On 2026-11-08 the product was renamed **Browser Agent Bridge**.
 - Next is **Step 15: distribution** to a wider audience.
 
-## Ahead: Step 15, distribution
+## Ahead: Step 15, distribution (v0.2.0)
+
+The plan: `docs/plans/2026-11-08-step15-distribution.md`. What v1.0.0 means is proposed there (§ v1, open decision #448).
 
 These come from the user's rulings of 2026-11-08. The step's first audit proposes the details.
 

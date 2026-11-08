@@ -9,7 +9,11 @@ Earlier decisions are in `docs/specs/`.
 
 ## Open decisions
 
-None.
+- **What v1.0.0 means (#448).** Proposed in `docs/plans/2026-11-08-step15-distribution.md` § v1: a stranger installs
+  it on any of the three OSes without help and without typing a token; the public surface (MCP tools, SDK API, wire
+  protocol, error codes) is stable and versioned; the security model is written and reviewed once; CI on all three
+  OSes builds every release; no known safety bug open; signed standalone installers only if the user wants them for
+  v1. **Recommendation:** accept as written. **For:** the user.
 
 ## Standing decisions
 
@@ -153,7 +157,13 @@ None.
 
 ## Log
 
-The next entry is 447.
+The next entry is 449.
+
+### 2026-11-08 · Versions are tagged vX.Y.Z (#447)
+**Decided (user):** releases are tagged `vX.Y.Z` (semantic versioning). The npm package, the extension manifest, the
+`.mcpb` and the tag carry the same number. `v0.1.0` marks the state after Steps 1–14 (pushed 2026-11-08); Step 15
+releases `v0.2.0`; v1.0.0 waits for #448. **Why:** one number tells a user which pieces belong together.
+**By:** user
 
 ### 2026-11-08 · Lean mode: checks by risk, hand-backs instead of report files, records archived (#446)
 **Decided (user):** from Step 15 on, checking follows risk (`docs/agent-rules.md` §4): safety code keeps a builder,
