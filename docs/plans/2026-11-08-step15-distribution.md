@@ -193,7 +193,18 @@ numbers are never reused, #79; old logs are not moved); the private `@bridge/*` 
 (`scripts/bridge/lib.mjs` `LEGACY_SERVER_NAMES`, `daemon/src/log.ts` `legacyStateDirs`, `recipes/reload-extension.ps1`), history, and one-line notes.
 User action: `npm run setup` (swaps the real `~/.claude.json` entry), then `/mcp` or a fresh session, then reload the extension.
 
-**S2 — not started (2026-11-08):** the first session was paused while S2's builder was still reading files. It made
-no edits and no commit. Start S2 again with a fresh step agent.
+**S2 — done (commit `e9464d0`, not pushed):** token lookup per #449 (`BRIDGE_TOKEN`, the per-user file, then a clone's
+`bridge.token`, which the installed package never reads); the daemon found by `BRIDGE_DAEMON`, then `<package>/dist/daemon.js`,
+then the clone layout, from the module's own folder, never the cwd. `npm run build:npm` / `pack:npm` write a gitignored
+`build/npm/` (esbuild bundles: SDK as main export with types, MCP server, daemon, doctor; bins `browser-agent-bridge` and
+`browser-agent-bridge-doctor`; runtime dependency `ws` only); the root `package.json` stays private. License
+`AGPL-3.0-only AND Apache-2.0` with both texts, `LICENSES.md` and third-party notices (#450). `npm test` 4123 → 4153 passed;
+typecheck and build green. Independent Opus verifier: PASS; two MINOR fixed (log scan covers `scripts/bridge/lib.mjs`; a
+`sdk/src/token.ts` comment). Two scratch installs of the tarball (throwaway token, ports 9277 and 9281): the MCP server
+listed 25 tools, an SDK script and doctor ran, the token appeared 0 times in output, log, argv and the tarball; a planted
+`bridge.token` and fake daemon in the scratch project were ignored. Left for S3: setup is not in the package and moving a repo
+token to the per-user file; `claudeConfigPath` (`scripts/bridge/lib.mjs`) always builds a Windows path; a clone daemon and a
+package daemon have different build ids and would hand the port back and forth (read from the code, not run). Left for
+later: the `[chrome-bridge]` log prefix the S1 rename missed (cosmetic); `scripts/package/build.mjs` is not typechecked.
 
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
