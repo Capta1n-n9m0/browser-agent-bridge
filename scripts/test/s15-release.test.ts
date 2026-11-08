@@ -26,6 +26,11 @@ describe("the repo's versions agree", () => {
     for (const s of scripts) expect(LIFECYCLE_NAMES).not.toContain(s);
     expect(scripts).not.toContain("version");
   });
+  it("release.yml publishes the tarball by a ./ path (npm reads `dir/file.tgz` as a GitHub owner/repo; v0.2.0's first run)", () => {
+    const publish = read(".github/workflows/release.yml").split("\n").filter((l) => /\bnpm publish\b/.test(l) && /run:/.test(l));
+    expect(publish.length).toBe(1);
+    expect(publish[0]).toMatch(/npm publish "\.\/[^"]+\.tgz"/);
+  });
 });
 
 describe("versionMismatches", () => {
