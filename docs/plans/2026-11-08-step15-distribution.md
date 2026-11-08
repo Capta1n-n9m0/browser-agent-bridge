@@ -178,4 +178,16 @@ v1, or as v1.x features if they don't break the surface.
 5. **npm trusted publishing.** On npmjs.com: package settings, Trusted Publisher, GitHub Actions; enter owner, repo, workflow file name and an optional environment; choose publish. The job needs `id-token: write`, npm CLI 11.5.1 or newer and Node 22.14 or newer. Provenance is automatic. Self-hosted runners are not supported. The package must already exist: `browser-agent-bridge@0.0.1` is on npm (`npm view`, 2026-11-08), so U4 can be done now. Source: docs.npmjs.com/trusted-publishers.
 6. **Loading unpacked in a scratch profile.** Chrome 137 removed `--load-extension` from branded builds (Chromium groups PSA). Chrome for Testing and Chromium still have it. In branded Chrome, a scratch profile loads the extension by hand: `chrome://extensions` → Load unpacked. This changes how S9 runs (not a stage change; not tested here).
 
+**U4 — done (2026-11-08, by the user):** npm trusted publishing set for `browser-agent-bridge`: GitHub Actions,
+`Capta1n-n9m0/browser-agent-bridge`, workflow `release.yml`, publish and dist-tag allowed. S6 creates `release.yml`.
+
+**S1 — done (commit `2510afc`, not pushed):** the old name is gone from code, the MCP server name, the manifest name, the
+root package name, the README, docs and CLAUDE.md files. `npm test` 4112 → 4123 passed (11 new, each written to fail first);
+typecheck, `recipes` typecheck and build green. Choices: setup always replaces an old `chrome-agent-bridge` entry; the state
+folder moved to `~/.browser-agent-bridge/` (the daemon reads the old folder's handle mark when the new one is empty, so handle
+numbers are never reused, #79; old logs are not moved); the private `@bridge/*` names stay; `test-fixtures/dl/hello.txt` is
+70 bytes now and `docs/e2e-test-plan.md` has the new size and sha256. Legacy names remain only in migration code
+(`scripts/bridge/lib.mjs` `LEGACY_SERVER_NAMES`, `daemon/src/log.ts` `legacyStateDirs`, `recipes/reload-extension.ps1`), history, and one-line notes.
+User action: `npm run setup` (swaps the real `~/.claude.json` entry), then `/mcp` or a fresh session, then reload the extension.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
