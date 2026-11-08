@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Chrome Agent Bridge",
+  "name": "Browser Agent Bridge",
   "version": "0.1.0",
   "description": "Bridges your real Chrome profile to a local MCP server for AI agent control.",
   "minimum_chrome_version": "116",
@@ -8,6 +8,6 @@
   "permissions": ["debugger", "tabs", "scripting", "activeTab", "alarms", "storage", "offscreen", "webRequest", "declarativeNetRequestWithHostAccess", "webNavigation"],
   "host_permissions": ["<all_urls>"],
   "options_page": "options.html",
-  "action": { "default_title": "Chrome Agent Bridge" },
+  "action": { "default_title": "Browser Agent Bridge" },
   "commands": { "_execute_action": { "suggested_key": { "default": "Alt+Shift+K" } } }
 }

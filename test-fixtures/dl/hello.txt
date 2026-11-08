@@ -1,1 +1,1 @@
-chrome-agent-bridge DL fixture v1 - browser_download E2E (DL-1, DL-2)
+browser-agent-bridge DL fixture v1 - browser_download E2E (DL-1, DL-2)

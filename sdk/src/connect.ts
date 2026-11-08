@@ -13,7 +13,7 @@ export const DEFAULT_PORT = 9234;
 export const DEFAULT_WAIT_FOR_EXTENSION_MS = 15_000;
 /** Today's text from the MCP's `Bridge` (daemon/src/bridge.ts), kept as the exact prefix. */
 export const EXTENSION_NOT_CONNECTED =
-  "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled?";
+  "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled?";
 
 export interface ConnectOptions {
   /** The actor name the daemon logs and lists (e.g. "export-grades.ts", "claude-code #1234"). */
@@ -38,7 +38,7 @@ export interface ConnectOptions {
    * Default true: when a `Tab` call (or a client method mirroring one) fails with
    * `LOCATOR_NOT_FOUND LOCATOR_AMBIGUOUS REF_STALE OFFSCREEN PAGE_ERROR NAV_FAILED TIMEOUT`, the SDK
    * attaches a snapshot, a screenshot path (`BRIDGE_FAILURES_DIR`, else
-   * `~/.chrome-agent-bridge/failures/`) and the tab's last 20 network entries to the error within 5 s,
+   * `~/.browser-agent-bridge/failures/`) and the tab's last 20 network entries to the error within 5 s,
    * with `error.report()`. The default-mode screenshot shows the tab for about 1.5 s. The attached
    * snapshot renumbers the tab's refs, as a script's own `snapshot()` does: after a failure, refs from
    * before it are void — use the refs in `error.snapshot` (the `candidates`/`matches` refs in

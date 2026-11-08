@@ -402,7 +402,7 @@ export function registerTools(
         `Clients (${status.clients.length}): ${status.clients.map((c) => c.name).join(", ")}`,
       ];
       if (!status.extensionConnected) {
-        lines.push("Extension: not connected — is Chrome open with the Chrome Agent Bridge extension enabled and its token/port set?");
+        lines.push("Extension: not connected — is Chrome open with the Browser Agent Bridge extension enabled and its token/port set?");
         return text(lines.join("\n"));
       }
       lines.push("Extension: connected");

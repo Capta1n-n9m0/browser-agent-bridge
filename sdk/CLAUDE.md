@@ -71,7 +71,7 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   REP-0, with blue/magenta controls; decisions.md · 2026-10-23 · A probe of the failure-report screenshot
   runs before any row that could attach a non-fixture tab (#97)). On a fully covered window the 5 s cut
   ends the SDK's wait, not the extension's switch (the failed tab may stay in front ~30 s, R9-RESTORE).
-  PNGs go to `BRIDGE_FAILURES_DIR`, else `~/.chrome-agent-bridge/failures/` — outside the repo; a
+  PNGs go to `BRIDGE_FAILURES_DIR`, else `~/.browser-agent-bridge/failures/` — outside the repo; a
   script on a real site's private pages passes `connect({failureReports: false})`, as
   `recipes/blackboard/boot-bb.ts` and `export-grades.ts` do.
 - **On Windows `spawn(…, {detached: true})` keeps the child in the parent's process tree** — Windows

@@ -1,4 +1,4 @@
-# recipes/reload-extension.ps1: reload the unpacked "Chrome Agent Bridge" extension in the user's
+# recipes/reload-extension.ps1: reload the unpacked "Browser Agent Bridge" extension in the user's
 # running Chrome by Windows UI Automation (Windows PowerShell 5.1). Written 2026-10-23, stage
 # RELOAD-AUTO (decisions.md 2026-10-23 #64).
 #
@@ -11,7 +11,7 @@
 #      chrome:// URL on the command line) and navigates it to chrome://extensions through that
 #      window's own address bar (UIA SetValue, then one Enter key only while that window is in the
 #      foreground and its address bar has the keyboard focus).
-#   3. Finds the card whose name is "Chrome Agent Bridge" AND whose ID line is that ID, and in it the
+#   3. Finds the card whose name is "Browser Agent Bridge" AND whose ID line is that ID, and in it the
 #      one button with AutomationId "dev-reload-button" (the card's reload arrow) whose parent is the
 #      page's extension list. Any doubt (no card, two cards, no button, two buttons, wrong page) ->
 #      it presses nothing and exits 2.
@@ -34,7 +34,9 @@
 # `npx tsx recipes/t5.ts check`, docs/e2e-test-plan.md section 1 item 9).
 param(
   [string]$ExtensionDir = (Join-Path (Split-Path -Parent $PSScriptRoot) 'extension'),
-  [string]$Name = 'Chrome Agent Bridge',
+  [string]$Name = 'Browser Agent Bridge',
+  # The name before the rename (Step 15 S1): a card still showing it, until its first reload, also matches.
+  [string[]]$OldNames = @('Chrome Agent Bridge'),
   [string]$ExtensionId = '',
   [int]$TimeoutSec = 15,
   [switch]$DryRun
@@ -114,7 +116,7 @@ function Find-Card($root, [string]$id) {
   for ($k = 0; $k -lt $starts.Count; $k++) {
     $s = $starts[$k]; $e = if ($k + 1 -lt $starts.Count) { $starts[$k + 1] } else { $all.Count }
     $span = @($all[$s..($e - 1)])
-    if ($all[$s].Current.Name -ne $Name) { continue }
+    if ($all[$s].Current.Name -ne $Name -and $OldNames -notcontains $all[$s].Current.Name) { continue }
     $idText = @($span | Where-Object { $_.Current.Name -match "(^|\s)$id$" })
     $cards += ,@{ Span = $span; HasId = ($idText.Count -eq 1) }
   }
@@ -140,7 +142,7 @@ $chrome = Get-ChromeExe
 if (-not $chrome) { Quit 2 'chrome.exe not found - nothing pressed' }
 if (-not (Get-Process chrome -ErrorAction SilentlyContinue)) { Quit 2 'Chrome is not running; this recipe never starts it (it would restore the user''s session) - nothing pressed' }
 
-$log = Join-Path $HOME '.chrome-agent-bridge\daemon.log'
+$log = Join-Path $HOME '.browser-agent-bridge\daemon.log'
 $daemon = @(Get-CimInstance Win32_Process -Filter "Name='node.exe'" | Where-Object { $_.CommandLine -match 'daemon[\\/]dist[\\/]index\.js' })
 $logLines = if (Test-Path $log) { @(Get-Content $log -Encoding UTF8).Count } else { 0 }
 Say ("daemon running: " + $(if ($daemon.Count) { "yes (pid $($daemon[0].ProcessId))" } else { 'no - only the UIA check will verify the reload' }))

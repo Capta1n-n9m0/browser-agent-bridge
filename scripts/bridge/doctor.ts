@@ -26,7 +26,7 @@ const tokenFile = read(at("bridge.token"))?.trim() || null;
 let cfg: any = {};
 try { cfg = JSON.parse(read(lib.claudeConfigPath(process.env, os.homedir())) ?? "{}"); } catch { cfg = null; }
 const mcp = cfg ? lib.mcpDecision(cfg, repo, { tokenFile }) : null;
-const entryEnv = cfg?.mcpServers?.[lib.SERVER_NAME]?.env ?? {};
+const entryEnv = lib.mcpEntry(cfg)?.env ?? {};
 // What the MCP uses: the entry's env wins over bridge.token and 9234 (sdk/src/token.ts, connect.ts).
 const mcpToken: string | null = typeof entryEnv.BRIDGE_TOKEN === "string" ? entryEnv.BRIDGE_TOKEN.trim() : tokenFile;
 const mcpPort = String(entryEnv.BRIDGE_PORT ?? lib.PORT);
@@ -58,7 +58,7 @@ async function probe(): Promise<lib.DaemonFact> {
 }
 
 const daemon = await probe();
-const log = read(path.join(os.homedir(), ".chrome-agent-bridge", "daemon.log")) ?? "";
+const log = read(path.join(os.homedir(), ".browser-agent-bridge", "daemon.log")) ?? "";
 const lines = lib.doctorLines({
   node: process.versions.node,
   build: { missing: outputs.some((m) => m === null), stale: lib.buildNeeded(outputs, inputs) },

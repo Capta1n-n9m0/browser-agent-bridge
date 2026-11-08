@@ -1,5 +1,5 @@
 {
-  "name": "chrome-remote-extention",
+  "name": "browser-agent-bridge",
   "private": true,
   "version": "0.1.0",
   "license": "MIT",

@@ -88,7 +88,7 @@ describe("route — forwarding", () => {
       id: "a",
       error: {
         code: "NOT_CONNECTED",
-        message: "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled?",
+        message: "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled?",
       },
     });
   });

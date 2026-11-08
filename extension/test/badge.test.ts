@@ -25,7 +25,7 @@ describe("badgeOf — #143's three states, OFF wins, fail closed", () => {
       expect(badgeOf({ kind: "state", armed: false, evaluate })).toEqual({
         text: "OFF",
         color: BADGE_COLORS.off,
-        title: "Chrome Agent Bridge — OFF: agents are refused (click to turn on)",
+        title: "Browser Agent Bridge — OFF: agents are refused (click to turn on)",
       });
     }
   });
@@ -34,14 +34,14 @@ describe("badgeOf — #143's three states, OFF wins, fail closed", () => {
     expect(badgeOf({ kind: "state", armed: true, evaluate: false })).toEqual({
       text: "JS",
       color: BADGE_COLORS.js,
-      title: "Chrome Agent Bridge — armed, JavaScript off (click to turn off)",
+      title: "Browser Agent Bridge — armed, JavaScript off (click to turn off)",
     });
   });
 
   it("armed → no badge, the exact #143 title", () => {
     const b = badgeOf({ kind: "state", armed: true, evaluate: true });
     expect(b.text).toBe("");
-    expect(b.title).toBe("Chrome Agent Bridge — armed (click to turn off)");
+    expect(b.title).toBe("Browser Agent Bridge — armed (click to turn off)");
   });
 
   it("an unreadable state → OFF, with a title saying it cannot be read", () => {
@@ -71,7 +71,7 @@ describe("badgeOf — #143's three states, OFF wins, fail closed", () => {
 
   it("every title starts with the extension's name and the three #143 titles are distinct", () => {
     const all = Object.values(BADGE_TITLES);
-    for (const t of all) expect(t.startsWith("Chrome Agent Bridge — ")).toBe(true);
+    for (const t of all) expect(t.startsWith("Browser Agent Bridge — ")).toBe(true);
     expect(new Set(all).size).toBe(all.length);
   });
 

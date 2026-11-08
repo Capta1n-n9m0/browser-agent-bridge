@@ -151,7 +151,7 @@ describe("knock — the §0.7 state machine", () => {
     const realElapsed = performance.now() - realStart;
 
     expect(err.code).toBe(ErrorCodes.NOT_CONNECTED);
-    expect(err.message).toContain("~/.chrome-agent-bridge/daemon.log");
+    expect(err.message).toContain("~/.browser-agent-bridge/daemon.log");
     expect(err.message).toContain(String(PORT));
     expect(s.clock.now()).toBeGreaterThanOrEqual(10_000);
     expect(s.clock.now()).toBeLessThan(10_000 + 250 + 1);
@@ -265,7 +265,7 @@ describe("knock — the §0.7 state machine", () => {
     const err = await rejection(s.run());
     expect(err.code).toBe(ErrorCodes.NOT_CONNECTED);
     expect(err.message).toContain("ETIMEDOUT");
-    expect(err.message).toContain("~/.chrome-agent-bridge/daemon.log");
+    expect(err.message).toContain("~/.browser-agent-bridge/daemon.log");
     expect(err.message).toContain(String(PORT));
     expect(s.spawnDaemon).not.toHaveBeenCalled();
     expect(s.clock.now()).toBeGreaterThanOrEqual(10_000);
@@ -278,7 +278,7 @@ describe("knock — the §0.7 state machine", () => {
     expect(err.code).toBe(ErrorCodes.NOT_CONNECTED);
     expect(s.clock.now()).toBeGreaterThanOrEqual(1_000 + 10_000);
     expect(s.clock.now()).toBeLessThan(1_000 + 10_000 + 250 + 1);
-    expect(err.message).toContain("~/.chrome-agent-bridge/daemon.log");
+    expect(err.message).toContain("~/.browser-agent-bridge/daemon.log");
     expect(err.message).toContain(String(PORT));
     expect(err.message).toContain("within 10 s of asking the old daemon to step down");
     expect(shutdownsSent(s.conns)).toBe(1);

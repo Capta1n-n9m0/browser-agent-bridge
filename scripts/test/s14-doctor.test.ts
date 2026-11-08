@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 import { doctorLines, extensionOlder, formatLine, lastResyncMs, mcpDecision } from "../bridge/lib.mjs";
 
 const REPO = "C:\\Users\\x\\Projects\\bridge";
-const okEntry = { mcpServers: { "chrome-agent-bridge": { command: "node", args: [`${REPO}\\mcp\\dist\\index.js`] } } };
+const okEntry = { mcpServers: { "browser-agent-bridge": { command: "node", args: [`${REPO}\\mcp\\dist\\index.js`] } } };
 const green = {
   node: "22.11.0", build: { missing: false, stale: false }, token: "ok" as const,
   mcp: mcpDecision(okEntry, REPO, { tokenFile: "T1" }), shellToken: "none" as const, shellPort: "none" as const,
@@ -28,7 +28,7 @@ describe("doctor verdict lines", () => {
     ["Token file", { token: "missing" }, /npm run setup/],
     ["MCP entry", { mcp: null }, /\.claude\.json/],
     ["MCP entry", { mcp: mcpDecision({}, REPO, { tokenFile: "T1" }) }, /npm run setup$/],
-    ["MCP entry", { mcp: mcpDecision({ mcpServers: { "chrome-agent-bridge": { command: "node", args: ["D:\\old\\i.js"] } } },
+    ["MCP entry", { mcp: mcpDecision({ mcpServers: { "browser-agent-bridge": { command: "node", args: ["D:\\old\\i.js"] } } },
       REPO, { tokenFile: "T1" }) }, /--replace-mcp/],
     ["Daemon", { daemon: { state: "refused" } }, /token/],
     ["Daemon", { daemon: { state: "error", detail: "ETIMEDOUT" } }, /9234/],
@@ -44,7 +44,22 @@ describe("doctor verdict lines", () => {
     const bad = lines.filter((l) => l.level === "fail");
     expect(bad.map((l) => l.name)).toEqual(["MCP entry's token", "Local MCP entry", "Shell BRIDGE_TOKEN", "Shell BRIDGE_PORT"]);
     expect(bad.every((l) => l.fix.length > 0 && /differs|wins/.test(l.detail))).toBe(true);
-    expect(bad[1].fix).toContain("claude mcp remove -s local chrome-agent-bridge");
+    expect(bad[1].fix).toContain("claude mcp remove -s local browser-agent-bridge");
+  });
+  it("an old chrome-agent-bridge entry fails with setup as the fix; alone, it replaces the MCP entry line", () => {
+    const old = mcpDecision({ mcpServers: { "chrome-agent-bridge": okEntry.mcpServers["browser-agent-bridge"] } }, REPO, { tokenFile: "T1" });
+    const lines = doctorLines({ ...green, mcp: old });
+    expect(lines.find((l) => l.name === "MCP entry")).toMatchObject({ level: "fail",
+      detail: expect.stringMatching(/chrome-agent-bridge.*old name/), fix: expect.stringMatching(/npm run setup.*browser-agent-bridge/) });
+    expect(lines.filter((l) => l.name === "MCP entry")).toHaveLength(1);
+    const both = mcpDecision({ mcpServers: { ...okEntry.mcpServers, "chrome-agent-bridge": { command: "node", args: ["D:\\o.js"] } } },
+      REPO, { tokenFile: "T1" });
+    const l2 = doctorLines({ ...green, mcp: both });
+    expect(l2.find((l) => l.name === "MCP entry")).toMatchObject({ level: "ok" });
+    expect(l2.find((l) => l.name === "Old MCP entry")).toMatchObject({ level: "fail", fix: expect.stringMatching(/npm run setup/) });
+    const local = mcpDecision({ ...okEntry, projects: { "C:/w": { mcpServers: { "chrome-agent-bridge": {} } } } }, REPO, { tokenFile: "T1" });
+    expect(doctorLines({ ...green, mcp: local }).find((l) => l.name === "Local MCP entry")!.fix)
+      .toContain("claude mcp remove -s local chrome-agent-bridge");
   });
   it("same-valued copies never fail; the entry's equal token is OK (R4.1), the env entry optional", () => {
     const lines = doctorLines({ ...green, mcp: { ...green.mcp, envToken: "same" }, shellToken: "same", shellPort: "same" });
@@ -52,7 +67,7 @@ describe("doctor verdict lines", () => {
     expect(lines.find((l) => l.name === "MCP entry's token")).toMatchObject({ level: "ok", detail: expect.stringMatching(/equals bridge\.token.*optional/) });
   });
   it("no bridge.token: the entry's token is used, never 'differs'; the fix is setup, not removing it", () => {
-    const mcp = mcpDecision({ mcpServers: { "chrome-agent-bridge": { ...okEntry.mcpServers["chrome-agent-bridge"], env: { BRIDGE_TOKEN: "x" } } } },
+    const mcp = mcpDecision({ mcpServers: { "browser-agent-bridge": { ...okEntry.mcpServers["browser-agent-bridge"], env: { BRIDGE_TOKEN: "x" } } } },
       REPO, { tokenFile: null });
     expect(mcp.envToken).toBe("nofile");
     const l = at({ token: "missing", mcp }, "MCP entry's token")!;

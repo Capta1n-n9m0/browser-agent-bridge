@@ -88,9 +88,14 @@ if (cfg) {
   if (!claude && d.action !== "leave") say("The claude CLI is not on PATH: install Claude Code (claude.com/claude-code), then:");
   if (d.action === "leave") say(`${lib.SERVER_NAME} already points at this checkout: left as it is.`);
   if (d.action === "report") say(`${lib.SERVER_NAME} points at ${d.existing}, not this checkout. Left as it is; run npm run setup -- --replace-mcp to replace it.`);
-  if (d.action === "replace") claudeRun(lib.MCP_REMOVE_ARGV);
+  for (const name of d.legacy) {
+    say(`Replacing the old ${name} entry with ${lib.SERVER_NAME} (the product's new name).`);
+    claudeRun(lib.mcpRemoveArgv(name));
+  }
+  if (d.action === "replace" && d.current) claudeRun(lib.MCP_REMOVE_ARGV);
   if (d.action === "add" || d.action === "replace") claudeRun(addArgv);
   for (const dir of d.localLeftovers) say(`A local-scope ${lib.SERVER_NAME} entry for ${dir} wins there: in that folder run claude mcp remove -s local ${lib.SERVER_NAME}`);
+  for (const { dir, name } of d.legacyLocal) say(`A local-scope ${name} entry (the old name) for ${dir} runs there: in that folder run claude mcp remove -s local ${name}`);
   if (d.envToken === "differs") say("The entry's env BRIDGE_TOKEN differs from bridge.token and wins over it: remove BRIDGE_TOKEN from the entry.");
   if (d.envToken === "same") say("The entry's env BRIDGE_TOKEN equals bridge.token (it is not needed there).");
 }

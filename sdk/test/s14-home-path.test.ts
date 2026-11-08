@@ -8,13 +8,13 @@ const WIN = "C:\\Users\\someone";
 
 describe("the Screenshot line shows the home folder as ~", () => {
   it("a Windows home path prints ~\\…, case-insensitively and with either separator", () => {
-    expect(homeAsTilde(`${WIN}\\.chrome-agent-bridge\\failures\\a.png`, WIN)).toBe("~\\.chrome-agent-bridge\\failures\\a.png");
+    expect(homeAsTilde(`${WIN}\\.browser-agent-bridge\\failures\\a.png`, WIN)).toBe("~\\.browser-agent-bridge\\failures\\a.png");
     expect(homeAsTilde("c:/users/SOMEONE/x/a.png", WIN)).toBe("~\\x\\a.png");
     expect(homeAsTilde(`${WIN}\\x.png`, `${WIN}\\`)).toBe("~\\x.png");
   });
   it("a home with a letter whose lower case is longer (U+0130) keeps the path's leading dot", () => {
     const home = "C:\\Users\\İlham";
-    expect(homeAsTilde(`${home}\\.chrome-agent-bridge\\failures\\a.png`, home)).toBe("~\\.chrome-agent-bridge\\failures\\a.png");
+    expect(homeAsTilde(`${home}\\.browser-agent-bridge\\failures\\a.png`, home)).toBe("~\\.browser-agent-bridge\\failures\\a.png");
     expect(homeAsTilde("c:/USERS/İlham/.x/a.png", home)).toBe("~\\.x\\a.png");
   });
   it("a POSIX home prints ~/… and is case-sensitive", () => {

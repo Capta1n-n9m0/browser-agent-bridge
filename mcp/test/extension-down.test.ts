@@ -22,7 +22,7 @@ import { registerTools } from "../src/tools/registry.js";
 const TOKEN = "d5b-test-token-SENTINEL";
 const BUILD = "d5b-build";
 const BASELINE_NOT_CONNECTED =
-  "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled?";
+  "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled?";
 
 /** Manual timers: the link's 5 s tick fires only when the test says so. */
 function manualTimers() {
@@ -164,7 +164,7 @@ describe("MCP over a real SDK client with the extension down (D5b)", () => {
     const status = textOf(await tool(server, "browser_status")({}, {}));
     expect(status).toMatch(new RegExp(`^Daemon: connected on 127\\.0\\.0\\.1:${port} \\(build ${BUILD}, up \\d+s\\)$`, "m"));
     expect(status).toContain(
-      "Extension: not connected — is Chrome open with the Chrome Agent Bridge extension enabled and its token/port set?",
+      "Extension: not connected — is Chrome open with the Browser Agent Bridge extension enabled and its token/port set?",
     );
     expect(status).not.toContain("Problem:");
 

@@ -6,7 +6,7 @@
 // locate({role: "button", name: "Sign in"}) → click(that ref) → waitFor({text: "form submitted"}) →
 // read the page's status line → print → close the tab → close the client.
 //
-// What it needs open: Chrome with the Chrome Agent Bridge extension (S2-or-later build), the fixture
+// What it needs open: Chrome with the Browser Agent Bridge extension (S2-or-later build), the fixture
 // served on http://localhost:8080 (`python -m http.server 8080 --directory test-fixtures`). It touches
 // only the tab it opens; the human's tabs are never read or switched. It prints no URL or title but the
 // fixture's, and never the token (the SDK resolves it).

@@ -16,8 +16,9 @@ extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chr
 - **Shipped:** Steps 1–14, public on GitHub (MIT). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
   install by `npm run setup` / `doctor` / `bridge-update`; also run by others on macOS and on Linux over an SSH tunnel.
 - **Renamed Browser Agent Bridge** (#444): the GitHub repo is `browser-agent-bridge` (old URL redirects) and npm
-  `browser-agent-bridge` is claimed (org `@browser-agent-bridge`). The name inside code and docs is still
-  chrome-agent-bridge until Step 15 renames it.
+  `browser-agent-bridge` is claimed (org `@browser-agent-bridge`). Step 15 S1 renamed code and docs: MCP server
+  `browser-agent-bridge`, manifest "Browser Agent Bridge", state directory `~/.browser-agent-bridge/`; setup and doctor
+  replace an old `chrome-agent-bridge` MCP entry.
 - **Next: Step 15, distribution** (#445): npm package, extension zip on GitHub Releases plus a public Chrome Web
   Store listing, a fixed extension ID with pairing by native messaging, installers for less technical users, a
   product-first README; released as v0.2.0 (#447). Network mode waits (#443). Phase doc:
@@ -105,7 +106,7 @@ Details and measured facts are in the package file named; the integrity floor is
 ```bash
 npm install
 npm run build        # daemon/dist/index.js + mcp/dist/index.js + extension/dist/{sw,options,offscreen,content}.js
-npm test             # vitest — 4112 passed (`npm test` 2026-11-08, after the archive; recipes/test and scripts/test included)
+npm test             # vitest — 4123 passed (`npm test` 2026-11-08, after the S1 rename; recipes/test and scripts/test included)
 npm run typecheck    # tsc across shared/daemon/sdk/mcp/extension/scripts (chained with `&&`; see the cross-package gotchas below)
 npm run recipe -- recipes/<file>.ts [args]   # a script against the SDK, run with tsx (= npx tsx recipes/<file>.ts)
 npm run setup        # one-command install on a Windows device; `-- --dry-run`, `-- --replace-mcp` (`scripts/CLAUDE.md`)

@@ -19,9 +19,14 @@ export interface Logger {
   setSecret(token: string): void;
 }
 
-/** `~/.chrome-agent-bridge/daemon.log`. */
+/** The state directory's name before the rename (Step 15 S1, #444); only its handle mark is read, once. */
+export function legacyStateDirs(home: string = homedir()): string[] {
+  return [path.join(home, ".chrome-agent-bridge")];
+}
+
+/** `~/.browser-agent-bridge/daemon.log`. */
 export function defaultLogPath(home: string = homedir()): string {
-  return path.join(home, ".chrome-agent-bridge", "daemon.log");
+  return path.join(home, ".browser-agent-bridge", "daemon.log");
 }
 
 /** The text itself, or `WITHHELD` when it contains `://` or the (non-empty) token. */

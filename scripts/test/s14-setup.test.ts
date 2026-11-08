@@ -4,7 +4,7 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   BUILD_INPUTS, BUILD_OUTPUTS, LIFECYCLE_NAMES, buildNeeded, checkPrereqs, claudeConfigPath, finish, installNeeded,
-  mcpAddArgv, mcpDecision, nextSteps, tokenDecision,
+  LEGACY_SERVER_NAMES, mcpAddArgv, mcpDecision, mcpEntry, mcpRemoveArgv, nextSteps, tokenDecision,
 } from "../bridge/lib.mjs";
 
 const REPO = "C:\\Users\\x\\Projects\\bridge";
@@ -68,26 +68,26 @@ describe("MCP entry decision", () => {
     expect(mcpDecision({ mcpServers: {} }, REPO, tok).action).toBe("add");
   });
   it("same path, normalized (case, slashes, trailing slash) → leave", () => {
-    const cfg = { mcpServers: { "chrome-agent-bridge": entry("c:/users/X/projects/bridge/mcp/dist/index.js/") } };
+    const cfg = { mcpServers: { "browser-agent-bridge": entry("c:/users/X/projects/bridge/mcp/dist/index.js/") } };
     expect(mcpDecision(cfg, REPO, tok).action).toBe("leave");
   });
   it("this checkout's path under a command that is not node → report (S2a F7)", () => {
-    const cfg = { mcpServers: { "chrome-agent-bridge": { command: "npx", args: [ENTRY] } } };
+    const cfg = { mcpServers: { "browser-agent-bridge": { command: "npx", args: [ENTRY] } } };
     expect(mcpDecision(cfg, REPO, tok).action).toBe("report");
-    const full = { mcpServers: { "chrome-agent-bridge": { command: "C:\\Program Files\\nodejs\\NODE.EXE", args: [ENTRY] } } };
+    const full = { mcpServers: { "browser-agent-bridge": { command: "C:\\Program Files\\nodejs\\NODE.EXE", args: [ENTRY] } } };
     expect(mcpDecision(full, REPO, tok).action).toBe("leave");
   });
   it("different path → report; replace only with the flag", () => {
-    const cfg = { mcpServers: { "chrome-agent-bridge": entry("D:\\old\\server\\dist\\index.js") } };
+    const cfg = { mcpServers: { "browser-agent-bridge": entry("D:\\old\\server\\dist\\index.js") } };
     expect(mcpDecision(cfg, REPO, tok)).toMatchObject({ action: "report", existing: "D:\\old\\server\\dist\\index.js" });
     expect(mcpDecision(cfg, REPO, { ...tok, replace: true }).action).toBe("replace");
   });
   it("a local-scope leftover under projects is reported", () => {
-    const cfg = { projects: { "C:/w": { mcpServers: { "chrome-agent-bridge": entry(ENTRY) } }, "C:/v": {} } };
+    const cfg = { projects: { "C:/w": { mcpServers: { "browser-agent-bridge": entry(ENTRY) } }, "C:/v": {} } };
     expect(mcpDecision(cfg, REPO, tok)).toMatchObject({ action: "add", localLeftovers: ["C:/w"] });
   });
   it("the entry's BRIDGE_TOKEN is compared by equality only, never returned", () => {
-    const at = (t: string) => ({ mcpServers: { "chrome-agent-bridge": entry(ENTRY, { BRIDGE_TOKEN: t }) } });
+    const at = (t: string) => ({ mcpServers: { "browser-agent-bridge": entry(ENTRY, { BRIDGE_TOKEN: t }) } });
     expect(mcpDecision(at("T1"), REPO, tok).envToken).toBe("same");
     const d = mcpDecision(at("SECRET-OTHER"), REPO, tok);
     expect(d.envToken).toBe("differs");
@@ -96,9 +96,40 @@ describe("MCP entry decision", () => {
   });
 });
 
+describe("the old chrome-agent-bridge entry (Step 15 S1 rename)", () => {
+  const tok = { tokenFile: "T1" };
+  it("an old user-scope entry alone → replace (even without the flag), the old name listed for removal", () => {
+    const cfg = { mcpServers: { "chrome-agent-bridge": entry(ENTRY) } };
+    expect(mcpDecision(cfg, REPO, tok)).toMatchObject({ action: "replace", current: false, legacy: ["chrome-agent-bridge"] });
+  });
+  it("the old entry's token is judged like the current entry's", () => {
+    const cfg = { mcpServers: { "chrome-agent-bridge": entry(ENTRY, { BRIDGE_TOKEN: "SECRET-OTHER" }) } };
+    const d = mcpDecision(cfg, REPO, tok);
+    expect(d.envToken).toBe("differs");
+    expect(JSON.stringify(d)).not.toContain("SECRET-OTHER");
+    expect(mcpEntry(cfg)).toBe(cfg.mcpServers["chrome-agent-bridge"]);
+  });
+  it("both names → the current entry decides, the old one is still listed for removal", () => {
+    const cfg = { mcpServers: { "browser-agent-bridge": entry(ENTRY), "chrome-agent-bridge": entry("D:\\old\\i.js") } };
+    expect(mcpDecision(cfg, REPO, tok)).toMatchObject({ action: "leave", current: true, legacy: ["chrome-agent-bridge"] });
+    expect(mcpEntry(cfg)).toBe(cfg.mcpServers["browser-agent-bridge"]);
+  });
+  it("no old entry → legacy is empty and current says whether the entry exists", () => {
+    expect(mcpDecision({}, REPO, tok)).toMatchObject({ action: "add", current: false, legacy: [], legacyLocal: [] });
+  });
+  it("an old local-scope entry is reported with its name", () => {
+    const cfg = { projects: { "C:/w": { mcpServers: { "chrome-agent-bridge": entry(ENTRY) } } } };
+    expect(mcpDecision(cfg, REPO, tok)).toMatchObject({ localLeftovers: [], legacyLocal: [{ dir: "C:/w", name: "chrome-agent-bridge" }] });
+  });
+  it("the remove argv names the server at user scope", () => {
+    expect(mcpRemoveArgv("chrome-agent-bridge")).toEqual(["mcp", "remove", "-s", "user", "chrome-agent-bridge"]);
+    expect(LEGACY_SERVER_NAMES).toEqual(["chrome-agent-bridge"]);
+  });
+});
+
 describe("the claude mcp add argv", () => {
   it("is exactly user scope, node <repo>\\mcp\\dist\\index.js, no -e", () => {
-    expect(mcpAddArgv(REPO)).toEqual(["mcp", "add", "-s", "user", "chrome-agent-bridge", "--", "node", ENTRY]);
+    expect(mcpAddArgv(REPO)).toEqual(["mcp", "add", "-s", "user", "browser-agent-bridge", "--", "node", ENTRY]);
   });
 });
 

@@ -20,8 +20,8 @@ default, not measured on the machine this guide was written on. Do not change th
 1. **Clone and run setup.** Pick a folder to keep; the bridge runs from it.
 
    ```powershell
-   git clone https://github.com/Capta1n-n9m0/chrome-agent-bridge
-   cd chrome-agent-bridge
+   git clone https://github.com/Capta1n-n9m0/browser-agent-bridge
+   cd browser-agent-bridge
    npm run setup
    ```
 
@@ -30,7 +30,8 @@ default, not measured on the machine this guide was written on. Do not change th
    newer than what is installed or built), creates `bridge.token` (a random 256-bit secret; it is never printed and the
    file is gitignored), and registers the MCP server in Claude Code at user scope (`claude mcp add -s user`).
    An entry that already points at another checkout is left alone and reported; `npm run setup -- --replace-mcp`
-   replaces it. `npm run setup -- --dry-run` shows what it would do and changes nothing.
+   replaces it. An entry under the old name `chrome-agent-bridge` is always replaced by `browser-agent-bridge`
+   pointing at this checkout. `npm run setup -- --dry-run` shows what it would do and changes nothing.
 
    **The one question:** "Copy the token to the clipboard for the extension's Options page? [y/N]". Answer `y` to
    paste the token in the Options page (step 4 of the list below); setup then waits, and once you press Enter it empties the clipboard. Windows
@@ -140,7 +141,7 @@ token and the absolute path to this repo:
 ```json
 {
   "mcpServers": {
-    "chrome-agent-bridge": {
+    "browser-agent-bridge": {
       "command": "node",
       "args": ["<absolute-path-to-repo>/mcp/dist/index.js"],
       "env": { "BRIDGE_TOKEN": "<your-token>", "BRIDGE_PORT": "9234" }
@@ -167,8 +168,8 @@ machine that used the bridge before:
    Leave `env` as it is: `BRIDGE_TOKEN` there still wins over a `bridge.token` file. Instead of
    editing the file you can re-register the server with the CLI:
    ```bash
-   claude mcp remove chrome-agent-bridge -s user
-   claude mcp add chrome-agent-bridge -s user -e BRIDGE_TOKEN=<your-token> -e BRIDGE_PORT=9234 -- node <absolute-path-to-repo>/mcp/dist/index.js
+   claude mcp remove browser-agent-bridge -s user
+   claude mcp add browser-agent-bridge -s user -e BRIDGE_TOKEN=<your-token> -e BRIDGE_PORT=9234 -- node <absolute-path-to-repo>/mcp/dist/index.js
    ```
    For Claude Desktop, edit `claude_desktop_config.json` the same way.
 4. **Reconnect:** run `/mcp` in Claude Code (or start a new session).
@@ -205,7 +206,7 @@ Every client on a machine must use the same `BRIDGE_PORT`; see [The daemon](#the
 You do not start the daemon yourself. The first client to connect (usually this MCP server)
 starts it in the background; later clients join it. It **outlives the Claude session on purpose**,
 so the next session and any script reuse it, and it exits on its own after 10 minutes with no
-clients. Its log is `~/.chrome-agent-bridge/daemon.log`. See [The daemon](#the-daemon) below.
+clients. Its log is `~/.browser-agent-bridge/daemon.log`. See [The daemon](#the-daemon) below.
 
 To try it without an MCP client, use the inspector:
 ```bash
@@ -227,7 +228,7 @@ Open the extension's **service worker** console (chrome://extensions → the ext
 "service worker"). You should see `[bridge] connection: up`.
 
 **After rebuilding the extension** (`npm run build`), Chrome keeps running the old code until the
-extension is reloaded (chrome://extensions → ↻ on the Chrome Agent Bridge card). On Windows,
+extension is reloaded (chrome://extensions → ↻ on the Browser Agent Bridge card). On Windows,
 `powershell -NoProfile -ExecutionPolicy Bypass -File .\recipes\reload-extension.ps1` does that by UI
 automation in a window of its own and verifies it; see `docs/e2e-test-plan.md` §1 item 9.
 
@@ -318,7 +319,7 @@ its last line says `The call failed (<CODE>). This result is not flagged as an e
 screenshot reaches you …`, because Claude Code (2.1.309, measured) drops images from error results
 (decisions.md · 2026-10-23 · An MCP failure report with a screenshot is returned as a non-error
 result). A report without a screenshot stays an error. The PNG is saved under
-`~/.chrome-agent-bridge/failures/<time>-<handle>.png` (or `BRIDGE_FAILURES_DIR`); clear that folder
+`~/.browser-agent-bridge/failures/<time>-<handle>.png` (or `BRIDGE_FAILURES_DIR`); clear that folder
 now and then. Other errors (`TAB_HELD`, `TAB_GONE`, `NOT_CONNECTED`, …) read as before. A page
 exception in `browser_evaluate` (`PAGE_ERROR`) is reported this way too: the snapshot renumbers the
 tab's refs and the screenshot may flash a background tab for about 1.5 s; a message of several lines
@@ -575,7 +576,7 @@ renders them as the MCP prints them (`sdk/test/s12-console-format.test.ts`).
 `LOCATOR_NOT_FOUND`, `LOCATOR_AMBIGUOUS`, `REF_STALE`, `OFFSCREEN`, `PAGE_ERROR`, `NAV_FAILED` or
 `TIMEOUT` — the SDK reads the tab once more and sets on the thrown `BridgeError`: `snapshot` (the tab's
 snapshot just after the failure), `screenshotPath` (a PNG under `BRIDGE_FAILURES_DIR`, else
-`~/.chrome-agent-bridge/failures/<time>-<handle>.png`), `network` (the tab's last 20 requests), and
+`~/.browser-agent-bridge/failures/<time>-<handle>.png`), `network` (the tab's last 20 requests), and
 `attachErrors` for any part it could not get within 5 s. `error.report()` renders them in at most 60
 lines: message, candidates, a window of the snapshot, the screenshot path (printed with the home folder as `~`;
 `screenshotPath` itself stays absolute, #417 (c), Step 14 S1), the failed requests. Other
@@ -663,7 +664,7 @@ One daemon per machine holds the extension's socket; every Claude session and ev
 client of it. It runs `node <repo>/daemon/dist/index.js`, listens on `127.0.0.1` only, and has no
 console window or output — the log is its only voice.
 
-**The log.** `~/.chrome-agent-bridge/daemon.log`, one line per event, `YYYY-MM-DDTHH:MM:SSZ <message>`
+**The log.** `~/.browser-agent-bridge/daemon.log`, one line per event, `YYYY-MM-DDTHH:MM:SSZ <message>`
 in UTC: `start pid=…`, `config pid=… port=… idleMs=… build=…`, `listening on 127.0.0.1:9234`,
 `client + "claude-code #1234" (1 client)`, `client - …`, and `exit <code> (<why>) …` with counts. It
 holds counts, ids and names only; a line that would contain a URL or the token is replaced by
@@ -1108,7 +1109,7 @@ where it is read:
 | Where | Text | Source |
 |---|---|---|
 | Folder rule, on the wire | `That file is not in a folder the user allows for uploads in Chrome (extension options → Upload folders); the bridge will not upload it. Ask the user.` | `extension/src/safety.ts:225` |
-| File access off, on the wire | `Chrome does not allow this extension to read local files (chrome://extensions → Chrome Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.` | `extension/src/upload-files.ts:37` |
+| File access off, on the wire | `Chrome does not allow this extension to read local files (chrome://extensions → Browser Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.` | `extension/src/upload-files.ts:37` |
 | The one line the SDK's `safetyRefusalLine` and the MCP show, either cause | `UPLOAD_REFUSED: the bridge will not upload that file — either it is not in a folder the user allows for uploads in Chrome (extension options → Upload folders), or the user has not turned on "Allow access to file URLs" for the extension (chrome://extensions → the extension's Details). Stop and ask the user; do not retry with another path.` | `sdk/src/error.ts:136` |
 
 The refusal is a safety refusal like `DOMAIN_BLOCKED`: no failure report, no screenshot; a script should stop
@@ -1160,8 +1161,8 @@ plan, `docs/e2e-test-plan.md` §4.20, whose results are Run 13 in §5.
 
 ### The kill switch: three ways to turn the bridge off
 
-- **The toolbar button** "Chrome Agent Bridge". One click turns the bridge off, the next turns it on.
-  **Pin it** (the puzzle-piece Extensions menu → the pin beside Chrome Agent Bridge): until it is
+- **The toolbar button** "Browser Agent Bridge". One click turns the bridge off, the next turns it on.
+  **Pin it** (the puzzle-piece Extensions menu → the pin beside Browser Agent Bridge): until it is
   pinned, Chrome may keep it inside that menu, one click further away from when you need it.
 - **The shortcut `Alt+Shift+K`** does the same as a click. It is the extension's "Activate the
   extension" command (`_execute_action`; decisions.md · 2026-10-24 · The shortcut is
@@ -1184,9 +1185,9 @@ closes an open options page.
 
 | Badge | Title | Meaning |
 |---|---|---|
-| none | `Chrome Agent Bridge — armed (click to turn off)` | On; agents may work |
-| `JS` (amber) | `Chrome Agent Bridge — armed, JavaScript off (click to turn off)` | On, JavaScript switch off |
-| `OFF` (red) | `Chrome Agent Bridge — OFF: agents are refused (click to turn on)` | Off |
+| none | `Browser Agent Bridge — armed (click to turn off)` | On; agents may work |
+| `JS` (amber) | `Browser Agent Bridge — armed, JavaScript off (click to turn off)` | On, JavaScript switch off |
+| `OFF` (red) | `Browser Agent Bridge — OFF: agents are refused (click to turn on)` | Off |
 | `OFF` (red) | `… OFF: the safety state cannot be read, so agents are refused (check the options page)` | See [When the state cannot be read or saved](#when-the-state-cannot-be-read-or-saved) |
 | `OFF` (red) | `… OFF, but not saved (storage write failed): …` / `… OFF: turning on failed (storage write failed), …` | Same |
 
@@ -1542,14 +1543,14 @@ S2 added `UPLOAD_REFUSED` (#237).*
   [Which build is running](#the-daemon). Two checkouts or a `BRIDGE_DAEMON` override on the same
   port fight over the one daemon; point every client at the same `daemon/dist/index.js`.
 - **"Could not reach the bridge daemon on 127.0.0.1:9234 within 10 s … — see …daemon.log"**: the
-  daemon did not start or did not bind. Read the last lines of `~/.chrome-agent-bridge/daemon.log`
+  daemon did not start or did not bind. Read the last lines of `~/.browser-agent-bridge/daemon.log`
   (for example `cannot listen on port …`, or no `start` line at all when node could not run the file).
 - **"Extension not connected"** from a tool: make sure Chrome is open, the extension is
   enabled, and the Options token/port match the bridge token (`BRIDGE_TOKEN` or `bridge.token`) and `BRIDGE_PORT` the daemon uses.
   Check the service-worker console for `connection: up`.
 - **Chrome is closed**: `browser_status` shows `Daemon: connected …` and `Extension: not
   connected — …`, and every other tool fails at once with `Extension not connected — is Chrome open
-  and the Chrome Agent Bridge extension enabled?`. Open Chrome and the next call works — nothing
+  and the Browser Agent Bridge extension enabled?`. Open Chrome and the next call works — nothing
   restarts. (*Superseded 2026-10-22: was "`Daemon: not connected` with `Problem: Extension not
   connected — … (waited 15000 ms on port 9234)`", with tools saying `connecting to the bridge
   daemon…` for ~15 s and a new attempt about every 20 s, because the MCP now connects to the daemon

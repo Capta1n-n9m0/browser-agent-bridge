@@ -559,7 +559,7 @@ describe("browser_status", () => {
       [
         "Daemon: connected on 127.0.0.1:9234 (build abc123def456, up 42s)",
         "Clients (2): claude-code #4242, export-grades.ts",
-        "Extension: not connected — is Chrome open with the Chrome Agent Bridge extension enabled and its token/port set?",
+        "Extension: not connected — is Chrome open with the Browser Agent Bridge extension enabled and its token/port set?",
       ].join("\n"),
     );
     expect(f.bridge.call).not.toHaveBeenCalled();
@@ -745,7 +745,7 @@ describe("network tools", () => {
 });
 
 describe("no daemon (connect() failing)", () => {
-  const REASON = "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled? (waited 15000 ms on port 9234)";
+  const REASON = "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled? (waited 15000 ms on port 9234)";
 
   /** Minimal valid arguments for every tool except browser_status. */
   const ARGS: Record<string, Params> = {

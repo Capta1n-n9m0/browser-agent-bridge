@@ -5,6 +5,7 @@ import path from "node:path";
 import {
   createFileLogger,
   defaultLogPath,
+  legacyStateDirs,
   formatLine,
   redact,
   truncateToTail,
@@ -52,8 +53,11 @@ describe("file logger", () => {
     dir = undefined;
   });
 
-  it("defaults to ~/.chrome-agent-bridge/daemon.log", () => {
-    expect(defaultLogPath("/home/u")).toBe(path.join("/home/u", ".chrome-agent-bridge", "daemon.log"));
+  it("the old state directory is ~/.chrome-agent-bridge (read for the handle mark only)", () => {
+    expect(legacyStateDirs("/home/u")).toEqual([path.join("/home/u", ".chrome-agent-bridge")]);
+  });
+  it("defaults to ~/.browser-agent-bridge/daemon.log", () => {
+    expect(defaultLogPath("/home/u")).toBe(path.join("/home/u", ".browser-agent-bridge", "daemon.log"));
   });
 
   it("creates the directory and appends formatted lines", () => {

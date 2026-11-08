@@ -3,7 +3,9 @@
 // before `npm ci`. Nothing here reads a file, spawns a process or holds a token value (#427-#429).
 import path from "node:path";
 
-export const SERVER_NAME = "chrome-agent-bridge";
+export const SERVER_NAME = "browser-agent-bridge";
+/** The MCP server's names before the rename (Step 15 S1, #444): setup replaces them, the doctor reports them. */
+export const LEGACY_SERVER_NAMES = ["chrome-agent-bridge"];
 export const PORT = 9234;
 export const MIN_NODE_MAJOR = 20; // docs/setup.md Prerequisites; no `engines` field in package.json
 /** npm runs these on its own (`npm ci` among them): no root script may take one (Stage0.md C1). */
@@ -74,28 +76,47 @@ export const entryPath = (repo) => path.win32.join(repo, "mcp", "dist", "index.j
  * What setup does with the user-scope MCP entry, from the parsed `.claude.json`.
  * @param {any} config @param {string} repo
  * @param {{ tokenFile: string | null, replace?: boolean }} opts
+ * `current`: a user-scope entry under SERVER_NAME exists. `legacy`: the old names present at user scope; with no
+ * current entry the old one stands in for it and the action is always "replace" (the rename, #444).
  * @returns {{ action: "add" | "leave" | "report" | "replace", existing: string | null, localLeftovers: string[],
- *   envToken: "none" | "same" | "differs" | "nofile" }}
+ *   envToken: "none" | "same" | "differs" | "nofile", current: boolean, legacy: string[],
+ *   legacyLocal: { dir: string, name: string }[] }}
  */
 export function mcpDecision(config, repo, opts) {
-  const e = config?.mcpServers?.[SERVER_NAME];
-  const localLeftovers = Object.entries(config?.projects ?? {})
-    .filter(([, p]) => p?.mcpServers?.[SERVER_NAME]).map(([dir]) => dir);
+  const servers = config?.mcpServers ?? {};
+  const current = Boolean(servers[SERVER_NAME]);
+  const legacy = LEGACY_SERVER_NAMES.filter((n) => servers[n]);
+  const e = mcpEntry(config);
+  const projects = Object.entries(config?.projects ?? {});
+  const localLeftovers = projects.filter(([, p]) => p?.mcpServers?.[SERVER_NAME]).map(([dir]) => dir);
+  const legacyLocal = projects.flatMap(([dir, p]) => LEGACY_SERVER_NAMES.filter((n) => p?.mcpServers?.[n]).map((name) => ({ dir, name })));
   const envTok = e?.env?.BRIDGE_TOKEN;
+  /** @type {"none" | "same" | "differs" | "nofile"} */
   const envToken = typeof envTok !== "string" ? "none" : !opts.tokenFile ? "nofile" : envTok.trim() === opts.tokenFile?.trim() ? "same" : "differs";
-  if (!e) return { action: "add", existing: null, localLeftovers, envToken };
+  const base = { localLeftovers, envToken, current, legacy, legacyLocal };
+  if (!e) return { action: "add", existing: null, ...base };
   const args = Array.isArray(e.args) ? e.args : [];
   const existing = String(args.at(-1) ?? e.command ?? "");
   const same = /^node(\.exe)?$/i.test(path.win32.basename(String(e.command ?? ""))) && norm(existing) === norm(entryPath(repo));
-  const action = same ? "leave" : opts.replace ? "replace" : "report";
-  return { action, existing, localLeftovers, envToken };
+  const action = !current ? "replace" : same ? "leave" : opts.replace ? "replace" : "report";
+  return { action, existing, ...base };
+}
+
+/** The user-scope entry the MCP runs under: SERVER_NAME's, else an old name's. @param {any} config @returns {any} */
+export function mcpEntry(config) {
+  const servers = config?.mcpServers ?? {};
+  return servers[SERVER_NAME] ?? LEGACY_SERVER_NAMES.map((n) => servers[n]).find(Boolean);
 }
 
 /** @param {string} repo */
 export function mcpAddArgv(repo) {
   return ["mcp", "add", "-s", "user", SERVER_NAME, "--", "node", entryPath(repo)];
 }
-export const MCP_REMOVE_ARGV = ["mcp", "remove", "-s", "user", SERVER_NAME];
+/** @param {string} name */
+export function mcpRemoveArgv(name) {
+  return ["mcp", "remove", "-s", "user", name];
+}
+export const MCP_REMOVE_ARGV = mcpRemoveArgv(SERVER_NAME);
 
 /** A failed part (claude mcp add, an unparsable config) ends setup with exit 2 after the other steps (S2a F2). */
 export function finish(/** @type {string[]} */ failedParts) {
@@ -162,16 +183,22 @@ export function doctorLines(f) {
     "run npm run setup (it creates bridge.token), then paste the token in the extension's Options");
   const m = f.mcp;
   if (!m) add("MCP entry", "fail", ".claude.json cannot be parsed", "fix the JSON in .claude.json, then run the doctor again");
+  else if (!m.current && m.legacy?.length) add("MCP entry", "fail", `a user-scope ${m.legacy.join(", ")} entry (the old name)`,
+    `run npm run setup (it replaces it with ${SERVER_NAME})`);
   else if (m.action === "add") add("MCP entry", "fail", `no user-scope ${SERVER_NAME} entry`, "run npm run setup");
   else if (m.action === "leave") add("MCP entry", "ok", "user scope, points at this checkout");
   else add("MCP entry", "fail", `points at ${m.existing}, not this checkout`, "run npm run setup -- --replace-mcp");
   if (m?.envToken === "differs") add("MCP entry's token", "fail", "the entry's BRIDGE_TOKEN differs from bridge.token and wins",
-    `remove the entry (claude mcp remove -s user ${SERVER_NAME}), then run npm run setup`);
+    `remove the entry (claude mcp remove -s user ${m.current ? SERVER_NAME : m.legacy[0]}), then run npm run setup`);
   if (m?.envToken === "same") add("MCP entry's token", "ok", "the entry's BRIDGE_TOKEN equals bridge.token (it works; the env entry is optional)");
   if (m?.envToken === "nofile") add("MCP entry's token", "hint", "bridge.token missing; the MCP entry's own token is used",
     "run npm run setup (it creates bridge.token); remove BRIDGE_TOKEN from the entry only if the doctor then says it differs");
+  if (m?.current && m.legacy?.length) add("Old MCP entry", "fail", `a user-scope ${m.legacy.join(", ")} entry (the old name) runs beside it`,
+    `run npm run setup (it removes the old entry)`);
   for (const dir of m?.localLeftovers ?? []) add("Local MCP entry", "fail", `a local-scope entry for ${dir} wins there`,
     `in that folder run claude mcp remove -s local ${SERVER_NAME}`);
+  for (const { dir, name } of m?.legacyLocal ?? []) add("Local MCP entry", "fail", `a local-scope ${name} entry (the old name) for ${dir} runs there`,
+    `in that folder run claude mcp remove -s local ${name}`);
   if (f.shellToken !== "none") add("Shell BRIDGE_TOKEN", f.shellToken === "same" ? "hint" : "fail",
     `${f.shellToken === "same" ? "same as" : "differs from"} the token the MCP uses`, "unset BRIDGE_TOKEN in this shell (scripts then use bridge.token)");
   if (f.shellPort !== "none") add("Shell BRIDGE_PORT", f.shellPort === "same" ? "hint" : "fail",
@@ -217,7 +244,7 @@ export function npmCli(env, execPath, exists) {
   return dirs.map((d) => path.win32.join(d, "node_modules", "npm", "bin", "npm-cli.js")).find(exists) ?? null;
 }
 
-const RELOAD_BY_HAND = "reload it by hand: chrome://extensions > Chrome Agent Bridge > the reload button";
+const RELOAD_BY_HAND = "reload it by hand: chrome://extensions > Browser Agent Bridge > the reload button";
 /**
  * recipes/reload-extension.ps1: 0 reloaded; 2 pressed nothing → one re-run (#99), then a hint (#431); else a failure.
  * Its exit 2 never becomes update's own exit code: update exits 0 or 1 (S2a-verifier2 N4).

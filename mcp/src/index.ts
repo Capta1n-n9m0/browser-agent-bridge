@@ -27,7 +27,7 @@ async function main(): Promise<void> {
   });
   link.start();
 
-  const server = new McpServer({ name: "chrome-agent-bridge", version: "0.1.0" });
+  const server = new McpServer({ name: "browser-agent-bridge", version: "0.1.0" });
   registerTools(server, link, cursor, { actorName: connectOptions().name });
 
   // Exit with the session. The daemon outlives it on purpose; this process only closes its client.

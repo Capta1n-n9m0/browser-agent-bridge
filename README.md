@@ -1,4 +1,4 @@
-# chrome-remote-extention
+# Browser Agent Bridge
 
 Automate your **real, already-logged-in** Chrome (default profile) from an AI agent.
 
@@ -12,8 +12,8 @@ restores agent control of that profile via a Chrome extension + an MCP server, s
 ## Quick start (Windows)
 
 ```powershell
-git clone https://github.com/Capta1n-n9m0/chrome-agent-bridge
-cd chrome-agent-bridge
+git clone https://github.com/Capta1n-n9m0/browser-agent-bridge
+cd browser-agent-bridge
 npm run setup
 ```
 

@@ -57,7 +57,7 @@ describe("the MCP leg's size (S6 fixer r1: chunks ≤ 8000 characters, a pre-reg
 describe("isInside", () => {
   it("is true only for a path under the root", () => {
     expect(isInside("C:\\repo", "C:\\repo\\exports\\a.json")).toBe(true);
-    expect(isInside("C:\\repo", "C:\\Users\\me\\.chrome-agent-bridge\\failures\\x.png")).toBe(false);
+    expect(isInside("C:\\repo", "C:\\Users\\me\\.browser-agent-bridge\\failures\\x.png")).toBe(false);
     expect(isInside("C:\\repo", "C:\\repo-other\\x")).toBe(false);
     expect(isInside("/repo", "/repo/a/b")).toBe(true);
     expect(isInside("/repo", "/repo/../etc")).toBe(false);

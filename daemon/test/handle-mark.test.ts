@@ -7,7 +7,7 @@ import { HandleTable } from "../src/handles.js";
 
 /**
  * Step 8 S2b.9 (decisions.md · 2026-10-23 · A new daemon never reuses a handle number (#79); #86 item 4):
- * the high-water mark, always in an injected temp directory — never `~/.chrome-agent-bridge/` itself.
+ * the high-water mark, always in an injected temp directory — never `~/.browser-agent-bridge/` itself.
  */
 
 const dirs: string[] = [];
@@ -120,6 +120,38 @@ describe("handle mark: the high-water mark file", () => {
     expect(writes).toEqual(["2\n"]);
     expect(lines).toEqual(["handle mark not written — handle numbers continue from a time base"]);
     expect(marks.mode()).toBe("fallback");
+  });
+
+  it("no mark yet → the old state directory's mark is carried over (the rename, Step 15 S1); never written there", () => {
+    const dir = tempDir();
+    const old = tempDir();
+    writeFileSync(path.join(old, HANDLE_MARK_FILE), "128\n");
+    const marks = createHandleMark({ dir, legacyDirs: [old], block: 4 });
+    expect(marks.next()).toBe(129);
+    expect(markOf(dir)).toBe("132\n");
+    expect(markOf(old)).toBe("128\n");
+    expect(marks.mode()).toBe("mark");
+  });
+
+  it("a mark of its own wins over the old directory's; no old mark → starts at 1", () => {
+    const dir = tempDir();
+    const old = tempDir();
+    writeFileSync(path.join(old, HANDLE_MARK_FILE), "500\n");
+    writeFileSync(path.join(dir, HANDLE_MARK_FILE), "7\n");
+    expect(createHandleMark({ dir, legacyDirs: [old] }).next()).toBe(8);
+    const fresh = tempDir();
+    expect(createHandleMark({ dir: fresh, legacyDirs: [tempDir()] }).next()).toBe(1);
+  });
+
+  it("an unreadable old mark with no mark of its own → the time base, as an unreadable mark", () => {
+    const dir = tempDir();
+    const old = tempDir();
+    writeFileSync(path.join(old, HANDLE_MARK_FILE), "garbage");
+    const logs: string[] = [];
+    const marks = createHandleMark({ dir, legacyDirs: [old], now: () => NOW, log: (m) => logs.push(m) });
+    expect(marks.next()).toBe(timeBase(NOW));
+    expect(marks.mode()).toBe("fallback");
+    expect(logs).toHaveLength(1);
   });
 
   it("timeBase: ms since 2026-01-01T00:00:00Z, at least 1, larger for a later start", () => {

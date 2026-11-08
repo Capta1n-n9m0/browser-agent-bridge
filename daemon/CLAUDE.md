@@ -23,7 +23,8 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   says disarmed, one `listTabs` per change; Step 12: each extension socket's hello `features`, the `VERSION` refusals and
   `trustedInput`, both below),
   `handle-mark.ts` (Step 8 S2b: handle numbers continue across daemons from
-  `~/.chrome-agent-bridge/handle-mark`, reserved in blocks of 64, a time base when the file fails).
+  `~/.browser-agent-bridge/handle-mark`, reserved in blocks of 64, a time base when the file fails; with no mark
+  yet it carries over the old `~/.chrome-agent-bridge/handle-mark`, read only, Step 15 S1).
 
 ## Runtime gotchas
 - **The daemon's bind is the lock.** The daemon calls `listen()` once on `127.0.0.1`; `EADDRINUSE` means another daemon
@@ -36,7 +37,7 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   600000 ms with zero clients; the extension does not count), `daemon.shutdown`, a signal, or a fatal
   error; at start it also exits 1 on a bad `BRIDGE_PORT`, no token, no build id or a failed `listen`,
   and 0 when the port is taken (`daemon/src/main.ts`). Its only voice is
-  `~/.chrome-agent-bridge/daemon.log` (`YYYY-MM-DDTHH:MM:SSZ <msg>`, cut to its last 1 MiB on start; a
+  `~/.browser-agent-bridge/daemon.log` (`YYYY-MM-DDTHH:MM:SSZ <msg>`, cut to its last 1 MiB on start; a
   line containing `://` or the token is withheld whole) (`daemon/src/log.ts`, D3 2026-10-22). Its build
   id is the sha256 of `daemon/dist/index.js`; `daemon.status` and `browser_status` print it. After
   `npm run build` changes that file, the next client's `connect()` sees a different build in the
@@ -66,12 +67,12 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   `newTab`/`listTabs` results still carry the Chrome `id` beside `tab` (kept through Step 8 for its
   consumers: decisions.md · 2026-10-23 · The Chrome `id` stays beside `tab` this step; network calls
   without `tab` stay "active" (#81)). Since Step 8 S2b a new daemon **never reuses a handle number**:
-  `daemon/src/handle-mark.ts` continues from `~/.chrome-agent-bridge/handle-mark` (blocks of 64; a
+  `daemon/src/handle-mark.ts` continues from `~/.browser-agent-bridge/handle-mark` (blocks of 64; a
   time base when the file cannot be read or written), so a stale `T3` from an earlier daemon answers
   `TAB_UNKNOWN` instead of landing on another tab, and the SDK's `Tab` refuses itself (`TAB_UNKNOWN`,
   no call) after a 4002 reconnect (decisions.md · 2026-10-23 · A new daemon never reuses a handle
   number; the SDK guards stale `Tab`s (#79); · S2b's details: the `selectTab` refusal grep, the marker's edge cases, the handle mark (#94) item 8). Tests inject the base
-  and directory, never the real `~/.chrome-agent-bridge/`.
+  and directory, never the real `~/.browser-agent-bridge/`.
 - **`leaseGranted.url` starts empty for a popup** — `tabs.onCreated` fires before a `target=_blank`
   tab's url is set (Run 8 LEASE-3: `""`). The daemon polls `listTabs` (100 ms, ≤ 2 s) before sending
   the event; Run 9 R9-LEASE-3 got the url after 45 ms, and another client was refused (`TAB_HELD`) 44

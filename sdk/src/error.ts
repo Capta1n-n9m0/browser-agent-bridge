@@ -162,11 +162,11 @@ function describeFailure(err: unknown): string {
   return firstLine(String(err));
 }
 
-/** The failures directory: `BRIDGE_FAILURES_DIR` if set and non-empty, else `<home>/.chrome-agent-bridge/failures`. */
+/** The failures directory: `BRIDGE_FAILURES_DIR` if set and non-empty, else `<home>/.browser-agent-bridge/failures`. */
 export function failuresDir(env: Record<string, string | undefined>, homedir: () => string): string {
   const fromEnv = env.BRIDGE_FAILURES_DIR;
   if (typeof fromEnv === "string" && fromEnv.trim() !== "") return fromEnv;
-  return path.join(homedir(), ".chrome-agent-bridge", "failures");
+  return path.join(homedir(), ".browser-agent-bridge", "failures");
 }
 
 /** `<iso>-<handle>.png`, with `:` and `.` of the ISO time replaced by `-` (Windows forbids `:`). */

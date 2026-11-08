@@ -390,12 +390,12 @@ describe("the screenshot path", () => {
     expect(readFileSync(err.screenshotPath!)).toEqual(PNG);
   });
 
-  it("is <homedir>/.chrome-agent-bridge/failures/ when BRIDGE_FAILURES_DIR is unset or empty", async () => {
+  it("is <homedir>/.browser-agent-bridge/failures/ when BRIDGE_FAILURES_DIR is unset or empty", async () => {
     for (const env of [{}, { BRIDGE_FAILURES_DIR: "" }]) {
       const home = mkdtempSync(path.join(dir, "home-"));
       const { tab } = await setup({ click: { error: { code: "TIMEOUT", message: "slow" } } }, { env, homedir: () => home });
       const err = await caught(tab.click("e1"));
-      expect(err.screenshotPath).toBe(path.join(home, ".chrome-agent-bridge", "failures", FILE));
+      expect(err.screenshotPath).toBe(path.join(home, ".browser-agent-bridge", "failures", FILE));
       expect(existsSync(err.screenshotPath!)).toBe(true);
     }
   });
@@ -406,7 +406,7 @@ describe("the screenshot path", () => {
     const err = await caught(tab.click("e1"));
     const sep = path.sep;
     expect(path.isAbsolute(err.screenshotPath!)).toBe(true);
-    expect(err.report!().split("\n")).toContain(`Screenshot: ~${sep}.chrome-agent-bridge${sep}failures${sep}${FILE}`);
+    expect(err.report!().split("\n")).toContain(`Screenshot: ~${sep}.browser-agent-bridge${sep}failures${sep}${FILE}`);
   });
 
   it("a throwing homedir() with BRIDGE_FAILURES_DIR set keeps the report; the line prints the absolute path (S14)", async () => {

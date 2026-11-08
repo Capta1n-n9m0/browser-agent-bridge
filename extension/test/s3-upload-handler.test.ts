@@ -136,7 +136,7 @@ describe("#245 (b) — the file-access decision", () => {
       expect(toWireError(fileAccessRefusal(v))).toEqual({ code: ErrorCodes.UPLOAD_REFUSED, message: NO_FILE_ACCESS_MESSAGE });
     }
     expect(NO_FILE_ACCESS_MESSAGE).toBe(
-      "Chrome does not allow this extension to read local files (chrome://extensions → Chrome Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.",
+      "Chrome does not allow this extension to read local files (chrome://extensions → Browser Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.",
     );
     expect(NO_FILE_ACCESS_MESSAGE).not.toMatch(/[A-Za-z]:\\|\\/);
   });

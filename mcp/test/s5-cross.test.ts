@@ -4,7 +4,7 @@
 // Shows (a) the cursor staying when the extension's `listTabs` moves `current`, until
 // browser_use_active_tab; (b) locator input reaching the extension as `params.locator`; (c) an
 // attach-eligible error rendered as report() text plus an image block, the PNG in a temp
-// BRIDGE_FAILURES_DIR (never the real ~/.chrome-agent-bridge).
+// BRIDGE_FAILURES_DIR (never the real ~/.browser-agent-bridge).
 import { describe, it, expect, afterEach, beforeEach } from "vitest";
 import { mkdtempSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";

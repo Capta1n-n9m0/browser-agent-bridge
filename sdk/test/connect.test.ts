@@ -160,7 +160,7 @@ describe("connect()", () => {
     const err = await rejection(p);
     expect(err.code).toBe(ErrorCodes.NOT_CONNECTED);
     expect(err.message).toBe(
-      "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled? (waited 500 ms on port 9633)",
+      "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled? (waited 500 ms on port 9633)",
     );
     expect(conn.closeCalls.length).toBeGreaterThan(0);
   });

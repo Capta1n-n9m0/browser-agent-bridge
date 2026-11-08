@@ -19,7 +19,7 @@ export const KNOCK_INTERVAL_MS = 250;
 export const WELCOME_TIMEOUT_MS = 2_000;
 /** Floor for one attempt's handshake timeout when little of the budget is left. */
 export const MIN_HANDSHAKE_MS = 100;
-export const DAEMON_LOG = "~/.chrome-agent-bridge/daemon.log";
+export const DAEMON_LOG = "~/.browser-agent-bridge/daemon.log";
 /** Close code the daemon uses for a bad token, an unknown role or a malformed hello. */
 export const CLOSE_BAD_HELLO = 4001;
 

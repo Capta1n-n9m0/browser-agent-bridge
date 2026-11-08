@@ -467,7 +467,7 @@ renders the same fields as text. Nothing here needs a model in the loop.
 shared `BridgeError` (no subclass): `snapshot`, `screenshotPath`, `network` (last 20), `attachErrors`
 and `report()` (≤ 60 lines), attached only for `LOCATOR_NOT_FOUND LOCATOR_AMBIGUOUS REF_STALE OFFSCREEN
 PAGE_ERROR NAV_FAILED TIMEOUT` within one 5 s budget; PNGs go to `BRIDGE_FAILURES_DIR`, else
-`~/.chrome-agent-bridge/failures/`. The attached snapshot renumbers the tab's refs, so candidate refs
+`~/.browser-agent-bridge/failures/`. The attached snapshot renumbers the tab's refs, so candidate refs
 are rewritten or dropped (#93). The screenshot switches the window to the failed tab (Run 12 REP-0).
 The MCP renders `report()` plus a PNG image block; a report with an image is a non-error result,
 because Claude Code drops images from error results (decisions.md · 2026-10-23 · An MCP failure report
@@ -516,7 +516,7 @@ on the six action tools for an element past the snapshot's cap (#127, #216); sti
 1. **Knock.** A client connects to `127.0.0.1:9234`. `ECONNREFUSED` → it spawns the daemon.
 2. **Detached spawn.** `spawn(process.execPath, [daemon/dist/index.js], { detached: true, stdio:
    "ignore", windowsHide: true })` + `unref()`. The daemon therefore has no stdio; it logs to
-   `~/.chrome-agent-bridge/daemon.log` (size-capped), counts only, never URLs or tokens.
+   `~/.browser-agent-bridge/daemon.log` (size-capped), counts only, never URLs or tokens.
    *Corrected 2026-10-22: as built the log is cut to its last 1 MiB on start and a line containing
    `://` or the token is withheld whole (decisions.md · 2026-10-22 · D3's daemon lifecycle: idle armed
    at start, every shutdown exits 0, bad env values, the log policy) — see as-built § Stage D3.*
@@ -884,7 +884,7 @@ The block itself is left as written.*
     `"evaluateArgs"`; every other call is unchanged. A real function result stays `kind: "function"`.*
   - *Note 2026-10-27 (Step 12 S2b, `9921715`; S2b verifier F2; decisions.md #342, proposed): as built, the daemon's
     reload text for this refusal is its own, `ARGS_RELOAD_HINT` (`daemon/src/intercept.ts`): "the Chrome extension is
-    an older build without evaluate args — reload it at chrome://extensions (↻ on Chrome Agent Bridge)"; a call
+    an older build without evaluate args — reload it at chrome://extensions (↻ on Browser Agent Bridge)"; a call
     "carries `args`" when the key is present, `null` included. The SDK adds a ninth fixed refusal before any wire call,
     `BAD_PARAMS` "args: pass the function source as a string, such as \"(a) => a.rows.length\" — not a function", for a
     non-string `fn` with `args`; the MCP tool runs `checkEvaluateArgs` itself.*
@@ -990,7 +990,7 @@ The block itself is left as written.*
   - *The daemon's rule (`daemon/src/intercept.ts`): an `uploadFiles` carrying the `chooser` key (its presence counts,
     `null` and `false` included, as `args` under #342) is answered `VERSION` with its own reload text,
     `CHOOSER_RELOAD_HINT`: "the Chrome extension is an older build without the file chooser upload — reload it at
-    chrome://extensions (↻ on Chrome Agent Bridge)", without forwarding, when the connected extension's hello did not
+    chrome://extensions (↻ on Browser Agent Bridge)", without forwarding, when the connected extension's hello did not
     list `"uploadChooser"`. The text names no path. Every other call is unchanged; an `uploadFiles` without `chooser`
     is forwarded to a featureless extension as before.*
 - *Amended 2026-10-28 (Step 12 S6-G2; decisions.md #321 Q6, #326, #338; proposed, for the user at Step 12's gate). No

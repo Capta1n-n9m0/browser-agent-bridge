@@ -4,7 +4,7 @@
 // of the blackboard-ultra skill's boot sequence (no 8765 server, no `(0, eval)(await fetch…)`).
 // Written 2026-10-23 before any run; read-only: it loads the helper and reads its VERSION, nothing else.
 //
-// What it needs open: Chrome logged in to https://ada.blackboard.com with the Chrome Agent Bridge
+// What it needs open: Chrome logged in to https://ada.blackboard.com with the Browser Agent Bridge
 // extension (any Step 7+ build); the course id (or its URL) as the argument. It never picks a course or
 // claims a tab itself: it opens its own tab and closes it at the end (`--keep-open` leaves it open and
 // prints its handle).

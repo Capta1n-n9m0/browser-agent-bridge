@@ -23,7 +23,7 @@ const manifest = JSON.parse(readFileSync(fileURLToPath(new URL("../manifest.json
 /** The manifest before Step 9 S2b (HEAD 55f4d6e), minus nothing. */
 const BEFORE: Record<string, unknown> = {
   manifest_version: 3,
-  name: "Chrome Agent Bridge",
+  name: "Browser Agent Bridge",
   version: "0.1.0",
   description: "Bridges your real Chrome profile to a local MCP server for AI agent control.",
   minimum_chrome_version: "116",
@@ -86,6 +86,6 @@ describe("manifest.json (S2b)", () => {
     const action = manifest.action as Record<string, unknown>;
     expect(action).not.toHaveProperty("default_popup");
     expect(Object.keys(action).sort()).toEqual(["default_title"]);
-    expect(action.default_title).toBe("Chrome Agent Bridge");
+    expect(action.default_title).toBe("Browser Agent Bridge");
   });
 });

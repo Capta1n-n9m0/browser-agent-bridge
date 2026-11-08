@@ -52,10 +52,12 @@ export interface DaemonDeps {
   clearTimeout?: (handle: TimerHandle) => void;
   /**
    * The state directory holding the handle high-water mark (Step 8 S2b.9, decisions.md #79). `index.ts`
-   * passes the daemon log's directory (`~/.chrome-agent-bridge/`). Absent → no mark file: handle numbers
+   * passes the daemon log's directory (`~/.browser-agent-bridge/`). Absent → no mark file: handle numbers
    * start at T1 per process, so a test that runs `runDaemon` never touches the real directory.
    */
   stateDir?: string;
+  /** Older state directories whose handle mark is carried over when `stateDir` has none (the rename, Step 15 S1). */
+  legacyStateDirs?: string[];
 }
 
 /** A TCP port 1–65535 written as plain digits, else null. */
@@ -164,7 +166,11 @@ export async function runDaemon(deps: DaemonDeps): Promise<void> {
     log: (msg) => logger.log(msg),
   };
   if (deps.stateDir !== undefined) {
-    options.handleNumbers = createHandleMark({ dir: deps.stateDir, log: (msg) => logger.log(msg) });
+    options.handleNumbers = createHandleMark({
+      dir: deps.stateDir,
+      legacyDirs: deps.legacyStateDirs,
+      log: (msg) => logger.log(msg),
+    });
   }
   host = (deps.createHost ?? ((o) => new WsHost(new Bridge(), o)))(options);
   const live = host;

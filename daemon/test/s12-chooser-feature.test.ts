@@ -62,7 +62,7 @@ describe("S5c — the uploadChooser feature and the chooser VERSION rule", () =>
 
   it("the text names the file chooser and a reload, never a path", () => {
     expect(CHOOSER_RELOAD_HINT).toBe(
-      "the Chrome extension is an older build without the file chooser upload — reload it at chrome://extensions (↻ on Chrome Agent Bridge)",
+      "the Chrome extension is an older build without the file chooser upload — reload it at chrome://extensions (↻ on Browser Agent Bridge)",
     );
     expect(CHOOSER_RELOAD_HINT).not.toMatch(/[A-Za-z]:\\|\/Users\/|\/home\/|secret-name|\.txt/);
   });

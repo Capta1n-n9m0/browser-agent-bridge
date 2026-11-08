@@ -22,7 +22,7 @@ export interface SpawnDeps {
 }
 
 /**
- * Starts the daemon detached, with no stdio (it logs to `~/.chrome-agent-bridge/daemon.log`), and
+ * Starts the daemon detached, with no stdio (it logs to `~/.browser-agent-bridge/daemon.log`), and
  * lets this process exit without waiting for it. `process.execPath` so the real node binary runs
  * even when an nvm-windows shim launched us. Spawning twice is safe: the bind is the lock.
  */

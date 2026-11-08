@@ -43,13 +43,13 @@ export const BADGE_COLORS = Object.freeze({
 });
 
 export const BADGE_TITLES = Object.freeze({
-  off: "Chrome Agent Bridge — OFF: agents are refused (click to turn on)",
-  jsOff: "Chrome Agent Bridge — armed, JavaScript off (click to turn off)",
-  armed: "Chrome Agent Bridge — armed (click to turn off)",
-  unreadable: "Chrome Agent Bridge — OFF: the safety state cannot be read, so agents are refused (check the options page)",
+  off: "Browser Agent Bridge — OFF: agents are refused (click to turn on)",
+  jsOff: "Browser Agent Bridge — armed, JavaScript off (click to turn off)",
+  armed: "Browser Agent Bridge — armed (click to turn off)",
+  unreadable: "Browser Agent Bridge — OFF: the safety state cannot be read, so agents are refused (check the options page)",
   writeFailed:
-    "Chrome Agent Bridge — OFF, but not saved (storage write failed): agents are refused until the extension restarts (click to turn on)",
-  armFailed: "Chrome Agent Bridge — OFF: turning on failed (storage write failed), agents are still refused (turn it on from the options page)",
+    "Browser Agent Bridge — OFF, but not saved (storage write failed): agents are refused until the extension restarts (click to turn on)",
+  armFailed: "Browser Agent Bridge — OFF: turning on failed (storage write failed), agents are still refused (turn it on from the options page)",
 });
 
 export function badgeOf(input: BadgeInput): Badge {

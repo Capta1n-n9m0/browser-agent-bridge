@@ -18,6 +18,9 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   steps in `docs/setup.md`, "Scripts from any folder".
 
 ## Runtime gotchas
+- **The old MCP name** (Step 15 S1, #444): `LEGACY_SERVER_NAMES` (`chrome-agent-bridge`). With no current entry the old
+  one stands in (`mcpEntry`), and `mcpDecision` says `replace` even without `--replace-mcp`; setup removes every old
+  user-scope entry before adding; the doctor fails `MCP entry` (or `Old MCP entry` beside a current one).
 - **No root npm script may be named like an npm lifecycle hook** (`install`, `postinstall`, `prepare`, `update`, …):
   npm runs those itself, `npm ci` among them. `LIFECYCLE_NAMES` in `lib.mjs` lists them and the tests read
   `package.json` against it (Stage0.md C1; decisions.md · 2026-10-30 · Stage 0: the three commands are Node scripts with

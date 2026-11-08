@@ -16,7 +16,7 @@ import { createHandleMark } from "../src/handle-mark.js";
 
 const TOKEN = "tok-T2-SENTINEL-91ab";
 const BUILD = "t2-build";
-const RELOAD_HINT = "the Chrome extension is an older build — reload it at chrome://extensions (↻ on Chrome Agent Bridge)";
+const RELOAD_HINT = "the Chrome extension is an older build — reload it at chrome://extensions (↻ on Browser Agent Bridge)";
 const NO_WINDOW =
   "No normal Chrome window is focused (a DevTools or popup window may have focus) — click a normal Chrome window and retry";
 const HELD = (h: string, name: string) =>

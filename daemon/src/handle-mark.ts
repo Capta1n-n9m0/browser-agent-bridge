@@ -14,7 +14,7 @@ import { readFileSync, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import type { HandleNumbers } from "./handles.js";
 
-/** The mark's file name, inside the daemon's state directory (`~/.chrome-agent-bridge/` in production). */
+/** The mark's file name, inside the daemon's state directory (`~/.browser-agent-bridge/` in production). */
 export const HANDLE_MARK_FILE = "handle-mark";
 /** Numbers reserved per write. */
 export const HANDLE_BLOCK = 64;
@@ -53,6 +53,11 @@ export const realMarkFs: HandleMarkFs = {
 export interface HandleMarkOptions {
   /** The state directory (must exist; production: the daemon log's directory). */
   dir: string;
+  /**
+   * Older state directories, read only when `dir` has no mark yet: the highest of their marks is carried over, so the
+   * rename (Step 15 S1, `~/.chrome-agent-bridge/` to `~/.browser-agent-bridge/`) never reuses a number. Never written.
+   */
+  legacyDirs?: string[];
   /** Clock for the time base. Default `Date.now`. */
   now?: () => number;
   /** Numbers reserved per write. Default `HANDLE_BLOCK`. */
@@ -104,7 +109,13 @@ export function createHandleMark(options: HandleMarkOptions): HandleMark {
   /** The highest number the file covers; a number above it needs a write first. */
   let ceiling: number;
 
-  const mark = readMark(fs, file);
+  let mark = readMark(fs, file);
+  if (mark === 0) {
+    for (const old of options.legacyDirs ?? []) {
+      const m = readMark(fs, path.join(old, HANDLE_MARK_FILE));
+      mark = m === undefined || mark === undefined ? undefined : Math.max(mark, m);
+    }
+  }
   if (mark === undefined) {
     mode = "fallback";
     next = timeBase(now());

@@ -35,7 +35,7 @@ import {
 
 /** #245 (b): the refusal when this extension may not read local files. Fixed; names no path. */
 export const NO_FILE_ACCESS_MESSAGE =
-  "Chrome does not allow this extension to read local files (chrome://extensions → Chrome Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.";
+  "Chrome does not allow this extension to read local files (chrome://extensions → Browser Agent Bridge → Details → Allow access to file URLs), so the bridge cannot upload. Ask the user.";
 
 /** #245 (b): `allowed` is what `chrome.extension.isAllowedFileSchemeAccess()` resolved to; anything else refuses. */
 export function fileAccessRefusal(allowed: unknown): BridgeError | null {

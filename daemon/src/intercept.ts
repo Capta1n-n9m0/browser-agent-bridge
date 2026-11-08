@@ -36,13 +36,13 @@ import { classify, takesLock, trustedFocus, NETWORK_METHODS, REMOVED_METHODS, TR
 import { DAEMON_SLACK_MS, DEFAULT_TIMEOUT_MS, MAX_TIMEOUT_MS, MIN_TIMEOUT_MS } from "./route.js";
 
 export const RELOAD_HINT =
-  "the Chrome extension is an older build — reload it at chrome://extensions (↻ on Chrome Agent Bridge)";
+  "the Chrome extension is an older build — reload it at chrome://extensions (↻ on Browser Agent Bridge)";
 /** Step 12 S2b (#332): `args` sent to an extension whose hello did not list `"evaluateArgs"`. */
 export const ARGS_RELOAD_HINT =
-  "the Chrome extension is an older build without evaluate args — reload it at chrome://extensions (↻ on Chrome Agent Bridge)";
+  "the Chrome extension is an older build without evaluate args — reload it at chrome://extensions (↻ on Browser Agent Bridge)";
 /** Step 12 S5c (#355): `uploadFiles` `chooser` sent to an extension whose hello did not list `"uploadChooser"`. */
 export const CHOOSER_RELOAD_HINT =
-  "the Chrome extension is an older build without the file chooser upload — reload it at chrome://extensions (↻ on Chrome Agent Bridge)";
+  "the Chrome extension is an older build without the file chooser upload — reload it at chrome://extensions (↻ on Browser Agent Bridge)";
 export const NO_HUMAN_TAB =
   "No normal Chrome window is focused (a DevTools or popup window may have focus) — click a normal Chrome window and retry";
 

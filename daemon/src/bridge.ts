@@ -2,7 +2,7 @@ import { BridgeError, ErrorCodes } from "@bridge/shared";
 import { ExtensionConnection, type CallOptions } from "./connection.js";
 
 const NOT_CONNECTED =
-  "Extension not connected — is Chrome open and the Chrome Agent Bridge extension enabled?";
+  "Extension not connected — is Chrome open and the Browser Agent Bridge extension enabled?";
 
 export interface HostState {
   listening: boolean;
