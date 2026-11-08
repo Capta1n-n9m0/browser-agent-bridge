@@ -37,7 +37,7 @@ param(
   [string]$Name = 'Browser Agent Bridge',
   # The name before the rename (Step 15 S1): a card still showing it, until its first reload, also matches.
   [string[]]$OldNames = @('Chrome Agent Bridge'),
-  [string]$ExtensionId = '',
+  [string]$ExtensionId = 'iifofgbdljchbdimlalhphmedfmocela',  # the fixed ID from the manifest's key (Step 15 S4); '' = the path-based ID
   [int]$TimeoutSec = 15,
   [switch]$DryRun
 )
