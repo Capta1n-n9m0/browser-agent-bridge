@@ -275,4 +275,13 @@ gives the manifest the bare X.Y.Z). actionlint (wasm, no shellcheck) clean. `npm
 steps passed on Linux (WSL, Node 22.14, fresh clone: 4332 passed, 1 skipped); macOS not run anywhere. `sdk/test/spawn-inherit.test.ts`
 passes `--experimental-strip-types` under Node 22.14 (types are stripped by default only from 22.18).
 
+**S7 — done (commit `64310a1` plus the session agent's fixes; awaiting the user's approval):** `README.md` (product first; the
+three routes; says the store listing is not live and the zip is the route until it is; the License and Trademark sections kept),
+`docs/security.md`, `docs/privacy.md` (the store's privacy URL), `docs/store-listing.md` (descriptions, category Developer
+Tools, single purpose, one reason per permission, the reviewer note on `browser_evaluate`), `docs/setup.md` (an Install section on
+top, the developer and manual material kept below), `CHANGELOG.md` (`## 0.2.0`; `npm run release:build` passed with it), the old
+extension ID in `docs/e2e-test-plan.md` replaced. The session agent added uploads to the `debugger` reasons, scoped the README's
+cookie line to the network log, and removed "Step 15" from the README. Open: `activeTab` is in the manifest and nothing in the code
+uses it (`<all_urls>` covers it); removing it is a permission change for the user to rule.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.

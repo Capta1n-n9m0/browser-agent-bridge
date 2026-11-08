@@ -55,7 +55,7 @@ Download `browser-agent-bridge-<version>.mcpb` from the GitHub Releases page and
 brings its own Node.js. Install the Chrome extension as in route 1.
 
 What has been tested: the `.mcpb` packs and validates, and its server starts and lists the tools in a scratch run. The
-install into the Claude Desktop app itself is checked at the end of Step 15 and this line is updated with the result.
+install into the Claude Desktop app itself is checked before the v0.2.0 release and this line is updated with the result.
 macOS has not been tested with the `.mcpb`.
 
 ### 3. Developers: the SDK, or a clone
@@ -74,7 +74,7 @@ macOS has not been tested with the `.mcpb`.
 
 Requirements: Google Chrome 116 or newer. The code has branches for Windows, macOS and Linux, and a CI setup for all three (its first run on
 GitHub has not happened yet). Tested by hand so far: Windows (the author's machine), macOS (a friend's) and a Linux server reached over an SSH tunnel (this
-was before the pairing helper existed; the new install routes get their live check at the end of Step 15).
+was before the pairing helper existed; the new install routes get their live check before the v0.2.0 release).
 
 ## What the agent can do
 
@@ -111,7 +111,8 @@ Short version; the full model is [`docs/security.md`](docs/security.md).
 - What an agent reads from a page goes to the AI service you chose (for example Anthropic, for Claude), as it would if
   you pasted the page into a chat. The bridge sends nothing anywhere itself and has no analytics.
 - The most powerful tool is `browser_evaluate`, which runs JavaScript with your login. You can switch it off.
-- Cookies never reach the extension, and sensitive headers are redacted before anything is stored.
+- The network log never sees cookies, and sensitive headers are redacted before anything is stored. (A page's own
+  JavaScript, run through `browser_evaluate`, can still read what that page can read.)
 
 Privacy policy: [`docs/privacy.md`](docs/privacy.md).
 

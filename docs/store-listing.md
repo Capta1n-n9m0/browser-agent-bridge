@@ -52,7 +52,7 @@ navigate, capture) through a local connection, under controls only the user can 
 
 | Permission | Why |
 |---|---|
-| `debugger` | Real keyboard and mouse input for sites that ignore synthetic events, full-page screenshots, console messages, and running the JavaScript the agent supplies. Chrome shows its "debugging this browser" banner while it is used. |
+| `debugger` | Real keyboard and mouse input for sites that ignore synthetic events, full-page screenshots, console messages, file uploads from the folders the user allows, and running the JavaScript the agent supplies. Chrome shows its "debugging this browser" banner while it is used. |
 | `tabs` | List the open tabs and their titles and addresses, open, close and switch tabs for the agent, and follow navigation. |
 | `scripting` | Inject the page-reading and clicking code into the tab the agent works on. |
 | `activeTab` | Standard grant for the page the user is on when they press the toolbar button. Broad site access is also requested for the agent's work. |
@@ -80,7 +80,7 @@ tool working. The whole bridge can be turned off from the toolbar button. These 
 cannot be changed by the agent or the local program.
 
 Why each sensitive permission is needed is in the table above. `debugger` is used only for: trusted (real) input,
-full-page screenshots, console reading, and `browser_evaluate`. Test instructions for review: install the extension;
+full-page screenshots, console reading, file uploads from the folders the user allows, and `browser_evaluate`. Test instructions for review: install the extension;
 the local program needs Node.js 20 or newer (`npx -y browser-agent-bridge`); a demo with a test page is in the
 repository (`test-fixtures/e2e-playground.html`).
 
