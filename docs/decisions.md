@@ -166,7 +166,8 @@ permissions; an unused one is a question a reviewer may ask. No behaviour change
 **Decided (user):** the daemon, the extension, the MCP server, the scripts and the repo root are `AGPL-3.0-only`
 (`LICENSE`); `sdk/` and `shared/` (which the SDK imports) are `Apache-2.0` (`sdk/LICENSE`, `shared/LICENSE`). The README
 gains a trademark note: the licenses cover the code, not the name "Browser Agent Bridge". Versions released before
-2026-11-08 stay MIT. The second contributor on `main` (`start-bridge.sh`) gave their consent, as the user reports; their written confirmation is pending (asked 2026-11-08).
+2026-11-08 stay MIT. The second contributor on `main` (`start-bridge.sh`) gave their consent, as the user reports, and confirmed it in writing in GitHub issue #2 (2026-11-08), from the same
+GitHub account that authored their commit.
 **For S2:** the one npm package (#449) bundles both parts, so its `license` field is the SPDX expression
 `AGPL-3.0-only AND Apache-2.0`, and it ships both texts and says which files fall under which. **Why:** the user wants
 more protection than MIT, so no one can take the product closed. An Apache-2.0 SDK keeps users' scripts free of AGPL
