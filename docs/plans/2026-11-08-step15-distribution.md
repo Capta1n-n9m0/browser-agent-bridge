@@ -242,4 +242,19 @@ the old ID (S7/S9); S9 removes the old unpacked entry and loads it again. Incide
 repo `bridge.token` and printed the user's real token once in its own tool output; no copy in any commit, the tree or the
 scratch folder (counted, 2026-11-08).
 
+**S5 — done (commit `d1fd239`):** `npm run pack:mcpb` (`scripts/package/mcpb/`) builds `build/browser-agent-bridge-<version>.mcpb`
+from `build:npm` plus `ws`, a generated `manifest.json` (`manifest_version` "0.3", platforms darwin and win32,
+`tools_generated`) and a placeholder icon (S8 replaces it); validated and packed by the pinned `@anthropic-ai/mcpb` 2.1.2.
+A fresh clone with `npm ci` packed it and the validator passed. The MCP server's first start (#449; `scripts/bridge/host-register.mjs`,
+decision `lib.firstStartDecision`), only when run from an installed package: creates the per-user token if neither
+`BRIDGE_TOKEN` nor the file holds one (mode 0600, exclusive create, an existing token never replaced; beyond the brief, kept by
+the session agent because a `.mcpb` install has no other token source), then registers the native host from where it runs
+whenever the manifest, launcher or registry value differ (fixes the S4 npx-cache MINOR); never throws, one fixed log line;
+`BRIDGE_NO_HOST_REGISTRATION=1` opts out and must be set for any real run of a packaged server on Windows, or it writes the real
+HKCU key. Under Electron the launcher sets `ELECTRON_RUN_AS_NODE=1`. `npm test` 4287 → 4313 passed; typecheck, build,
+`pack:npm` green. Scratch run of the unpacked bundle (port 9296): 25 tools, token, manifest and launcher created in scratch
+folders, the token 0 times in stderr; the real registry was not written. S9 measures on Claude Desktop for Windows whether its
+Node is Electron and whether the app is MSIX-packaged (APPDATA and HKCU virtualised); which `manifest_version` Claude Desktop
+accepts is not checked.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
