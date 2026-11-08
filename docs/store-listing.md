@@ -55,7 +55,6 @@ navigate, capture) through a local connection, under controls only the user can 
 | `debugger` | Real keyboard and mouse input for sites that ignore synthetic events, full-page screenshots, console messages, file uploads from the folders the user allows, and running the JavaScript the agent supplies. Chrome shows its "debugging this browser" banner while it is used. |
 | `tabs` | List the open tabs and their titles and addresses, open, close and switch tabs for the agent, and follow navigation. |
 | `scripting` | Inject the page-reading and clicking code into the tab the agent works on. |
-| `activeTab` | Standard grant for the page the user is on when they press the toolbar button. Broad site access is also requested for the agent's work. |
 | `alarms` | Keep the extension's connection to the local program alive. Chrome stops idle extension workers, and a timer about every 25 seconds prevents that. |
 | `storage` | Keep the pairing token and port, and the user's own settings (switch states, block list, Upload folders). |
 | `offscreen` | Hold the connection to the local program in an offscreen document, which survives Chrome stopping the worker. |

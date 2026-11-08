@@ -154,7 +154,13 @@ None.
 
 ## Log
 
-The next entry is 451.
+The next entry is 452.
+
+### 2026-11-08 · The extension drops the `activeTab` permission (#451)
+**Decided (user):** `activeTab` leaves `extension/manifest.json`. Nothing in the code uses it, the toolbar button is only the
+kill switch, and `<all_urls>` already gives every access `activeTab` would. **Why:** the Web Store asks for the narrowest
+permissions; an unused one is a question a reviewer may ask. No behaviour changes and no install warning changes.
+`extension/test/manifest.test.ts` pins its absence. **By:** user
 
 ### 2026-11-08 · The license moves from MIT to AGPL-3.0, with the SDK under Apache-2.0 (#450)
 **Decided (user):** the daemon, the extension, the MCP server, the scripts and the repo root are `AGPL-3.0-only`

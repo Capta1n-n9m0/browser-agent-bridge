@@ -6,7 +6,7 @@
   "minimum_chrome_version": "116",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+OzbGJN9JRZrsi4gDKhKffEGPYdxziVoUE7r14mvgyklMYXMas3Je8e++wOcFaLXp/izl/PFVc5E2qGNKoImD6/k6YfcuhYkXER7lb/HVtdGZZcXA2WrEZnqmjHMo6SWlm8bUM4yY9/lOcnPaPVY0WEqf+i/yx2twDoDWpLcYh0cSF1sAAie5PbjLsM2tAc5tQj1vktkGyGGvh3mQxpeUastL14Tkp6pO9roBWND0atKwPR0CZGLDkbxWXjPyyrYe77uZflvgP3DFFZ4lVr9uBYSz0vWtevcEXN8INg1EDWjrFk0gnWZ4OuCPA4SzuDPXpZyL6fk/L34TWbQydGlnQIDAQAB",
   "background": { "service_worker": "dist/sw.js", "type": "module" },
-  "permissions": ["debugger", "tabs", "scripting", "activeTab", "alarms", "storage", "offscreen", "webRequest", "declarativeNetRequestWithHostAccess", "webNavigation", "nativeMessaging"],
+  "permissions": ["debugger", "tabs", "scripting", "alarms", "storage", "offscreen", "webRequest", "declarativeNetRequestWithHostAccess", "webNavigation", "nativeMessaging"],
   "host_permissions": ["<all_urls>"],
   "icons": { "16": "icons/icon-16.png", "32": "icons/icon-32.png", "48": "icons/icon-48.png", "128": "icons/icon-128.png" },
   "options_page": "options.html",

@@ -46,8 +46,10 @@ const ADDED_11B = "declarativeNetRequestWithHostAccess";
 const ADDED_13 = "webNavigation";
 /** Step 15 S4: the one permission added after Step 13's (#449, the native host). */
 const ADDED_15 = "nativeMessaging";
-/** Today's list: S2b's, then 11b's, then Step 13's, then Step 15's, in that order. */
-const NOW = [...(BEFORE.permissions as string[]), ADDED_11B, ADDED_13, ADDED_15];
+/** Step 15: the one permission removed, unused since `<all_urls>` covers it (the user's ruling, #451). */
+const REMOVED_15 = "activeTab";
+/** Today's list: S2b's without activeTab, then 11b's, then Step 13's, then Step 15's, in that order. */
+const NOW = [...(BEFORE.permissions as string[]).filter((p) => p !== REMOVED_15), ADDED_11B, ADDED_13, ADDED_15];
 
 /** Chrome's extension ID from a manifest `key`: sha256 of the DER, first 32 hex digits mapped 0-f → a-p. */
 function idFromKey(key: string): string {
