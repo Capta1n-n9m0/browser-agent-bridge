@@ -207,4 +207,18 @@ token to the per-user file; `claudeConfigPath` (`scripts/bridge/lib.mjs`) always
 package daemon have different build ids and would hand the port back and forth (read from the code, not run). Left for
 later: the `[chrome-bridge]` log prefix the S1 rename missed (cosmetic); `scripts/package/build.mjs` is not typechecked.
 
+**S3 — done (commit `6b964a0`):** setup and doctor run from a clone and from the package (`npx browser-agent-bridge setup`)
+on Windows, macOS and Linux, platform and mode injected, one test per OS branch (`scripts/test/s15-setup-os.test.ts`). The MCP
+entry (user scope) is `node <repo>/mcp/dist/index.js` from a clone, `npx -y browser-agent-bridge` from the package
+(`cmd /c npx …` on native Windows). Setup moves a repo `bridge.token` to the per-user file; if both exist and differ, both stay
+and the per-user one wins. `claudeConfigPath` is per platform. Native host `com.browser_agent_bridge.host` registered (HKCU key;
+the manifest in Chrome's NativeMessagingHosts on macOS/Linux) with a launcher on the absolute node path; S4 fills in the script
+(package `dist/native-host.js`, clone `scripts/native-host/host.mjs`) and `ALLOWED_EXTENSION_IDS` (empty: Chrome admits no
+caller); doctor's Native host line is a hint until then. Handover between installs: the daemon writes
+`~/.browser-agent-bridge/daemon-<port>.json` {build, path, pid} after binding; a client with a different build uses the running
+daemon as it is when it belongs to another install, is that install's current build and the same version or newer, else hands
+over as before (also on 4002); no wire change. Checked with real processes on ports 9291/9292 (scratch home, throwaway token).
+Trade-off: a clone and a package of the same version keep whichever daemon started first (`sdk/CLAUDE.md`). `npm test` 4153 →
+4205 passed; typecheck, build and `pack:npm` green. Not run: a real setup, the real registry, macOS/Linux natively (S6 CI).
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
