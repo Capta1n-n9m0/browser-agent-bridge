@@ -14,10 +14,11 @@ extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chr
 ## Current state (2026-11-08: Step 15 paused after S1; S2 is next)
 
 - **Step 15 resume point:** S0, S1 and U4 are done, committed and not pushed (`main` is ahead of `origin/main`). S2 was
-  started and then stopped before any edit; start it again with a fresh step agent from the phase doc. Open: the license
-  (U6; the user may leave MIT). The user still has to run `npm run setup` so the MCP entry gets the new name.
+  started and then stopped before any edit; start it again with a fresh step agent from the phase doc. The license is ruled (#450:
+  AGPL-3.0-only, the SDK and `shared/` Apache-2.0). The user still has to run `npm run setup` so the MCP entry gets the
+  new name.
 
-- **Shipped:** Steps 1–14, public on GitHub (MIT). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
+- **Shipped:** Steps 1–14, public on GitHub (AGPL-3.0-only, the SDK Apache-2.0, #450). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
   install by `npm run setup` / `doctor` / `bridge-update`; also run by others on macOS and on Linux over an SSH tunnel.
 - **Renamed Browser Agent Bridge** (#444): the GitHub repo is `browser-agent-bridge` (old URL redirects) and npm
   `browser-agent-bridge` is claimed (org `@browser-agent-bridge`). Step 15 S1 renamed code and docs: MCP server

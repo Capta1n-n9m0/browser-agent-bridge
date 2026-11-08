@@ -149,9 +149,9 @@ request, #449).
 - **U4** — npm trusted publishing on npmjs.com (one form), or publish by hand with the passkey.
 - **U5** — Claude Desktop is installed on this machine (S9 tests the `.mcpb` there); the macOS and Linux runs of the
   checklist.
-- **U6** — the license: the user is thinking about leaving MIT for something more protective (raised 2026-11-08). It
-  needs a ruling before S2 publishes a `license` field and before S7 and v0.2.0. One small file on `main`
-  (`start-bridge.sh`) is by a second contributor, so changing the license needs their OK or a rewrite of that file.
+- **U6** — done: the license is AGPL-3.0-only, the SDK and `shared/` Apache-2.0, plus a trademark note (2026-11-08 ·
+  The license moves from MIT to AGPL-3.0, with the SDK under Apache-2.0 (#450)). S2 sets the package's `license`
+  field as that decision says; S7's README and listing keep the License and Trademark sections.
 - Approvals: README, listing text, icons, screenshots; every push, tag and publish.
 
 ## v1

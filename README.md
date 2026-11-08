@@ -119,8 +119,21 @@ S5): was "1714 unit tests green in 85 files"; Step 9 added the safety controls a
 Step 10 added its features and tests (`docs/plans/2026-10-24-step10-step8-follow-ups-asbuilt.md`), and the
 user ruled Run 13 (#202).*
 
-Merged to `main` and published as a public GitHub repo under the MIT license (2026-09-03).
+Merged to `main` and published as a public GitHub repo (2026-09-03). Licensed under MIT until 2026-11-08, now
+AGPL-3.0 with an Apache-2.0 SDK (below).
 
 ## License
 
-[MIT](LICENSE).
+- The daemon, the extension, the MCP server and the setup tools are licensed under the
+  [GNU Affero General Public License v3.0 only](LICENSE) (AGPL-3.0-only). If you change them and distribute them, or
+  let people use your changed version over a network, you must publish your changes under the same license.
+- The SDK (`sdk/`) and the shared protocol types (`shared/`) are licensed under the
+  [Apache License 2.0](sdk/LICENSE), so scripts and programs that import the SDK can use any license.
+
+Versions published before 2026-11-08 stay under the MIT license they were released with.
+
+## Trademark
+
+"Browser Agent Bridge" and its logo are the project's name and mark. The licenses above cover the code, not the name:
+a fork or a changed version must use a different name and must not suggest it is the official project or is endorsed
+by it. Saying truthfully that your work is based on Browser Agent Bridge is fine.

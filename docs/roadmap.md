@@ -2,7 +2,7 @@
 
 ## Where we are
 
-- Steps 1 to 14 are shipped. The project is public on GitHub under the MIT license.
+- Steps 1 to 14 are shipped. The project is public on GitHub under AGPL-3.0-only, with the SDK under Apache-2.0 (MIT until 2026-11-08, #450).
 - The product has 25 tools, a daemon, a TypeScript SDK, an MCP server and a Chrome MV3 extension.
 - It installs on Windows with `npm run setup`. The extension is loaded unpacked.
 - On 2026-11-08 the product was renamed **Browser Agent Bridge**.
