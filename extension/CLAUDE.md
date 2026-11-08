@@ -71,7 +71,7 @@ you open a file there; read the one whose topic you touch from elsewhere in `ext
   `chrome.action` injected, unit-tested) logs one fixed line per press (`toggleLogLine`); `options.ts` +
   `extension/options.html` are page glue (DOM + `chrome.storage.local`, the Safety, Blocked sites and Upload folders
   boxes), not unit-tested, read statically by `safety-writers.test.ts`. Guards: `log-scan.test.ts`
-  (+ `log-allowlist.ts`, 54 log sites), `log-sentinel.test.ts`, `safety-writers.test.ts`, `manifest.test.ts`.
+  (+ `log-allowlist.ts`, 59 log sites, `scripts/package/` and the doctor included), `log-sentinel.test.ts`, `safety-writers.test.ts`, `manifest.test.ts`.
   Older files: handlers are listed by method in `sw.ts` (`handlers/{actions,evaluate,navigate,perceive}.ts`);
   `evaluate/wrap.ts` is the `return` heuristic for `replMode`; `content/{actions,geometry,index,refmap}.ts` hold the
   page-side actions, frame-aware element centres, the `window.__agentBridge` entry and the `RefMap`.

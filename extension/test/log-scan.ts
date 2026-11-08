@@ -31,7 +31,9 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 export const REPO = fileURLToPath(new URL("../../", import.meta.url));
-export const SCANNED_ROOTS = ["extension/src", "daemon/src", "sdk/src", "mcp/src"] as const;
+export const SCANNED_ROOTS = ["extension/src", "daemon/src", "sdk/src", "mcp/src", "scripts/package"] as const;
+/** Single files outside the roots that ship in the npm package (Step 15 S2): the doctor and its helpers, bundled to dist/doctor.js. */
+export const SCANNED_FILES = ["scripts/bridge/doctor.ts", "scripts/bridge/lib.mjs"] as const;
 
 export interface LogSite {
   /** Repo-relative, forward slashes. */
@@ -156,6 +158,7 @@ export function scannedSources(): Map<string, string> {
   for (const root of SCANNED_ROOTS) {
     for (const f of walk(join(REPO, root))) m.set(relative(REPO, f).replace(/\\/g, "/"), readFileSync(f, "utf8"));
   }
+  for (const f of SCANNED_FILES) m.set(f, readFileSync(join(REPO, f), "utf8"));
   return m;
 }
 

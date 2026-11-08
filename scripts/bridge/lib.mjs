@@ -167,7 +167,10 @@ export const extensionOlder = (swMtimeMs, resyncMs) =>
  * @typedef {"none" | "same" | "differs"} Same
  * @param {{ node: string, build: { missing: boolean, stale: boolean }, token: "ok" | "missing",
  *   mcp: ReturnType<typeof mcpDecision> | null, shellToken: Same, shellPort: Same, daemon: DaemonFact,
- *   extensionOlder: boolean | null, port: string }} f the doctor's facts; no token value, only same/differs
+ *   extensionOlder: boolean | null, port: string, mode?: "clone" | "package", pkgVersion?: string,
+ *   tokenSource?: "user" | "clone" | null, userTokenFile?: string | null }} f the doctor's facts; no token value, only
+ *   same/differs. `mode: "package"` (Step 15 S2): run from the installed npm package, so no build, no checkout path and
+ *   no `npm run setup` (S3 brings setup to the package).
  * @returns {Line[]}
  */
 export function doctorLines(f) {
@@ -176,16 +179,24 @@ export function doctorLines(f) {
   const add = (name, level, detail, fix = "") => (out.push({ name, level, detail, fix: level === "ok" ? "" : fix }), out);
   add("Node.js", Number(f.node.split(".")[0]) >= MIN_NODE_MAJOR ? "ok" : "fail", `v${f.node}`,
     `install Node.js ${MIN_NODE_MAJOR} or newer from nodejs.org, then open a new terminal`);
-  if (f.build.missing) add("Build", "fail", "dist files missing", "run npm run build");
+  const pkg = f.mode === "package";
+  const setupFix = pkg ? `put the extension's token in ${f.userTokenFile ?? "the per-user bridge.token"} (or set BRIDGE_TOKEN)`
+    : "run npm run setup";
+  if (pkg) add("Package", "ok", `${SERVER_NAME} ${f.pkgVersion ?? "(unknown version)"}, installed from npm`);
+  else if (f.build.missing) add("Build", "fail", "dist files missing", "run npm run build");
   else if (f.build.stale) add("Build", "fail", "sources are newer than dist", "run npm run build, then reload the extension and run /mcp");
   else add("Build", "ok", "dist present and newer than its sources");
-  add("Token file", f.token === "ok" ? "ok" : "fail", f.token === "ok" ? "bridge.token present (not shown)" : "bridge.token missing or empty",
-    "run npm run setup (it creates bridge.token), then paste the token in the extension's Options");
+  add("Token file", f.token === "ok" ? "ok" : "fail", f.token !== "ok" ? "bridge.token missing or empty"
+    : f.tokenSource === "user" ? "the per-user bridge.token present (not shown)" : "bridge.token present (not shown)",
+    pkg ? `${setupFix}; the same token goes in the extension's Options`
+      : "run npm run setup (it creates bridge.token), then paste the token in the extension's Options");
   const m = f.mcp;
   if (!m) add("MCP entry", "fail", ".claude.json cannot be parsed", "fix the JSON in .claude.json, then run the doctor again");
   else if (!m.current && m.legacy?.length) add("MCP entry", "fail", `a user-scope ${m.legacy.join(", ")} entry (the old name)`,
     `run npm run setup (it replaces it with ${SERVER_NAME})`);
-  else if (m.action === "add") add("MCP entry", "fail", `no user-scope ${SERVER_NAME} entry`, "run npm run setup");
+  else if (m.action === "add") add("MCP entry", "fail", `no user-scope ${SERVER_NAME} entry`,
+    pkg ? `claude mcp add -s user ${SERVER_NAME} -- npx -y ${SERVER_NAME}` : "run npm run setup");
+  else if (pkg) add("MCP entry", "ok", "user scope (its command is not checked from the package)");
   else if (m.action === "leave") add("MCP entry", "ok", "user scope, points at this checkout");
   else add("MCP entry", "fail", `points at ${m.existing}, not this checkout`, "run npm run setup -- --replace-mcp");
   if (m?.envToken === "differs") add("MCP entry's token", "fail", "the entry's BRIDGE_TOKEN differs from bridge.token and wins",
@@ -204,7 +215,7 @@ export function doctorLines(f) {
   if (f.shellPort !== "none") add("Shell BRIDGE_PORT", f.shellPort === "same" ? "hint" : "fail",
     `${f.shellPort === "same" ? "same as" : "differs from"} the port the MCP uses`, "unset BRIDGE_PORT (every client must use one port)");
   const d = f.daemon;
-  if (d.state === "notoken") add("Daemon", "hint", "not checked: no token to knock with", "run npm run setup");
+  if (d.state === "notoken") add("Daemon", "hint", "not checked: no token to knock with", setupFix);
   else if (d.state === "down") add("Daemon", "hint", "not running", "it starts with the first client (Claude Code or a script)");
   else if (d.state === "refused") add("Daemon", "fail", "running, but it refused the token",
     "it was started with another token: end the sessions that use it, then run /mcp");
@@ -214,7 +225,7 @@ export function doctorLines(f) {
   if (d.state !== "up") return add("Extension", "hint", "not checked (no daemon answered)", "start Claude Code or a script, then run the doctor again");
   add("Extension", d.extensionConnected ? "ok" : "fail", d.extensionConnected ? "connected" : "not connected",
     `open Chrome; check the extension is loaded and enabled and its Options hold port ${f.port} and the token from bridge.token`);
-  if (!d.extensionConnected) return out;
+  if (!d.extensionConnected || pkg) return out;
   return add("Extension build (heuristic)", f.extensionOlder === false ? "ok" : "hint",
     f.extensionOlder === false ? "extension resynced after the last build (a heuristic: it cannot tell the loaded build)" : "may be older than the build",
     "reload it: the reload button on chrome://extensions, or npm run bridge-update");

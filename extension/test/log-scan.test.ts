@@ -12,12 +12,14 @@ describe("0.7 log scan — every log call site is allowlisted", () => {
   const files = scannedSources();
   const found = allLogSites(files);
 
-  it("the scan reads all four packages", () => {
+  it("the scan reads all four packages and the npm package's commands", () => {
     for (const root of SCANNED_ROOTS) expect([...files.keys()].some((f) => f.startsWith(`${root}/`)), root).toBe(true);
     expect(files.has("extension/src/sw.ts")).toBe(true);
     expect(files.has("daemon/src/main.ts")).toBe(true);
     expect(files.has("mcp/src/index.ts")).toBe(true);
     expect(files.has("sdk/src/client.ts")).toBe(true);
+    expect(files.has("scripts/package/cli.mjs")).toBe(true);
+    expect(files.has("scripts/bridge/doctor.ts")).toBe(true);
   });
 
   it("found sites = the allowlist, both ways", () => {
@@ -30,9 +32,9 @@ describe("0.7 log scan — every log call site is allowlisted", () => {
     for (const e of LOG_ALLOWLIST) expect(e.prints.trim().length, `${e.file} | ${e.call}`).toBeGreaterThanOrEqual(5);
   });
 
-  it("sizes per package (extension 15, daemon 33, sdk 0, mcp 6)", () => {
+  it("sizes per package (extension 15, daemon 33, sdk 0, mcp 6, scripts 5)", () => {
     const per = (root: string) => LOG_ALLOWLIST.filter((e) => e.file.startsWith(`${root}/`)).length;
-    expect([per("extension/src"), per("daemon/src"), per("sdk/src"), per("mcp/src")]).toEqual([15, 33, 0, 6]);
+    expect([per("extension/src"), per("daemon/src"), per("sdk/src"), per("mcp/src"), per("scripts")]).toEqual([15, 33, 0, 6, 5]);
   });
 
   describe("the scan is discriminating (in-memory mutations of real files)", () => {

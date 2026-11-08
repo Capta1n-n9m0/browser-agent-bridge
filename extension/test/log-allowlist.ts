@@ -1,7 +1,8 @@
 /**
  * Step 9 S2b: the 0.7 log scan's committed allowlist — every `console.*` call, every injected-logger call
  * (`log(…)`, `….log(…)`), every logger or `console`/`process` used as a value, and every `process.stdout`/`stderr`
- * use (the forms `log-scan.ts` enumerates) in `extension/src`, `daemon/src`, `sdk/src`, `mcp/src`, by file and normalised call
+ * use (the forms `log-scan.ts` enumerates) in `extension/src`, `daemon/src`, `sdk/src`, `mcp/src`, `scripts/package` and
+ * `scripts/bridge/doctor.ts` (the npm package's commands, Step 15 S2), by file and normalised call
  * text, with what it may print (phase doc 0.7's F28 note; S2.3 as #141 words it). `log-scan.test.ts` fails on a
  * site not listed here and on an entry no longer found. A changed argument is a changed text: re-review it.
  *
@@ -78,4 +79,11 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   { file: "mcp/src/index.ts", call: "process (as a value): signals: process", prints: "nothing: handed to installLifecycle as an EventEmitter for signal listeners only (lifecycle.ts:67,85) (S2b fixer r1, F2)" },
 
   // ---------------------------------------------------------------- sdk/src (0): the SDK never logs.
+
+  // ---------------------------------------------------------------- the npm package's commands (5, Step 15 S2)
+  { file: "scripts/package/build.mjs", call: "console.log(`built build/npm: ${entries.length} bundles, ${declarations} declaration files, ${thirdParty.size} third-party packages noticed`)", prints: "three counts (the build tool, never shipped)" },
+  { file: "scripts/package/cli.mjs", call: "process.stdout (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },
+  { file: "scripts/package/cli.mjs", call: "process.stderr (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },
+  { file: "scripts/bridge/doctor.ts", call: "console.log(lib.formatLine(l))", prints: "a doctor line: fixed texts, the Node and package versions, ports, paths of the token file and the MCP entry; tokens only as same/differs" },
+  { file: "scripts/bridge/doctor.ts", call: 'console.log(failed ? `\\n${failed} part(s) failed: each FAIL line names its fix.` : "\\nNo part failed.")', prints: "a count of failed parts" },
 ];

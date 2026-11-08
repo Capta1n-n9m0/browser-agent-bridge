@@ -22,8 +22,11 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   `report.ts`), `report.ts` (the `@bridge/sdk/report`
   subpath: `attachContext` for the MCP), `policy.ts` (`TRUSTED_INPUT_POLICY = "focusFirst"`),
   `transport.ts` (the `ws` socket), `spawn.ts`,
-  `paths.ts` (daemon path, `BRIDGE_DAEMON`), `token.ts` (`resolveToken`, also used by the daemon and by scripts outside
-  the repo through a `file:` dependency, `examples/list-tabs.ts`, #430),
+  `paths.ts` (daemon path: `BRIDGE_DAEMON`, else `<package>/dist/daemon.js` inside the installed npm package, else the
+  clone's `daemon/dist/index.js`), `token.ts` (`resolveToken`: `BRIDGE_TOKEN`, then the per-user `bridge.token`
+  (`userTokenFile`), then a clone's `bridge.token` — skipped inside the installed package (`findPackageRoot`), #449;
+  `findFileToken` is the files-only half the doctor uses; also used by the daemon and by scripts outside the repo through
+  a `file:` dependency, `examples/list-tabs.ts`, #430),
   `download.ts` (`browser_download`'s client half: target path, chunked pull, atomic write, sha256),
   `upload.ts` (Step 11: `prepareUpload` — each path absolute, an existing readable regular file, else `BAD_PARAMS`
   naming the entry's index, never the path; sends `fs.promises.realpath`; size and sha256 from one read; also on the
@@ -36,6 +39,11 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   main surface keeps its eight values (`sdk/test/s12-console-format.test.ts`, last test).
 
 ## Runtime gotchas
+- **The per-user token file is found from `env` alone** (`userTokenFile`, Step 15 S2): `APPDATA` (else `USERPROFILE`)
+  on Windows, `HOME` on macOS, `XDG_CONFIG_HOME` (absolute) or `HOME` elsewhere — never `os.homedir()`. So a test that
+  passes `env: {}` reads no real per-user file; keep it that way when adding a reader.
+- **The clone and the npm package run different daemon files**, so their build ids differ: a clone client and a
+  package client on one port hand the daemon over to each other at each `connect()` (by reading `knock.ts`; not run).
 - **No `console.` text anywhere in `sdk/src`**: `sdk/test/failure-report.test.ts` (the "no 'console.' in any sdk/src
   file" test) fails on the substring, even inside a module path or a comment, so a console-related file or import is
   named without it (`consoleMessages`, a `format/` module named otherwise; seen in Step 12 S3b, 2026-10-27).

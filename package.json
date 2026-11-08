@@ -12,7 +12,9 @@
     "recipe": "tsx",
     "setup": "node scripts/bridge/setup.mjs",
     "doctor": "tsx scripts/bridge/doctor.ts",
-    "bridge-update": "node scripts/bridge/update.mjs"
+    "bridge-update": "node scripts/bridge/update.mjs",
+    "build:npm": "node scripts/package/build.mjs",
+    "pack:npm": "node scripts/package/build.mjs --pack"
   },
   "devDependencies": {
     "@types/node": "^22.10.0",

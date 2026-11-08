@@ -204,8 +204,8 @@ export async function knock(options: KnockOptions): Promise<Knocked> {
           throw new BridgeError(
             ErrorCodes.NOT_CONNECTED,
             `The bridge daemon on port ${port} rejected the token or the hello (close 4001` +
-              `${reason ? `: "${reason}"` : ""}). The token must match ` +
-              "bridge.token at the workspace root / BRIDGE_TOKEN, and the token in the extension's Options.",
+              `${reason ? `: "${reason}"` : ""}). The token must be the same ` +
+              "everywhere: BRIDGE_TOKEN or the bridge.token file (per-user, or a clone's), and the extension's Options.",
           );
         }
         last = `the daemon closed the socket during hello (${outcome.code})`;

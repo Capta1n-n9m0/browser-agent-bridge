@@ -111,12 +111,13 @@ Details and measured facts are in the package file named; the integrity floor is
 ```bash
 npm install
 npm run build        # daemon/dist/index.js + mcp/dist/index.js + extension/dist/{sw,options,offscreen,content}.js
-npm test             # vitest — 4123 passed (`npm test` 2026-11-08, after the S1 rename; recipes/test and scripts/test included)
+npm test             # vitest — 4153 passed (`npm test` 2026-11-08, Step 15 S2; recipes/test and scripts/test included)
 npm run typecheck    # tsc across shared/daemon/sdk/mcp/extension/scripts (chained with `&&`; see the cross-package gotchas below)
 npm run recipe -- recipes/<file>.ts [args]   # a script against the SDK, run with tsx (= npx tsx recipes/<file>.ts)
 npm run setup        # one-command install on a Windows device; `-- --dry-run`, `-- --replace-mcp` (`scripts/CLAUDE.md`)
 npm run doctor       # one line per part, read-only (`scripts/CLAUDE.md`)
 npm run bridge-update  # pull, rebuild, reload the extension; `-- --no-reload` (`scripts/CLAUDE.md`)
+npm run build:npm    # the npm package in build/npm/ (bundles, types, licenses); `npm run pack:npm` also packs build/*.tgz
 npx tsc --noEmit -p recipes/tsconfig.json # recipes typecheck separately (exit 0, 2026-11-08)
 ```
 Load the extension: `chrome://extensions` → Developer mode → Load unpacked → `extension/`, then set the

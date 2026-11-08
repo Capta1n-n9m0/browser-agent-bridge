@@ -1,5 +1,5 @@
 // The MCP's own configuration. The token and port are not read here any more: `connect()` from
-// @bridge/sdk resolves them (BRIDGE_TOKEN wins, else `bridge.token` at the workspace root; BRIDGE_PORT,
+// @bridge/sdk resolves them (BRIDGE_TOKEN, the per-user `bridge.token`, a clone's `bridge.token`; BRIDGE_PORT,
 // default 9234) — phase-doc decision 0.10.
 
 /**

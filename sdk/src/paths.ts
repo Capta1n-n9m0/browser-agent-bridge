@@ -1,9 +1,12 @@
-// Where the daemon the SDK would spawn lives (phase-doc 0.5 as amended by stage0-audit F2):
-// `<workspace root>/daemon/dist/index.js`, found by the same walk-up as `bridge.token`;
-// `BRIDGE_DAEMON` overrides it. A missing file is an error before any knock.
+// Where the daemon the SDK would spawn lives: inside the installed npm package `<package>/dist/daemon.js` (Step 15
+// S2); in a clone `<workspace root>/daemon/dist/index.js` (phase-doc 0.5 as amended by stage0-audit F2), found by the
+// same walk-up as `bridge.token`; `BRIDGE_DAEMON` overrides both. A missing file is an error before any knock.
 import { statSync } from "node:fs";
 import path from "node:path";
-import { findWorkspaceRoot, moduleDir } from "./token.js";
+import { findPackageRoot, findWorkspaceRoot, moduleDir } from "./token.js";
+
+/** The daemon bundle's place inside the installed package, relative to its root. */
+export const PACKAGE_DAEMON = path.join("dist", "daemon.js");
 
 export interface ResolveDaemonPathOptions {
   env?: NodeJS.ProcessEnv | Record<string, string | undefined>;
@@ -38,6 +41,13 @@ export function resolveDaemonPath(options: ResolveDaemonPathOptions = {}): strin
       message += ` — BRIDGE_DAEMON looks like a Git Bash path (${override}); use a native Windows path such as C:\\…`;
     }
     throw new Error(message);
+  }
+
+  const pkg = findPackageRoot(startDir);
+  if (pkg !== null) {
+    const p = path.join(pkg, PACKAGE_DAEMON);
+    if (isFile(p)) return p;
+    throw new Error(`daemon not found in the installed package (looked for ${p}) — reinstall browser-agent-bridge`);
   }
 
   const root = findWorkspaceRoot(startDir);
