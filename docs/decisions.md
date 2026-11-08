@@ -9,7 +9,7 @@ as a dated entry and point back.
 
 ## Open decisions
 
-None. Step 14's were ruled by #442.
+None. Step 14's were ruled by #442; Step 15's shape is #443–#445.
 
 ## Standing decisions
 
@@ -192,7 +192,43 @@ When a step closes, its entries move to `docs/decisions-archive/` with their num
 ## Log
 
 The current step's entries, newest first. Step 13's (#375–#420) are in `decisions-archive/step13.md`, Step 12's
-(#321–#374) in `decisions-archive/step12.md`. The next entry is 443.
+(#321–#374) in `decisions-archive/step12.md`. The next entry is 446.
+
+### 2026-11-08 · Distribution to a wider audience: the shape of Step 15 (#445)
+**Decided (user),** in chat 2026-11-03 → 2026-11-08:
+1. **Audience:** less technical people first; the developer route (npm, the SDK, a clone) stays open.
+2. **Platforms:** Windows, macOS and Linux. A friend ran it on macOS and the user on a Linux server over an SSH
+   tunnel; both worked.
+3. **npm:** the daemon, the MCP server and the SDK are published to npm.
+4. **The extension:** a zip on GitHub Releases (unpacked) and a **public** Chrome Web Store listing, signed by the
+   store; no self-signed `.crx`. If the store refuses, the product stays on GitHub. The user has a developer account.
+5. **GitHub Releases carry everything:** the extension zip, the npm package and the installers.
+6. **Installers for less technical people:** a Claude Desktop extension (`.mcpb`), a standalone program per OS, or
+   both; Step 15's audit proposes which.
+7. **A fixed extension ID is required**, and with it pairing without a pasted token (native messaging) is required
+   for the non-technical path.
+8. **The README is rewritten about the product,** with the security model in plain words; development history becomes
+   a short section near the end.
+9. **U.1 is dropped:** the macOS and Linux runs cover it, and the install steps change with Step 15.
+**Why:** the user's rulings. **Instead of:** unpacked-only for the user's own devices (#374 item 11, #426).
+**Revisit if:** the Web Store refuses the listing (then GitHub only, item 4). **By:** user
+
+### 2026-11-08 · The product is renamed Browser Agent Bridge (#444)
+**Decided (user):** the product is **Browser Agent Bridge** ("Browser Agent Bridge (for Chrome)" in the Web Store),
+npm package `browser-agent-bridge`, npm org `@browser-agent-bridge`, GitHub repo `Capta1n-n9m0/browser-agent-bridge`.
+Chrome comes first; other browsers later. **Done 2026-11-08:** the repo renamed with `gh repo rename` (the old URL
+redirects) and the local remote updated; a placeholder `browser-agent-bridge@0.0.1` (README and license only)
+submitted by the user and held by npm's staged publishing, with the name already owned by the user's account. Renaming
+inside the code and docs is Step 15 work. **Why:** the npm name `chrome-agent-bridge` was taken on 2026-11-01 by an
+unrelated project; "Chrome" as a name's first word risks the store's branding rule; the user plans other browsers.
+**Instead of:** a takedown or a name transfer: the other package is an independent product (checked 2026-11-08: its
+own code and license, nothing of ours), so npm's dispute policy would not apply; a scoped
+`@user/chrome-agent-bridge`, long and confusing beside the other product. **By:** user
+
+### 2026-11-08 · Running over the network waits for a later phase (#443)
+**Decided (user):** the daemon, Chrome and clients on different machines is a future phase; Step 15 keeps the
+`127.0.0.1` bind and only avoids choices that would block it later (for example a hard-coded host in the protocol).
+**Why:** leaving localhost needs encryption and stronger authentication than one shared token. **By:** user
 
 ### 2026-10-30 · The user rules Step 14's gate; Step 14 closes (#442)
 **Decided (user),** on the session agent's plain-language list (chat, 2026-10-30):
