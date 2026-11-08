@@ -14,6 +14,7 @@ npm-debug.log*
 .env
 .env.local
 bridge.token
+chrome-webstore.txt
 
 # OS / editor
 .DS_Store

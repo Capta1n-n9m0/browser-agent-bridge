@@ -221,4 +221,25 @@ over as before (also on 4002); no wire change. Checked with real processes on po
 Trade-off: a clone and a package of the same version keep whichever daemon started first (`sdk/CLAUDE.md`). `npm test` 4153 →
 4205 passed; typecheck, build and `pack:npm` green. Not run: a real setup, the real registry, macOS/Linux natively (S6 CI).
 
+**U2 — done (2026-11-08, by the user):** a draft (not submitted) on the Web Store dashboard; ID
+`iifofgbdljchbdimlalhphmedfmocela`, which the session agent derived from the public key to confirm.
+
+**S4 — done (commit `f6d0376`):** the manifest gains `key` (the store's public key; a test derives the ID from it) and
+`nativeMessaging`, nothing else. The host (`scripts/native-host/pair.mjs` pure, `host.mjs` I/O; packaged `dist/native-host.js`)
+checks the caller's origin equals the fixed one before reading anything, reads one request (4 KiB, 5 s), answers only
+`{type:"pair"}` with `{ok, token, port}`, else a fixed error code that never echoes input; nothing on stderr; same token order
+as the SDK. The extension (`extension/src/pairing.ts` pure, called from `sw.ts` `connect()`) pairs only when no token is
+stored, re-reads storage before writing `{token, port}` so a typed token wins, and on a missing or refusing host writes nothing,
+logs one fixed line and retries from 30 s doubling to 30 min. `safety-writers.test.ts` admits the one new write (only
+`{token, port}`); the log scan covers `scripts/native-host`. Doctor shows native host problems as hints. Independent Opus
+verifier: PASS; three MINOR left: no compare-and-set in `storage.local` (a millisecond race with Options), a custom port saved
+with an empty token returns to 9234, the npx-cache launcher path can move (S5/S9). `npm test` 4205 → 4287 passed; typecheck,
+build, `pack:npm` green. The new ID means a fresh storage: the human redoes the block list, Upload folders, the JavaScript
+switch, a kill switch left off, "Allow access to file URLs", site access, the pinned button; pairing restores the token after
+`npm run setup`. Fresh storage starts armed, JavaScript on, empty block list, no Upload folders. Left: the MCP server registering
+the host on first start (#449) goes to S5; S6 strips `key` from the store zip; `docs/e2e-test-plan.md` lines 175 and 1138 name
+the old ID (S7/S9); S9 removes the old unpacked entry and loads it again. Incident: a verifier's test setup fell back to the
+repo `bridge.token` and printed the user's real token once in its own tool output; no copy in any commit, the tree or the
+scratch folder (counted, 2026-11-08).
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
