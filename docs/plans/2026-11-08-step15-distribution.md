@@ -257,4 +257,22 @@ folders, the token 0 times in stderr; the real registry was not written. S9 meas
 Node is Electron and whether the app is MSIX-packaged (APPDATA and HKCU virtualised); which `manifest_version` Claude Desktop
 accepts is not checked.
 
+**S8, first half — done (commit `d4ffb28`; awaiting the user's approval):** one SVG source each in `assets/brand/` (a white
+suspension bridge on blue `#1F4FD1`, an amber dot for the agent), rendered by `scripts/brand/render.mjs` (`@resvg/resvg-js` not a
+repo dependency) into `extension/icons/icon-{16,32,48,128}.png`, `assets/brand/icon-512.png` (the `.mcpb` icon, replacing S5's
+placeholder) and `assets/brand/promo-tile-440x280.png` (tagline "Your agent, in your real Chrome", the agent's own wording). The
+manifest gains `icons` and `action.default_icon` only. Screenshots wait for S9.
+
+**S6 — done (commit `f73c08e`; CI not yet run on GitHub):** `.github/workflows/ci.yml` (every push and PR; ubuntu, macos, windows
+on Node 22: `npm ci`, `version:check`, typecheck, recipes tsc, build, test; a Linux job runs `release:build` and keeps the files)
+and `release.yml` (on `v*`: typecheck and test, `release:build --tag`, `gh release create` with the zip, `.mcpb`, `.tgz`,
+`SHA256SUMS.txt` and the changelog section, then `npm publish --provenance` by trusted publishing; a prerelease tag makes a draft
+and skips npm; started by hand it only builds). Least-privilege permissions per job; both set `BRIDGE_NO_HOST_REGISTRATION=1`.
+`npm run release:build` writes `build/release/`: the extension zip has no `key`, forward slashes, the icons, and fails if a file the
+manifest names is missing; on a full tag it fails when the tag differs from the version or `CHANGELOG.md` lacks the section (S7
+writes `## 0.2.0`). `version:check` / `version:set` keep the root `package.json`, the lockfile and the manifest equal (a prerelease
+gives the manifest the bare X.Y.Z). actionlint (wasm, no shellcheck) clean. `npm test` 4313 → 4333 passed (with S8's one); the CI
+steps passed on Linux (WSL, Node 22.14, fresh clone: 4332 passed, 1 skipped); macOS not run anywhere. `sdk/test/spawn-inherit.test.ts`
+passes `--experimental-strip-types` under Node 22.14 (types are stripped by default only from 22.18).
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
