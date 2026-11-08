@@ -1,12 +1,11 @@
 // Step 15 S5: `npm run pack:mcpb` builds the Claude Desktop extension, build/browser-agent-bridge-<version>.mcpb, from a
 // clean tree: the npm package (build.mjs → build/npm/), its one runtime dependency (ws, copied from node_modules), the
-// generated manifest.json and the placeholder icon, staged in build/mcpb/; then the official tool (@anthropic-ai/mcpb,
+// generated manifest.json and the brand icon (assets/brand/icon-512.png), staged in build/mcpb/; then the official tool (@anthropic-ai/mcpb,
 // a pinned devDependency) validates the manifest and packs. Never publishes. It prints file names and counts only.
 import { execFileSync } from "node:child_process";
 import { cpSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { placeholderIcon } from "./icon.mjs";
 import { mcpbManifest } from "./manifest.mjs";
 
 const repo = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -28,7 +27,7 @@ for (const name of Object.keys(want)) {
 }
 const root = readJson(at("package.json"));
 writeFileSync(path.join(stage, "manifest.json"), JSON.stringify(mcpbManifest(root), null, 2) + "\n");
-writeFileSync(path.join(stage, "icon.png"), placeholderIcon(512));
+cpSync(at("assets", "brand", "icon-512.png"), path.join(stage, "icon.png"));
 
 const cli = at("node_modules", "@anthropic-ai", "mcpb", "dist", "cli", "cli.js");
 const out = at("build", `${root.name}-${root.version}.mcpb`);

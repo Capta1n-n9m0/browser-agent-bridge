@@ -27,9 +27,11 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   `lib.firstStartDecision`. Tests: `scripts/test/s15-first-start.test.ts` (temp folder, fake `reg`).
 - `scripts/package/mcpb/` (Step 15 S5): `npm run pack:mcpb` → `build/browser-agent-bridge-<version>.mcpb`. `build.mjs` runs
   `build:npm`, stages `build/npm/` (without `types/`) plus `node_modules/ws` copied from the root, `manifest.json`
-  (`manifest.mjs`, pure, `manifest_version` 0.3) and `icon.png` (`icon.mjs`, a generated placeholder until S8) in
+  (`manifest.mjs`, pure, `manifest_version` 0.3) and `icon.png` (copied from `assets/brand/icon-512.png`) in
   `build/mcpb/`, then `mcpb validate` and `mcpb pack` from the pinned devDependency `@anthropic-ai/mcpb` 2.1.2. Test:
-  `scripts/test/s15-mcpb.test.ts` (the manifest against the official zod schema, the icon's PNG).
+  `scripts/test/s15-mcpb.test.ts` (the manifest against the official zod schema, the brand icons' PNG sizes and the manifest's `icons`).
+- `scripts/brand/render.mjs` (Step 15 S8): rasterizes `assets/brand/{icon,promo-tile}.svg` into `extension/icons/icon-{16,32,48,128}.png`,
+  `assets/brand/icon-512.png` and `promo-tile-440x280.png`; `@resvg/resvg-js` is not a repo dependency (`RESVG_DIR`, see the file's header).
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
 - `examples/list-tabs.ts`: the smallest script outside the repo, using the SDK through a `file:` dependency (#430);
   steps in `docs/setup.md`, "Scripts from any folder".

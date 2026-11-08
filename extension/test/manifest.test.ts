@@ -111,9 +111,9 @@ describe("manifest.json (S2b)", () => {
     expect(manifest).not.toHaveProperty("optional_host_permissions");
   });
 
-  it("no new top-level key besides action and commands (and, since Step 15 S4, key); every old key unchanged", () => {
+  it("no new top-level key besides action and commands (and, since Step 15 S4, key; S8, icons); every old key unchanged", () => {
     const added = Object.keys(manifest).filter((k) => !(k in BEFORE)).sort();
-    expect(added).toEqual(["action", "commands", "key"]);
+    expect(added).toEqual(["action", "commands", "icons", "key"]);
     for (const [k, v] of Object.entries(BEFORE)) if (k !== "permissions") expect(manifest[k], k).toEqual(v);
   });
 
@@ -124,7 +124,7 @@ describe("manifest.json (S2b)", () => {
   it("action has no popup (a click must reach action.onClicked), and its title is the extension's name", () => {
     const action = manifest.action as Record<string, unknown>;
     expect(action).not.toHaveProperty("default_popup");
-    expect(Object.keys(action).sort()).toEqual(["default_title"]);
+    expect(Object.keys(action).sort()).toEqual(["default_icon", "default_title"]);
     expect(action.default_title).toBe("Browser Agent Bridge");
   });
 });

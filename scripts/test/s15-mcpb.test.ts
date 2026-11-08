@@ -1,12 +1,10 @@
 // Step 15 S5: the `.mcpb` manifest validates against the official schema (@anthropic-ai/mcpb, pinned), carries the
-// release's version and points at the package's MCP bundle; the placeholder icon is a well-formed 512 px PNG.
+// release's version and points at the package's MCP bundle; the brand icons are PNGs of the right size.
 import { readFileSync } from "node:fs";
-import { inflateSync } from "node:zlib";
 import { v0_3 } from "@anthropic-ai/mcpb";
 import { describe, expect, it } from "vitest";
 import { BUNDLE_ENTRIES, LICENSE_EXPRESSION } from "../package/manifest.mjs";
 import { MCPB_ENTRY, MCPB_MANIFEST_VERSION, mcpbManifest } from "../package/mcpb/manifest.mjs";
-import { placeholderIcon } from "../package/mcpb/icon.mjs";
 
 const root = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
 
@@ -32,19 +30,22 @@ describe("the .mcpb manifest", () => {
   });
 });
 
-describe("placeholderIcon", () => {
-  it("is a 512x512 RGB PNG whose chunks check out", () => {
-    const png = placeholderIcon(512);
+describe("the brand icons", () => {
+  const dims = (rel: string) => {
+    const png = readFileSync(new URL(rel, import.meta.url));
     expect([...png.subarray(0, 8)]).toEqual([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
     expect(png.toString("ascii", 12, 16)).toBe("IHDR");
-    expect(png.readUInt32BE(16)).toBe(512);
-    expect(png.readUInt32BE(20)).toBe(512);
-    expect(png[24]).toBe(8);
-    expect(png[25]).toBe(2);
-    // IDAT holds 512 rows of 1 + 512*3 bytes
-    const idatLen = png.readUInt32BE(33);
-    expect(png.toString("ascii", 37, 41)).toBe("IDAT");
-    expect(inflateSync(png.subarray(41, 41 + idatLen)).length).toBe(512 * (1 + 512 * 3));
-    expect(png.toString("ascii", png.length - 8, png.length - 4)).toBe("IEND");
+    return [png.readUInt32BE(16), png.readUInt32BE(20)];
+  };
+  it("the .mcpb icon is a 512x512 PNG", () => {
+    expect(dims("../../assets/brand/icon-512.png")).toEqual([512, 512]);
+  });
+  it("the extension icons are square PNGs of the sizes the manifest names", () => {
+    const m = JSON.parse(readFileSync(new URL("../../extension/manifest.json", import.meta.url), "utf8"));
+    for (const s of [16, 32, 48, 128]) {
+      expect(m.icons[s]).toBe(`icons/icon-${s}.png`);
+      expect(dims(`../../extension/${m.icons[s]}`)).toEqual([s, s]);
+    }
+    expect(m.action.default_icon).toEqual(m.icons);
   });
 });
