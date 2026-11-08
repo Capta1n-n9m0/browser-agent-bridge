@@ -11,22 +11,26 @@ lets an AI agent (Claude) or a script drive the user's **real, logged-in Chrome 
 user-data-dir, breaking CDP-against-your-real-profile; this restores it from *inside* the profile via an
 extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chrome."
 
-## Current state (2026-11-08: Step 15 paused after S1; S2 is next)
+## Current state (2026-11-08: v0.2.0 released; Step 15 waits on the Web Store submission)
 
-- **Step 15 resume point:** S0, S1 and U4 are done, committed and not pushed (`main` is ahead of `origin/main`). S2 was
-  started and then stopped before any edit; start it again with a fresh step agent from the phase doc. The license is ruled (#450:
-  AGPL-3.0-only, the SDK and `shared/` Apache-2.0). The user still has to run `npm run setup` so the MCP entry gets the
-  new name.
+- **Step 15 resume point:** S0–S9 are done and pushed, and v0.2.0 is released: the GitHub Release (extension zip with
+  `key`, `.mcpb` preview, `.tgz`, checksums) and `browser-agent-bridge@0.2.0` on npm (trusted publishing, provenance). Left:
+  the Web Store submission (U3), driven through the bridge with the user watching; then the closeout. The six submission
+  files are in `build/store-upload/` (gitignored; rebuild with `npm run release:build` and copy if missing). Open: a Claude
+  Desktop install route (its settings no longer take a `.mcpb`, likely a plugin later); doctor's wrong "hands it over" text
+  against a same-version clone daemon.
 
-- **Shipped:** Steps 1–14, public on GitHub (AGPL-3.0-only, the SDK Apache-2.0, #450). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
-  install by `npm run setup` / `doctor` / `bridge-update`; also run by others on macOS and on Linux over an SSH tunnel.
+- **Shipped:** Steps 1–14, then v0.2.0 (Step 15): one npm package, per-user token, fixed extension ID
+  `iifofgbdljchbdimlalhphmedfmocela` with pairing through the native host, CI on Windows, macOS and Linux, a release
+  pipeline (AGPL-3.0-only, the SDK Apache-2.0, #450). 25 tools, 27 codes (26 on the wire), 28 router methods. Install by
+  `npx` (Claude Code) or a clone's `npm run setup` / `doctor` / `bridge-update`.
 - **Renamed Browser Agent Bridge** (#444): the GitHub repo is `browser-agent-bridge` (old URL redirects) and npm
   `browser-agent-bridge` is claimed (org `@browser-agent-bridge`). Step 15 S1 renamed code and docs: MCP server
   `browser-agent-bridge`, manifest "Browser Agent Bridge", state directory `~/.browser-agent-bridge/`; setup and doctor
   replace an old `chrome-agent-bridge` MCP entry.
-- **Next: Step 15, distribution** (#445): npm package, extension zip on GitHub Releases plus a public Chrome Web
-  Store listing, a fixed extension ID with pairing by native messaging, installers for less technical users, a
-  product-first README; released as v0.2.0 (#447). Network mode waits (#443). Phase doc:
+- **Step 15, distribution** (#445): npm package, extension zip on GitHub Releases plus a public Chrome Web
+  Store listing, a fixed extension ID with pairing by native messaging, a product-first README; released as v0.2.0
+  (#447); `activeTab` dropped (#451). Network mode waits (#443). Phase doc:
   `docs/plans/2026-11-08-step15-distribution.md`; kickoff: `docs/plans/next-session-prompt.md`; v1.0.0 is the goal (#448); proposals ruled (#449).
 - **Lean mode** (#446): checks by risk, hand-backs instead of report files (`docs/agent-rules.md`). The old step
   folders, decision archives, cleanup reports, phase docs and live-run helpers are in tag `archive/dev-history`
@@ -111,7 +115,7 @@ Details and measured facts are in the package file named; the integrity floor is
 ```bash
 npm install
 npm run build        # daemon/dist/index.js + mcp/dist/index.js + extension/dist/{sw,options,offscreen,content}.js
-npm test             # vitest — 4153 passed (`npm test` 2026-11-08, Step 15 S2; recipes/test and scripts/test included)
+npm test             # vitest — 4334 passed (`npm test` 2026-11-08, v0.2.0; recipes/test and scripts/test included)
 npm run typecheck    # tsc across shared/daemon/sdk/mcp/extension/scripts (chained with `&&`; see the cross-package gotchas below)
 npm run recipe -- recipes/<file>.ts [args]   # a script against the SDK, run with tsx (= npx tsx recipes/<file>.ts)
 npm run setup        # one-command install on a Windows device; `-- --dry-run`, `-- --replace-mcp` (`scripts/CLAUDE.md`)

@@ -335,4 +335,8 @@ command). The second run passed every job: the GitHub Release
 `SHA256SUMS.txt`) and `browser-agent-bridge@0.2.0` on npm with provenance, `latest`; `npx -y browser-agent-bridge@0.2.0 help`
 ran from a scratch folder. The Web Store submission (U3) is next.
 
+**Paused (2026-11-08):** the session ended before U3. The submission files are gathered in `build/store-upload/`; the next
+session reconnects the MCP server (this session's predated the per-user token), has the user allow that folder and file
+URLs, and fills the dashboard through the bridge (`docs/plans/next-session-prompt.md`).
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.

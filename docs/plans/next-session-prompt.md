@@ -1,28 +1,30 @@
-# Next session: Step 15 — Distribution (v0.2.0), resumed at S2
+# Next session: Step 15 — the Chrome Web Store submission, then the closeout
 
 You are the SESSION AGENT for Step 15 of Browser Agent Bridge. Follow the `long-run` skill (lean mode). The user is
-around for rulings; ask them only what the phase doc lists under "Needs the user".
+around and watching; this session drives their real Chrome through the bridge, on the user's request.
 
-**Resume:** read Current state in `CLAUDE.md` and the phase doc's § As built first. S0, S1 and U4 are done. S2 is next:
-start it with a fresh step agent, never a resumed one.
+**Resume:** read Current state in `CLAUDE.md` and the phase doc's § As built first. v0.2.0 is released on GitHub and npm;
+only the store submission (U3) and the closeout are left.
 
 **First checks**
-1. `git status` is clean. `main` is ahead of `origin/main` by unpushed Step 15 commits; push only with the user's approval.
-2. `npm test`, `npm run typecheck` and `npm run build` are green; quote the test count (4123 after S1).
-3. Nothing but the daemon holds port 9234.
+1. `git status` is clean apart from the user's own untracked screenshots in the repo root (never commit them).
+2. `npm test` and `npm run build` are green; quote the count (4334 at v0.2.0).
+3. Only the daemon holds port 9234; `npm run doctor` shows the extension connected.
+4. `browser_status` answers. If it says there is no token, the session's MCP server predates the per-user token: ask the
+   user to run `/mcp` and reconnect.
 
-**Read**
-1. `docs/plans/2026-11-08-step15-distribution.md`: the work, the stages, the exit checks, § As built.
-2. `docs/agent-rules.md`: how much checking each stage kind gets (S2 is a safety stage).
-3. The decisions it cites in `docs/decisions.md`.
+**Set up the extension for the upload** (ask the user, numbered steps): on `chrome://extensions`, Browser Agent Bridge →
+Details → "Allow access to file URLs" on; its Options → Upload folders gains
+`C:\Users\aliev\Projects\chrome-remote-extention\build\store-upload` (the store zip without `key`, the 128 px icon, three
+screenshots, the promo tile). If the folder is missing, rebuild it from `npm run release:build`, `extension/icons/`,
+`assets/store/` and `assets/brand/`. After the submission the user may remove the folder again.
 
-**The license is ruled and applied** (2026-11-08 · The license moves from MIT to AGPL-3.0, with the SDK under
-Apache-2.0 (#450)). Brief S2 on that decision's line for the package's `license` field.
+**The submission (U3):** on the developer dashboard's existing draft (ID `iifofgbdljchbdimlalhphmedfmocela`): upload the store
+zip as a new package; fill the store listing, privacy practices (single purpose, one justification per permission, remote
+code answered "Yes" with the reviewer note, data usage, the privacy policy URL), test instructions and distribution (public),
+all from `docs/store-listing.md`. Stop before **Submit for review** and show the user a summary; click it only on their go.
 
-**Order**
-S2, then report its result before S3. When a stage needs the user's hands, ask with numbered step-by-step
-instructions (#449).
+**Read:** `docs/plans/2026-11-08-step15-distribution.md` (§ S10, § As built), `docs/store-listing.md`.
 
-**Needs the user's hands in this step:** the Web Store draft upload and the public key (U2),
-the store submission (U3), Claude Desktop and the macOS/Linux checklist runs (U5), `npm run setup` for the renamed MCP
-entry, and approval of every push, tag and publish.
+**Then:** the phase doc's exit checks in § As built, the `session-closeout` skill, and the user's choice of what comes next
+(the Claude Desktop route, the doctor text). Ask before every push.
