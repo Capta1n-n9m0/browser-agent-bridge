@@ -10,7 +10,7 @@
 
 ## Ahead: Step 15, distribution (v0.2.0)
 
-The plan: `docs/plans/2026-11-08-step15-distribution.md`. What v1.0.0 means is proposed there (§ v1, open decision #448).
+The plan: `docs/plans/2026-11-08-step15-distribution.md`. What v1.0.0 means is our goal (§ v1, #448); the proposals are ruled (#449).
 
 These come from the user's rulings of 2026-11-08. The step's first audit proposes the details.
 

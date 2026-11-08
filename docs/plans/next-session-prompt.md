@@ -14,8 +14,8 @@ around for rulings; ask them only what the phase doc lists under "Needs the user
 3. The decisions it cites in `docs/decisions.md`.
 
 **Order**
-Get U1 (the proposed decisions and v1, #448) from the user first, then run S0 (facts first). Report S0's findings
-before S2. Item 2 decides how the store build treats `browser_evaluate`.
+U1 is done (#448, #449). Start with S0 (facts first) and report its findings before S2. When a stage needs the
+user's hands, ask with numbered step-by-step instructions (#449).
 
 **Needs the user's hands in this step:** the Web Store draft upload and the public key (U2), the store submission
 (U3), npm trusted publishing or a hand publish (U4), Claude Desktop and the macOS/Linux checklist runs (U5), and

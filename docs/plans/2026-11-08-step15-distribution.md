@@ -2,7 +2,8 @@
 
 **Date:** 2026-11-08 · **Status:** Planned · **Builds on:** decisions.md · 2026-11-08 · Distribution to a wider
 audience: the shape of Step 15 (#445); The product is renamed Browser Agent Bridge (#444); Running over the network
-waits for a later phase (#443); Lean mode (#446); Versions are tagged vX.Y.Z (#447)
+waits for a later phase (#443); Lean mode (#446); Versions are tagged vX.Y.Z (#447); v1.0.0 is our goal (#448); The
+user rules Step 15's proposals (#449)
 
 ## Why
 
@@ -34,22 +35,23 @@ extension from the Chrome Web Store, add the bridge to Claude, done. No token to
   all-in-one release, installers, fixed ID and pairing, the README.
 - 2026-11-08 · Versions are tagged vX.Y.Z (#447): the npm package, the extension manifest, the `.mcpb` and the git tag
   carry one number; Step 15 releases v0.2.0.
-- **(proposed) One npm package, not several.** `browser-agent-bridge` holds everything, bundled with esbuild. The SDK
+- **(ruled, #449) One npm package, not several.** `browser-agent-bridge` holds everything, bundled with esbuild. The SDK
   is its main export. Scoped packages (`@browser-agent-bridge/sdk`) only if users ask. *Why:* one name to install and
   one version to keep in step.
-- **(proposed) Token lookup order:** `BRIDGE_TOKEN`, then the per-user file (Windows `%APPDATA%\browser-agent-bridge\`,
+- **(ruled, #449) Token lookup order:** `BRIDGE_TOKEN`, then the per-user file (Windows `%APPDATA%\browser-agent-bridge\`,
   macOS `~/Library/Application Support/browser-agent-bridge/`, Linux `$XDG_CONFIG_HOME` or
   `~/.config/browser-agent-bridge/`), then `bridge.token` at a clone's root (developers). Setup moves an existing
   repo token to the per-user file.
-- **(proposed) Installers: `.mcpb` in this step, standalone programs later.** Unsigned standalone programs trigger
+- **(ruled, #449) Installers: `.mcpb` in this step, standalone programs later.** Unsigned standalone programs trigger
   Windows SmartScreen and macOS Gatekeeper warnings (macOS signing needs a paid Apple account), which is worse for
   less technical users than the `.mcpb`. Claude Code users get `npx`. Revisit for v1.
-- **(proposed) The native host is the npm package's own script,** registered per user by `setup` and by the MCP server
+- **(ruled, #449) The native host is the npm package's own script,** registered per user by `setup` and by the MCP server
   on its first start (so a `.mcpb` install needs no extra step). It answers only the extension's fixed ID
   (`allowed_origins`) and returns the token and port; nothing else.
-- **(proposed) npm releases by trusted publishing** (GitHub Actions with OIDC, no token or one-time code), set up once
+- **(ruled, #449) npm releases by trusted publishing** (GitHub Actions with OIDC, no token or one-time code), set up once
   by the user on npmjs.com. Until then the user publishes by hand.
-- **(proposed) What v1.0.0 means:** see § v1 below. Open for the user (#448).
+- **(ruled, #448) What v1.0.0 means:** § v1 below, accepted as our goal.
+- **(ruled, #449) The store gets the full version,** `browser_evaluate` included. A rejection is handled when it comes.
 
 ## Stages
 
@@ -63,8 +65,8 @@ agent) passes the store's remotely-hosted-code rule, and what reviewers ask for 
 messaging host registration per OS for Chrome (and Chromium, Edge later); (4) the current `.mcpb` format and packing
 tool; (5) npm trusted publishing; (6) whether Chrome still lets a scratch profile load an unpacked extension from the
 command line (for the live check). **Done when:** a few lines per item in § As built, and any finding that changes a
-stage goes to the user. **Highest risk: item 2** — if the store treats `evaluate` as remote code, the user decides
-(for example a store build without `browser_evaluate`, with the full build on GitHub).
+stage goes to the user. **Highest risk: item 2.** The user ruled (#449): submit the full version anyway; S0 only prepares the
+reviewer-facing explanation.
 
 ### S1 — The rename (kind: ordinary · ~300 · after: S0)
 `chrome-agent-bridge` → `browser-agent-bridge` in code, logs, the MCP server's name, the extension's name ("Browser
@@ -137,17 +139,21 @@ review if it asks.
 
 ## Needs the user
 
-- **U1** — rulings on the (proposed) decisions above and on v1 (#448), before S2.
+Each item is asked for when its stage needs it, **with numbered step-by-step instructions** for the user (the user's
+request, #449).
+
+- **U1** — done: the user ruled the proposals and v1 (#448, #449).
 - **U2** — upload a first draft of the extension to the Web Store dashboard (not published) to fix its ID, and copy
   the public key it shows (S4 needs it). S0 confirms the exact steps.
 - **U3** — the store submission and answering the review: the listing, privacy policy URL, screenshots, category.
 - **U4** — npm trusted publishing on npmjs.com (one form), or publish by hand with the passkey.
-- **U5** — whether Claude Desktop is installed on this machine for S9; the macOS and Linux runs of the checklist.
+- **U5** — Claude Desktop is installed on this machine (S9 tests the `.mcpb` there); the macOS and Linux runs of the
+  checklist.
 - Approvals: README, listing text, icons, screenshots; every push, tag and publish.
 
 ## v1
 
-v1.0.0 is a promise, not a feature list. **Proposed (#448, for the user):** we call it v1 when
+v1.0.0 is a promise, not a feature list. **Our goal (#448, accepted by the user):** we call it v1 when
 
 1. a stranger installs it on Windows, macOS or Linux without help, from the store (or GitHub if refused) and the
    `.mcpb` or `npx`, with no token typed;
@@ -156,7 +162,7 @@ v1.0.0 is a promise, not a feature list. **Proposed (#448, for the user):** we c
 3. the security model is written down and has been reviewed once by a fresh pair of eyes;
 4. CI covers all three OSes and every release is built by the pipeline;
 5. no known safety bug is open, and the known issues in `docs/roadmap.md` are fixed or documented;
-6. signed standalone installers, if U1 wants them for v1.
+6. signed standalone installers (the certificate question is taken up on the way to v1).
 
 Between v0.2.0 and v1, each release is v0.x: real users, feedback, fixes. Network mode and other browsers come after
 v1, or as v1.x features if they don't break the surface.

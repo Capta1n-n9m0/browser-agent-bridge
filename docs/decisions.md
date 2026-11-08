@@ -9,15 +9,12 @@ Earlier decisions are in `docs/specs/`.
 
 ## Open decisions
 
-- **What v1.0.0 means (#448).** Proposed in `docs/plans/2026-11-08-step15-distribution.md` § v1: a stranger installs
-  it on any of the three OSes without help and without typing a token; the public surface (MCP tools, SDK API, wire
-  protocol, error codes) is stable and versioned; the security model is written and reviewed once; CI on all three
-  OSes builds every release; no known safety bug open; signed standalone installers only if the user wants them for
-  v1. **Recommendation:** accept as written. **For:** the user.
+None.
 
 ## Standing decisions
 
 **How we work**
+- 2026-11-08 · v1.0.0 is our goal (#448) — below; `docs/plans/2026-11-08-step15-distribution.md` § v1
 - 2026-11-08 · Lean mode: checks by risk, hand-backs instead of report files, records archived (#446) — below; `docs/agent-rules.md`
 - 2026-10-22 · Live E2E waves are run by Claude end to end (#33) — `decisions-archive/step6.md`
 - 2026-10-23 · Later extension reloads use `recipes/reload-extension.ps1` (#65) — `decisions-archive/step7.md`
@@ -157,7 +154,24 @@ Earlier decisions are in `docs/specs/`.
 
 ## Log
 
-The next entry is 449.
+The next entry is 450.
+
+### 2026-11-08 · The user rules Step 15's proposals (#449)
+**Decided (user):** (1) one npm package, `browser-agent-bridge`, not several; (2) the token lives in a per-user folder,
+and a clone's `bridge.token` keeps working; (3) the `.mcpb` in Step 15, signed standalone installers later; (4) the
+pairing program ships in the npm package, answers only the extension's fixed ID and returns only the token and port;
+(5) npm releases by trusted publishing from GitHub Actions; (6) the Web Store gets the full version, `browser_evaluate`
+included, and a rejection is handled when it comes; (7) every task only the user can do is asked for when its stage
+needs it, with numbered step-by-step instructions. Claude Desktop is installed on the user's machine.
+**Why:** the user's rulings on the phase doc's proposals. **By:** user
+
+### 2026-11-08 · v1.0.0 is our goal (#448)
+**Decided (user):** v1.0.0 is a promise we work towards: a stranger installs it on Windows, macOS or Linux without
+help and without typing a token; the public surface (MCP tools and schemas, the SDK's API, the wire protocol, the error
+codes) is stable, and breaking it after v1 means v2; the security model is written and reviewed once by fresh eyes; CI
+on all three OSes builds every release; no known safety bug is open and known issues are fixed or documented; signed
+standalone installers are taken up on the way. Until then releases are v0.x. **Why:** a version number should tell a
+user what we promise. **By:** user
 
 ### 2026-11-08 · Versions are tagged vX.Y.Z (#447)
 **Decided (user):** releases are tagged `vX.Y.Z` (semantic versioning). The npm package, the extension manifest, the

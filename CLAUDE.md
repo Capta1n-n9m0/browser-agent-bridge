@@ -21,7 +21,7 @@ extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chr
 - **Next: Step 15, distribution** (#445): npm package, extension zip on GitHub Releases plus a public Chrome Web
   Store listing, a fixed extension ID with pairing by native messaging, installers for less technical users, a
   product-first README; released as v0.2.0 (#447). Network mode waits (#443). Phase doc:
-  `docs/plans/2026-11-08-step15-distribution.md`; kickoff: `docs/plans/next-session-prompt.md`; v1 meaning open (#448).
+  `docs/plans/2026-11-08-step15-distribution.md`; kickoff: `docs/plans/next-session-prompt.md`; v1.0.0 is the goal (#448); proposals ruled (#449).
 - **Lean mode** (#446): checks by risk, hand-backs instead of report files (`docs/agent-rules.md`). The old step
   folders, decision archives, cleanup reports, phase docs and live-run helpers are in tag `archive/dev-history`
   (`git show archive/dev-history:<path>`); code comments and package `CLAUDE.md` files that cite
