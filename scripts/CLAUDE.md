@@ -12,7 +12,7 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   `daemon.status` over the SDK's own socket, never spawns or hands over a daemon, never calls the `claude` CLI.
 - `scripts/test/s15-setup-os.test.ts` (S3: per-OS token plan, native-host plan, MCP argv, doctor lines) and `scripts/test/s14-{setup,doctor,update}.test.ts`: vitest over `lib.mjs` with injected facts; no real config or CLI.
 - `scripts/tsconfig.json`: extends `tsconfig.base.json` with `allowJs` and `checkJs`; includes `bridge/*.mjs`,
-  `bridge/*.ts`, `package/manifest.mjs`, `package/cli.mjs`, `native-host/*.mjs`, `test/*.ts`.
+  `bridge/*.ts`, `package/manifest.mjs`, `package/cli.mjs`, `native-host/*.mjs`, `release/*.mjs`, `test/*.ts`.
 - `scripts/package/` (Step 15 S2, #449): `build.mjs` (`npm run build:npm` → `build/npm/`, gitignored: esbuild bundles
   `dist/{index,mcp,daemon,doctor,setup,cli,native-host}.js` (the list is `BUNDLE_ENTRIES` in `manifest.mjs`) with `ws` external, the SDK's `.d.ts` under `types/` with `@bridge/shared`
   rewritten to relative paths, `LICENSE`, `LICENSE-APACHE`, `LICENSES.md`, `THIRD-PARTY-NOTICES.txt` from the bundles'
@@ -32,6 +32,16 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   `scripts/test/s15-mcpb.test.ts` (the manifest against the official zod schema, the brand icons' PNG sizes and the manifest's `icons`).
 - `scripts/brand/render.mjs` (Step 15 S8): rasterizes `assets/brand/{icon,promo-tile}.svg` into `extension/icons/icon-{16,32,48,128}.png`,
   `assets/brand/icon-512.png` and `promo-tile-440x280.png`; `@resvg/resvg-js` is not a repo dependency (`RESVG_DIR`, see the file's header).
+- `scripts/release/` (Step 15 S6, #447): `version.mjs` (pure: `versionMismatches`, `tagProblem`, `setJsonVersion`,
+  `changelogSection`), `version-cli.mjs` (`npm run version:check [-- --tag vX.Y.Z]`, `npm run version:set -- X.Y.Z`: writes
+  the root `package.json`, `package-lock.json`'s root entries and only the manifest's `"version"` line; the npm package and
+  the `.mcpb` take the root's version), `zip.mjs` (pure zip writer: sorted forward-slash names, fixed 2020-01-01 time;
+  `storeManifest` drops `key`; `extensionZipFiles`: `manifest.json`, top-level `*.html`, `dist/*.js`, `icons/*.png`),
+  `build.mjs` (`npm run release:build [-- --tag vX.Y.Z]` → `build/release/`: the `.tgz`, the `.mcpb`,
+  `browser-agent-bridge-extension-<v>.zip`, `release-notes.md`, `SHA256SUMS.txt`; fails when a manifest-named file is
+  missing from the zip, and on a full-release tag without its `CHANGELOG.md` section). Called by
+  `.github/workflows/release.yml` (the name npm trusted publishing expects, U4; a `-pre` tag makes a draft prerelease and
+  no npm publish; `workflow_dispatch` only builds) and by `ci.yml`'s Linux dry run. Test: `scripts/test/s15-release.test.ts`.
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
 - `examples/list-tabs.ts`: the smallest script outside the repo, using the SDK through a `file:` dependency (#430);
   steps in `docs/setup.md`, "Scripts from any folder".
@@ -88,6 +98,10 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   `BRIDGE_NO_HOST_REGISTRATION=1` turns it off: **set it for any real run of a packaged MCP server on Windows**, or it
   writes the real `HKCU` key (scratch `APPDATA` moves the files, not the registry). Several installs (npx, `.mcpb`,
   a clone's setup) each register their own host; any of them pairs, the last one to start wins.
+- **CI runs Node 22 and sets `BRIDGE_NO_HOST_REGISTRATION=1`** (S6). A test that runs a `.ts` file in a child `node`
+  needs type stripping, default only from Node 22.18 / 23.6: `sdk/test/spawn-inherit.test.ts` adds
+  `--experimental-strip-types` when `process.features.typescript` is off (on Linux with Node 22.14 it failed without it;
+  measured in WSL, 2026-11-08). The Chrome manifest takes no prerelease suffix, so `version:set 0.2.0-rc.1` writes `0.2.0` there.
 - **Token move (#449):** `tokenPlan` keeps the per-user file, moves a clone's `bridge.token` into it (then deletes the
   clone's copy), keeps both when they differ (the per-user file wins), and never prints a value. Clipboard offer: clip.exe
   on win32, pbcopy on darwin, none on Linux.

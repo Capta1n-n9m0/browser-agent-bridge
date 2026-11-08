@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": { "types": ["node"], "allowJs": true, "checkJs": true },
-  "include": ["bridge/*.mjs", "bridge/*.ts", "package/manifest.mjs", "package/cli.mjs", "package/mcpb/manifest.mjs", "package/mcpb/icon.mjs", "native-host/*.mjs", "test/*.ts"]
+  "include": ["bridge/*.mjs", "bridge/*.ts", "package/manifest.mjs", "package/cli.mjs", "package/mcpb/manifest.mjs", "package/mcpb/icon.mjs", "native-host/*.mjs", "release/*.mjs", "test/*.ts"]
 }

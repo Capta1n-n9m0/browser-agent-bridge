@@ -1,0 +1,59 @@
+# Step 15 S6: typecheck, build and test on Windows, macOS and Linux for every push and pull request; the release build
+# (every release file, nothing published) on Linux.
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # A packaged MCP server's first start registers the native host (scripts/CLAUDE.md); never on a runner.
+  BRIDGE_NO_HOST_REGISTRATION: "1"
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run version:check
+      - run: npm run typecheck
+      - run: npx tsc --noEmit -p recipes/tsconfig.json
+      - run: npm run build
+      - run: npm test
+
+  release-build:
+    name: release build (dry run)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run release:build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: build/release/
+          retention-days: 7

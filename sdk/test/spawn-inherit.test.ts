@@ -83,7 +83,9 @@ async function run(mode: "default" | "inherit"): Promise<Measured> {
 
   const env: NodeJS.ProcessEnv = { ...process.env, S35_MODE: mode, S35_STANDIN: standIn, S35_PIDFILE: pidFile };
   delete env.BRIDGE_TOKEN;
-  const child = spawn(process.execPath, [childScript], { stdio: ["ignore", "pipe", "inherit"], env });
+  // Node strips types by default only from 22.18 / 23.6; on an older 22.x the child would fail to import spawn.ts.
+  const strip = (process.features as { typescript?: unknown }).typescript ? [] : ["--experimental-strip-types"];
+  const child = spawn(process.execPath, [...strip, childScript], { stdio: ["ignore", "pipe", "inherit"], env });
   let stdout = "";
   let exitAt: number | null = null;
   let eofAt: number | null = null;

@@ -1,0 +1,111 @@
+# Step 15 S6: the release pipeline (#447). npm trusted publishing is set to this file name (release.yml, U4), so it
+# must not be renamed. On a `v*` tag: test, build every release file (scripts/release/build.mjs), a GitHub Release
+# with the extension zip, the .mcpb, the npm tarball, SHA256SUMS.txt and the CHANGELOG.md section, then `npm publish`
+# by trusted publishing (OIDC, no token). A prerelease tag (`v0.2.0-rc.1`) makes a draft prerelease and publishes
+# nothing to npm. Run by hand (workflow_dispatch), it only builds the files and keeps them as a workflow artifact.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # A packaged MCP server's first start registers the native host (scripts/CLAUDE.md); never on a runner.
+  BRIDGE_NO_HOST_REGISTRATION: "1"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - name: Build the release files
+        env:
+          REF_TYPE: ${{ github.ref_type }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          if [ "$REF_TYPE" = "tag" ]; then
+            npm run release:build -- --tag "$TAG"
+          else
+            npm run release:build
+          fi
+      - id: meta
+        run: |
+          version=$(node -p "require('./package.json').version")
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          case "$version" in *-*) echo "prerelease=true" >> "$GITHUB_OUTPUT" ;; *) echo "prerelease=false" >> "$GITHUB_OUTPUT" ;; esac
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: build/release/
+          if-no-files-found: error
+
+  github-release:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ needs.build.outputs.version }}
+          PRERELEASE: ${{ needs.build.outputs.prerelease }}
+        run: |
+          flags=""
+          if [ "$PRERELEASE" = "true" ]; then flags="--prerelease --draft"; fi
+          gh release create "$TAG" $flags --verify-tag --title "$TAG" --notes-file release/release-notes.md \
+            "release/browser-agent-bridge-extension-$VERSION.zip" \
+            "release/browser-agent-bridge-$VERSION.mcpb" \
+            "release/browser-agent-bridge-$VERSION.tgz" \
+            release/SHA256SUMS.txt
+
+  npm-publish:
+    needs: [build, github-release]
+    if: github.ref_type == 'tag' && needs.build.outputs.prerelease == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or newer (S0 item 5); Node 22 ships npm 10.
+      - run: npm install -g npm@^11.5.1
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: release
+      - name: Publish to npm (trusted publishing, provenance)
+        env:
+          VERSION: ${{ needs.build.outputs.version }}
+        run: npm publish "release/browser-agent-bridge-$VERSION.tgz" --provenance --access public
