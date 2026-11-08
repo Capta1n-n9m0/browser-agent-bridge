@@ -8,7 +8,7 @@
  * - every `chrome.storage.local` reference must be `.get(…)`, `.set(…)` or `.setAccessLevel(…)` called on the
  *   spot (`remove`/`clear` would restore the defaults — armed — and are refused everywhere; an alias or a
  *   method passed as a value is refused);
- * - every `chrome.storage.local.set(…)` call must be one of the four documented sites: `sw.ts`'s injection into
+ * - every `chrome.storage.local.set(…)` call must be one of the five documented sites (the fifth, Step 15 S4: `sw.ts`'s pairing write, `{token, port}` only, in `pairDeps.write`): `sw.ts`'s injection into
  *   `new SafetyStore({set})`, `sw.ts`'s session-marker write (`{[MARKER_KEY]: …}` only), `options.ts`'s
  *   port/token save (`{port, token}` only), `options.ts`'s injection into `writeSafety(…)`;
  * - `SAFETY_KEYS`, `SAFETY_KEY_NAMES`, `toStorageItems`, `writeSafety`, `SafetyStore` are referenced only in
@@ -66,7 +66,7 @@ function enclosing<T extends ts.Node>(n: ts.Node, pred: (x: ts.Node) => x is T):
   return undefined;
 }
 
-/** Is this `chrome.storage.local.set(…)` call one of the four documented sites? */
+/** Is this `chrome.storage.local.set(…)` call one of the five documented sites? */
 function allowedSet(rel: string, call: ts.CallExpression, sf: ts.SourceFile): boolean {
   const arg = call.arguments[0];
   const literalKeys = (o: ts.Expression | undefined): string[] | null =>
@@ -84,6 +84,10 @@ function allowedSet(rel: string, call: ts.CallExpression, sf: ts.SourceFile): bo
     // (2) the session marker: `{ [MARKER_KEY]: marker }` only
     const keys = literalKeys(arg);
     if (keys && keys.length === 1 && keys[0] === "[MARKER_KEY]") return true;
+    // (5) Step 15 S4 (#449): the pairing write, `{ token, port }` only, inside the injected `write` of `pairDeps`
+    const pairProp = enclosing(call, ts.isPropertyAssignment);
+    const pairDeps = pairProp && ts.isObjectLiteralExpression(pairProp.parent) && ts.isVariableDeclaration(pairProp.parent.parent) ? pairProp.parent.parent : undefined;
+    if (keys && [...keys].sort().join(",") === "port,token" && pairProp && flat(sf, pairProp.name) === "write" && pairDeps && flat(sf, pairDeps.name) === "pairDeps") return true;
     return false;
   }
   if (rel === "options.ts") {
@@ -204,9 +208,9 @@ describe("S3.3 — the safety keys are written only by the toggle module and the
     expect(writerViolations(files)).toEqual([]);
   });
 
-  it("exactly the four documented storage.local.set sites exist", () => {
+  it("exactly the five documented storage.local.set sites exist", () => {
     const n = [...files.values()].reduce((a, t) => a + (t.replace(/\/\*[\s\S]*?\*\//g, "").match(/chrome\.storage\.local\.set\(/g) ?? []).length, 0);
-    expect(n).toBe(4);
+    expect(n).toBe(5);
   });
 
   const mutate = (rel: string, extra: string): Map<string, string> => {
@@ -228,6 +232,9 @@ describe("S3.3 — the safety keys are written only by the toggle module and the
     ["sw.ts writes a safety item outside the store", "sw.ts", "void chrome.storage.local.set({ x: 1 });", /undocumented site/],
     ["sw.ts builds a second store", "sw.ts", "const second = new SafetyStore({} as never); void second;", /not once/],
     ["options.ts writes other items", "options.ts", "void chrome.storage.local.set({ port: 1, token: \"\", other: 2 });", /undocumented site/],
+    ["S4: sw.ts writes {token, port} outside pairDeps.write", "sw.ts", "void chrome.storage.local.set({ token: \"t\", port: 1 });", /undocumented site/],
+    ["S4: another object's write of {token, port}", "sw.ts", "const otherDeps = { write: () => chrome.storage.local.set({ token: \"t\", port: 1 }) }; void otherDeps;", /undocumented site/],
+    ["S4: pairDeps.write writes more", "sw.ts", "const pairDeps = { write: () => chrome.storage.local.set({ token: \"t\", port: 1, \"safety.armed\": true }) }; void pairDeps;", /undocumented site|key name in a string/],
     ["W8: chrome aliased", "handlers/tabs.ts", "const c = chrome; void c.storage.local.set({});", /chrome used other than as the object/],
     ["W9: storage destructured from chrome", "handlers/tabs.ts", "const { storage: __s } = chrome; void __s.local.set({});", /storage destructured/],
     ["W12: local destructured, nested", "handlers/tabs.ts", "const { storage: { local: __l } } = chrome; void __l.set({});", /local destructured/],

@@ -152,7 +152,7 @@ head("Native host (registration)");
 const plan = lib.nativeHostPlan({ platform, env, home, mode, root, nodePath: process.execPath });
 if (!plan) { say("FAIL: no home folder found: the native host was not registered."); failed.push("native host registration"); }
 else {
-  say(`manifest: ${plan.manifestPath}\nlauncher: ${plan.launcherPath}\nscript:   ${plan.scriptPath} (the host itself arrives in a later version)`);
+  say(`manifest: ${plan.manifestPath}\nlauncher: ${plan.launcherPath}\nscript:   ${plan.scriptPath}${existsSync(plan.scriptPath) ? "" : " (missing: the extension cannot pair by itself until it exists)"}`);
   if (plan.registry) say(`registry: ${plan.registry.key} (default value = the manifest path)`);
   if (!dry) {
     try {
@@ -164,7 +164,7 @@ else {
         const r = spawnSync("reg", lib.regAddArgv(plan.registry), { encoding: "utf8" });
         if (r.status !== 0) throw new Error(`reg add exited ${r.status}`);
       }
-      say("Registered (Chrome lets no extension call it until a later version names the extension's ID).");
+      say(`Registered for the extension ${lib.EXTENSION_ID} only: it hands that extension the token and port, nothing else.`);
     } catch (err) { failed.push("native host registration"); say(`FAIL: ${err instanceof Error ? err.message : "write failed"}`); }
   }
 }

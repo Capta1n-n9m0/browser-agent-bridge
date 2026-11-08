@@ -31,7 +31,7 @@ import { fileURLToPath } from "node:url";
 import ts from "typescript";
 
 export const REPO = fileURLToPath(new URL("../../", import.meta.url));
-export const SCANNED_ROOTS = ["extension/src", "daemon/src", "sdk/src", "mcp/src", "scripts/package"] as const;
+export const SCANNED_ROOTS = ["extension/src", "daemon/src", "sdk/src", "mcp/src", "scripts/package", "scripts/native-host"] as const;
 /** Single files outside the roots that ship in the npm package (Step 15 S2): the doctor and its helpers, bundled to dist/doctor.js. */
 export const SCANNED_FILES = ["scripts/bridge/doctor.ts", "scripts/bridge/lib.mjs"] as const;
 

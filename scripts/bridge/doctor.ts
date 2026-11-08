@@ -79,7 +79,9 @@ function nativeHostFact(): lib.NativeHostFact | undefined {
     const value = r.status === 0 ? lib.parseRegDefault(String(r.stdout)) : null;
     registry = value === null ? "missing" : value.toLowerCase() === plan.registry.value.toLowerCase() ? "ok" : "elsewhere";
   }
-  return { manifest: existsSync(plan.manifestPath), manifestPath: plan.manifestPath, registry, launcher: existsSync(plan.launcherPath), script: existsSync(plan.scriptPath) };
+  const text = read(plan.manifestPath);
+  return { manifest: text !== null, manifestPath: plan.manifestPath, registry, launcher: existsSync(plan.launcherPath), script: existsSync(plan.scriptPath),
+    origins: text === null ? null : lib.manifestOrigins(text) };
 }
 
 const daemon = await probe();

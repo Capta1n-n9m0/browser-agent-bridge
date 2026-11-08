@@ -67,11 +67,11 @@ you open a file there; read the one whose topic you touch from elsewhere in `ext
   `Page.createIsolatedWorld` world, `DOM.setFileInputFiles`, the unmark; the shipped strings are closure-free and
   tested), `handlers/upload.ts` (the `uploadFiles` handler: the file-access check before the attach, #245 (b)),
   `options-model.ts` (the options page's analysis and texts, the Upload folders lines since Step 11),
-  `relay-sender.ts` (the offscreen sender check); `badge.ts` (badge/title by state, `BadgeController.press`;
+  `relay-sender.ts` (the offscreen sender check); `pairing.ts` (S4: no token → ask the native host); `badge.ts` (badge/title by state, `BadgeController.press`;
   `chrome.action` injected, unit-tested) logs one fixed line per press (`toggleLogLine`); `options.ts` +
   `extension/options.html` are page glue (DOM + `chrome.storage.local`, the Safety, Blocked sites and Upload folders
   boxes), not unit-tested, read statically by `safety-writers.test.ts`. Guards: `log-scan.test.ts`
-  (+ `log-allowlist.ts`, 59 log sites, `scripts/package/` and the doctor included), `log-sentinel.test.ts`, `safety-writers.test.ts`, `manifest.test.ts`.
+  (+ `log-allowlist.ts`, 61 log sites, the npm package's scripts included), `log-sentinel.test.ts`, `safety-writers.test.ts`, `manifest.test.ts`.
   Older files: handlers are listed by method in `sw.ts` (`handlers/{actions,evaluate,navigate,perceive}.ts`);
   `evaluate/wrap.ts` is the `return` heuristic for `replMode`; `content/{actions,geometry,index,refmap}.ts` hold the
   page-side actions, frame-aware element centres, the `window.__agentBridge` entry and the `RefMap`.
@@ -248,8 +248,7 @@ Editing `tabs.ts`' `targetTab` or `cdpCaptureRefusal`? Two gotchas that bind the
   carry tokens, the network code prints counts only (`[bridge] network: rehydrated N entries`), and the same rule holds for
   header values and bodies. The gate, matcher and state modules have no
   log call; a press logs one fixed line (`badge.ts` `toggleLogLine`); the daemon logs booleans and the
-  count (`intercept.ts` `safetyLogLine`). `log-scan.test.ts` allowlists every log site (54 at S2b — extension
-  15, daemon 33, sdk 0, mcp 6) and `log-sentinel.test.ts` runs the real daemon on port 0 (#187). Run 13 SAFE-10:
+  count (`intercept.ts` `safetyLogLine`). `log-scan.test.ts` allowlists every log site (counts pinned per package) and `log-sentinel.test.ts` runs the real daemon on port 0 (#187). Run 13 SAFE-10:
   the daemon log and the worker console held no token, non-fixture `://` or test pattern.
 - **The disarm reaches running work fast, Chrome's banner does not.** A running trusted `type` ended `DISARMED`
   5–14 ms after the press; the "is debugging this browser" banner lingered 3–14 s (Run 13 SAFE-4 (b)) and was gone

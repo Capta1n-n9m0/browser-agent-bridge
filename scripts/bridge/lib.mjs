@@ -95,10 +95,17 @@ export function userTokenFile(env, platform) {
 }
 
 export const NATIVE_HOST_NAME = "com.browser_agent_bridge.host";
-/** Extension IDs allowed to call the native host. EMPTY until S4 fixes the ID: Chrome then lets no caller in (safe). */
-export const ALLOWED_EXTENSION_IDS = /** @type {string[]} */ ([]);
 /**
- * The native host registration (S3 registers; S4 writes the host). Pure: paths and texts only.
+ * The extension's fixed ID (Step 15 S4): the Chrome Web Store's, which the manifest `key` gives an unpacked build too
+ * (`extension/test/manifest.test.ts` derives it from the key). The native host admits this ID only.
+ */
+export const EXTENSION_ID = "iifofgbdljchbdimlalhphmedfmocela";
+/** The one origin the native host answers: Chrome passes it as the host's first argument. */
+export const EXTENSION_ORIGIN = `chrome-extension://${EXTENSION_ID}/`;
+/** Extension IDs allowed to call the native host (the manifest's `allowed_origins`): exactly the fixed ID. */
+export const ALLOWED_EXTENSION_IDS = /** @type {readonly string[]} */ (Object.freeze([EXTENSION_ID]));
+/**
+ * The native host registration (S3 registers; S4's host is `scripts/native-host/host.mjs`). Pure: paths and texts only.
  * @param {{ platform: Platform, env: Record<string, string | undefined>, home: string | null, mode: "clone" | "package",
  *   root: string, nodePath: string }} f
  * @returns {{ manifestPath: string, launcherPath: string, launcherText: string, launcherMode: number,
@@ -109,7 +116,7 @@ export function nativeHostPlan(f) {
   const tokenFile = userTokenFile(f.env, f.platform);
   if (!tokenFile || (!win && !f.home)) return null;
   const folder = p.dirname(tokenFile);
-  // PLACEHOLDER until S4 writes the host: neither file exists yet.
+  // The host script: bundled to dist/native-host.js in the package (scripts/package/build.mjs), plain node in a clone.
   const scriptPath = f.mode === "package" ? p.join(f.root, "dist", "native-host.js") : p.join(f.root, "scripts", "native-host", "host.mjs");
   const launcherPath = p.join(folder, win ? "native-host.bat" : "native-host.sh");
   const launcherText = win ? `@echo off\r\n"${f.nodePath}" "${scriptPath}" %*\r\n` : `#!/bin/sh\nexec "${f.nodePath}" "${scriptPath}" "$@"\n`;
@@ -130,6 +137,18 @@ export const regQueryArgv = (key) => ["query", key, "/ve"];
 export function parseRegDefault(output) {
   const m = output.match(/^\s*(?:\(Default\)|\(Standard\)|<NO NAME>)\s+REG_SZ\s+(.+?)\s*$/im);
   return m ? m[1] : null;
+}
+/**
+ * The `allowed_origins` of a native host manifest's text, null when it does not parse or has no string array there.
+ * @param {string} text @returns {string[] | null}
+ */
+export function manifestOrigins(text) {
+  try {
+    const o = JSON.parse(text)?.allowed_origins;
+    return Array.isArray(o) && o.every((x) => typeof x === "string") ? o : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -252,7 +271,8 @@ export function nextSteps(repo, o) {
     "  1. Open chrome://extensions and turn on Developer mode (top right).",
     pkg ? '  2. Click "Load unpacked" and choose the extension folder from the release zip (GitHub Releases; the Web Store listing comes later).'
       : `  2. Click "Load unpacked" and choose the folder ${p.join(repo, "extension")}`,
-    "  3. Open its Options page (Details > Extension options).",
+    "  3. Open its Options page (Details > Extension options). The extension pairs by itself through the native host: when",
+    "     the page (reopened after a few seconds) shows a token, skip step 4.",
     `  4. Port: ${PORT}. Token: ${o.copied ? `paste it from the clipboard (${platform === "darwin" ? "Cmd" : "Ctrl"}+V)`
       : `open ${tokenFile} in ${editor} and copy its one line (or run ${again} again to copy it)`}. Save.`,
     "  5. Pin the extension's toolbar button (puzzle-piece menu > pin): it is the kill switch, and so is Alt+Shift+K.",
@@ -284,7 +304,8 @@ export const extensionOlder = (swMtimeMs, resyncMs) =>
 
 /**
  * @typedef {{ manifest: boolean, manifestPath: string, registry?: "ok" | "missing" | "elsewhere", launcher: boolean,
- *   script: boolean }} NativeHostFact `registry` only on Windows
+ *   script: boolean, origins: string[] | null }} NativeHostFact `registry` only on Windows; `origins`: the manifest's
+ *   `allowed_origins` as read, null when it cannot be read or parsed
  */
 /**
  * @typedef {{ state: "down" } | { state: "refused" } | { state: "notoken" } | { state: "error", detail: string }
@@ -354,13 +375,16 @@ export function doctorLines(f) {
   const nh = f.nativeHost;
   if (nh) {
     const fix = `run ${setupCmd} (it registers the native host)`;
-    // Until S4 names the extension's ID nothing calls the host, so a missing registration is a hint, not a failure.
-    const bad = ALLOWED_EXTENSION_IDS.length ? "fail" : "hint";
-    if (!nh.manifest) add("Native host", bad, "manifest missing", fix);
-    else if (nh.registry === "missing") add("Native host", bad, "registry key missing", fix);
-    else if (nh.registry === "elsewhere") add("Native host", bad, "registry key points at another manifest", fix);
-    else if (!nh.launcher || !nh.script) add("Native host", "hint", "registered; the host arrives in a later version", "no action needed");
-    else add("Native host", "ok", "registered");
+    // Without the host the extension cannot pair by itself, but a token typed in Options still works: a hint, not a
+    // failure. A manifest that does not admit exactly this extension (an S3 registration, empty) cannot pair either.
+    const fixOr = `${fix}, or paste the token in the extension's Options`;
+    if (!nh.manifest) add("Native host", "hint", "manifest missing: the extension cannot pair by itself", fixOr);
+    else if (nh.registry === "missing") add("Native host", "hint", "registry key missing: the extension cannot pair by itself", fixOr);
+    else if (nh.registry === "elsewhere") add("Native host", "hint", "registry key points at another manifest", fixOr);
+    else if (!(nh.origins?.length === 1 && nh.origins[0] === EXTENSION_ORIGIN))
+      add("Native host", "hint", "the manifest does not admit this extension's ID (an older setup)", fixOr);
+    else if (!nh.launcher || !nh.script) add("Native host", "hint", `registered, but the ${nh.launcher ? "host script" : "launcher"} is missing`, fixOr);
+    else add("Native host", "ok", "registered for this extension's ID");
   }
   if (d.state !== "up") return add("Extension", "hint", "not checked (no daemon answered)", "start Claude Code or a script, then run the doctor again");
   add("Extension", d.extensionConnected ? "ok" : "fail", d.extensionConnected ? "connected" : "not connected",

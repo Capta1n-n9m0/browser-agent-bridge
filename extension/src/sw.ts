@@ -29,6 +29,7 @@ import { redactTabCreated, redactTabRemoved } from "./safety.js";
 import { debuggerSessions, keepSessions } from "./debugger.js";
 import { keptTabRefusal, pageChanged } from "./debugger-keeper.js";
 import { BadgeController } from "./badge.js";
+import { NATIVE_HOST_NAME, PAIR_REQUEST, PairBackoff, pairLogLine, pairOnce, type PairDeps } from "./pairing.js";
 
 const DEFAULT_PORT = 9234;
 
@@ -289,6 +290,17 @@ const sessionMarker = new SessionMarker({
   onRotate: () => void connect(),
 });
 
+// --- Pairing (Step 15 S4, #449) -------------------------------------------------------------------------
+// Only connect() asks, and only while no token is stored; the back-off is worker memory, so a worker start tries at
+// once. The write is `{token, port}` only, after a fresh re-read finds the token still empty (`pairing.ts`).
+const pairBackoff = new PairBackoff(Date.now);
+const pairDeps: PairDeps = {
+  ask: () => chrome.runtime.sendNativeMessage(NATIVE_HOST_NAME, PAIR_REQUEST),
+  readToken: async () => (await chrome.storage.local.get(["token"])).token,
+  write: async ({ token, port }) => chrome.storage.local.set({ token, port }),
+  delay: (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+};
+
 let connecting = false;
 /** A connect() asked for while one was running (e.g. a marker rotation): run once more after it. */
 let connectAgain = false;
@@ -318,7 +330,10 @@ async function connect(): Promise<void> {
   try {
     const { port, token } = await getConfig();
     if (!token) {
-      console.warn("[bridge] no token set — open the extension options page to configure.");
+      // Step 15 S4 (#449): ask the local install's native host; a write fires storage.onChanged, which connects.
+      const pairLine = pairLogLine(await pairOnce(pairDeps, pairBackoff));
+      if (pairLine) console.log(pairLine);
+      else console.warn("[bridge] no token set — open the extension options page to configure.");
       return;
     }
     // Waits at most 2 s, and only on a worker start without a stored marker (S2b.5).

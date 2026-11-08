@@ -7,6 +7,22 @@ export const PACKAGE_NAME = "browser-agent-bridge";
 export const LICENSE_EXPRESSION = "AGPL-3.0-only AND Apache-2.0";
 export const PACKAGE_FILES = ["dist", "types", "LICENSE", "LICENSE-APACHE", "LICENSES.md", "THIRD-PARTY-NOTICES.txt", "README.md"];
 
+const SHEBANG = { js: "#!/usr/bin/env node" };
+/**
+ * The esbuild bundles build.mjs writes to dist/ (repo-relative source → dist file name). `native-host.js` (Step 15 S4)
+ * is the path `nativeHostPlan` in scripts/bridge/lib.mjs registers for the package.
+ * @type {readonly { in: string, out: string, banner?: { js: string }, external?: string[] }[]}
+ */
+export const BUNDLE_ENTRIES = [
+  { in: "sdk/src/index.ts", out: "index.js" },
+  { in: "mcp/src/index.ts", out: "mcp.js", banner: SHEBANG },
+  { in: "daemon/src/index.ts", out: "daemon.js", banner: SHEBANG },
+  { in: "scripts/bridge/doctor.ts", out: "doctor.js", banner: SHEBANG },
+  { in: "scripts/bridge/setup.mjs", out: "setup.js", banner: SHEBANG },
+  { in: "scripts/package/cli.mjs", out: "cli.js", banner: SHEBANG, external: ["./mcp.js", "./doctor.js", "./setup.js"] },
+  { in: "scripts/native-host/host.mjs", out: "native-host.js" },
+];
+
 /**
  * @param {{ version: string }} root the root package.json (its version is the release's)
  * @param {Record<string, string>} dependencies the runtime dependencies left out of the bundles (ws)

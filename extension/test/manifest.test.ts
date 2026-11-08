@@ -13,7 +13,14 @@
  * Re-pinned 2026-10-29 (Step 13 S1; decisions.md · 2026-10-29 · The user rules Step 12's gate; Step 12 closes (#374),
  * item 1, which granted the permission; #393: no new warning, the extension stays enabled): `permissions` gains exactly
  * `webNavigation`, for `onCreatedNavigationTarget` (G1, #385). The earlier tests below pin the list through `NOW`.
+ *
+ * Re-pinned 2026-11-08 (Step 15 S4; phase doc `docs/plans/2026-11-08-step15-distribution.md` § S4; the native host
+ * ruling #449): `permissions` gains exactly `nativeMessaging` (pairing with the local install), and the manifest gains
+ * exactly the top-level `key` (the Web Store's public key, so an unpacked build has the store's fixed ID). The ID the
+ * key derives equals `EXTENSION_ID` in `scripts/bridge/lib.mjs`, the one ID the native host admits.
  */
+import { createHash } from "node:crypto";
+import { EXTENSION_ID } from "../../scripts/bridge/lib.mjs";
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -37,14 +44,46 @@ const BEFORE: Record<string, unknown> = {
 const ADDED_11B = "declarativeNetRequestWithHostAccess";
 /** Step 13 S1: the one permission added after Step 11b's (#374 item 1). */
 const ADDED_13 = "webNavigation";
-/** Today's list: S2b's, then 11b's, then Step 13's, in that order. */
-const NOW = [...(BEFORE.permissions as string[]), ADDED_11B, ADDED_13];
+/** Step 15 S4: the one permission added after Step 13's (#449, the native host). */
+const ADDED_15 = "nativeMessaging";
+/** Today's list: S2b's, then 11b's, then Step 13's, then Step 15's, in that order. */
+const NOW = [...(BEFORE.permissions as string[]), ADDED_11B, ADDED_13, ADDED_15];
+
+/** Chrome's extension ID from a manifest `key`: sha256 of the DER, first 32 hex digits mapped 0-f → a-p. */
+function idFromKey(key: string): string {
+  const hex = createHash("sha256").update(Buffer.from(key, "base64")).digest("hex").slice(0, 32);
+  return [...hex].map((c) => String.fromCharCode(97 + parseInt(c, 16))).join("");
+}
+
+describe("manifest.json (Step 15 S4 re-pin, #449)", () => {
+  it("permissions are Step 13's list plus exactly nativeMessaging, appended", () => {
+    expect(manifest.permissions).toEqual(NOW);
+    expect((manifest.permissions as string[]).at(-1)).toBe(ADDED_15);
+    expect(manifest.host_permissions).toEqual(BEFORE.host_permissions);
+  });
+
+  it("the key is one base64 line whose derived ID is EXTENSION_ID (the store's)", () => {
+    expect(typeof manifest.key).toBe("string");
+    const key = manifest.key as string;
+    expect(key).toMatch(/^[A-Za-z0-9+/]+={0,2}$/);
+    expect(key).toHaveLength(392);
+    expect(EXTENSION_ID).toBe("iifofgbdljchbdimlalhphmedfmocela");
+    expect(idFromKey(key)).toBe(EXTENSION_ID);
+  });
+
+  it("the derivation is discriminating: one changed key character gives another ID", () => {
+    const key = manifest.key as string;
+    const i = 100;
+    const changed = key.slice(0, i) + (key[i] === "A" ? "B" : "A") + key.slice(i + 1);
+    expect(idFromKey(changed)).not.toBe(EXTENSION_ID);
+  });
+});
 
 describe("manifest.json (Step 13 S1 re-pin, #374)", () => {
-  it("permissions are Step 11b's list plus exactly webNavigation, appended; nothing else changes", () => {
+  it("permissions are Step 11b's list plus exactly webNavigation, appended (then Step 15's); nothing else changes", () => {
     expect(manifest.permissions).toEqual(NOW);
     const added = (manifest.permissions as string[]).filter((p) => ![...(BEFORE.permissions as string[]), ADDED_11B].includes(p));
-    expect(added).toEqual([ADDED_13]);
+    expect(added).toEqual([ADDED_13, ADDED_15]);
     expect(manifest.host_permissions).toEqual(BEFORE.host_permissions);
     expect(manifest).not.toHaveProperty("optional_permissions");
   });
@@ -54,7 +93,7 @@ describe("manifest.json (Step 11b S3a re-pin)", () => {
   it("permissions are S2b's list plus exactly one, appended", () => {
     expect(manifest.permissions).toEqual(NOW);
     const added = (manifest.permissions as string[]).filter((p) => !(BEFORE.permissions as string[]).includes(p));
-    expect(added).toEqual([ADDED_11B, ADDED_13]);
+    expect(added).toEqual([ADDED_11B, ADDED_13, ADDED_15]);
     for (const p of ["declarativeNetRequest", "declarativeNetRequestFeedback"]) expect(manifest.permissions).not.toContain(p);
   });
 
@@ -72,9 +111,9 @@ describe("manifest.json (S2b)", () => {
     expect(manifest).not.toHaveProperty("optional_host_permissions");
   });
 
-  it("no new top-level key besides action and commands; every old key unchanged", () => {
+  it("no new top-level key besides action and commands (and, since Step 15 S4, key); every old key unchanged", () => {
     const added = Object.keys(manifest).filter((k) => !(k in BEFORE)).sort();
-    expect(added).toEqual(["action", "commands"]);
+    expect(added).toEqual(["action", "commands", "key"]);
     for (const [k, v] of Object.entries(BEFORE)) if (k !== "permissions") expect(manifest[k], k).toEqual(v);
   });
 

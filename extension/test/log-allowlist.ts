@@ -2,7 +2,7 @@
  * Step 9 S2b: the 0.7 log scan's committed allowlist — every `console.*` call, every injected-logger call
  * (`log(…)`, `….log(…)`), every logger or `console`/`process` used as a value, and every `process.stdout`/`stderr`
  * use (the forms `log-scan.ts` enumerates) in `extension/src`, `daemon/src`, `sdk/src`, `mcp/src`, `scripts/package` and
- * `scripts/bridge/doctor.ts` (the npm package's commands, Step 15 S2), by file and normalised call
+ * `scripts/bridge/doctor.ts` (the npm package's commands, Step 15 S2), `scripts/native-host` (the native host, S4), by file and normalised call
  * text, with what it may print (phase doc 0.7's F28 note; S2.3 as #141 words it). `log-scan.test.ts` fails on a
  * site not listed here and on an entry no longer found. A changed argument is a changed text: re-review it.
  *
@@ -18,7 +18,7 @@ export interface AllowedLogSite extends LogSite {
 }
 
 export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
-  // ---------------------------------------------------------------- extension/src (15)
+  // ---------------------------------------------------------------- extension/src (16)
   { file: "extension/src/badge.ts", call: "console.log(toggleLogLine(r))", prints: "one of five fixed strings (`safety: disarmed by the user`, …); no value" },
   { file: "extension/src/debugger.ts", call: 'console.warn("[bridge] focus emulation: disable failed; detach clears it:", describeDebuggerError(err).code)', prints: "a fixed text and an error code name" },
   { file: "extension/src/handlers/actions.ts", call: 'console.warn("[bridge] content-script click failed; escalating to CDP trusted input:", codeOf(err))', prints: "a fixed text and an error code name" },
@@ -31,6 +31,7 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   { file: "extension/src/sw.ts", call: 'console.warn("[bridge] no token set — open the extension options page to configure.")', prints: "a fixed text (says the token is missing; never its value)" },
   { file: "extension/src/sw.ts", call: 'console.error("[bridge] connect failed:", err)', prints: "an Error from chrome.storage / offscreen / runtime.sendMessage on the connect path (Chrome's wording; not known to carry a page URL or the token)" },
   { file: "extension/src/sw.ts", call: 'console.warn("[bridge] reply relay failed:", e)', prints: "an Error from runtime.sendMessage (Chrome's wording, e.g. no receiving end); never the reply" },
+  { file: "extension/src/sw.ts", call: "console.log(pairLine)", prints: "one of pairing.ts' fixed pairLogLine strings (Step 15 S4); never the token, the host's reply or Chrome's message" },
   { file: "extension/src/sw.ts", call: 'console.log("[bridge] connection: up")', prints: "a fixed text" },
   { file: "extension/src/sw.ts", call: 'console.error("[bridge] connection: down")', prints: "a fixed text" },
   { file: "extension/src/sw.ts", call: 'console.warn("[bridge] debugger detached, tabId", source.tabId, "reason:", reason)', prints: "a numeric tab id and Chrome's detach reason enum" },
@@ -85,6 +86,7 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   { file: "scripts/package/build.mjs", call: "console.log(`built build/npm: ${entries.length} bundles, ${declarations} declaration files, ${thirdParty.size} third-party packages noticed`)", prints: "three counts (the build tool, never shipped)" },
   { file: "scripts/package/cli.mjs", call: "process.stdout (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },
   { file: "scripts/package/cli.mjs", call: "process.stderr (as a value): action.exit === 0 ? process.stdout : process.stderr", prints: "one of cliAction's fixed texts (usage, the setup notice); no argument is echoed" },
+  { file: "scripts/native-host/host.mjs", call: "process.stdout.write(encodeFrame(reply, endian), () => process.exit(0))", prints: "the one native-messaging reply frame to Chrome (Step 15 S4): {ok:true, token, port} only after the caller's origin equals the extension's fixed one, else {ok:false, error:<fixed code>}; the token on purpose, to that extension only, never to stderr" },
   { file: "scripts/bridge/doctor.ts", call: "console.log(lib.formatLine(l))", prints: "a doctor line: fixed texts, the Node and package versions, ports, paths of the token file and the MCP entry; tokens only as same/differs" },
   { file: "scripts/bridge/doctor.ts", call: 'console.log(failed ? `\\n${failed} part(s) failed: each FAIL line names its fix.` : "\\nNo part failed.")', prints: "a count of failed parts" },
 ];

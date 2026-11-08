@@ -2,8 +2,8 @@
 import { describe, expect, it } from "vitest";
 import { userTokenFile as sdkUserTokenFile } from "../../sdk/src/token.js";
 import {
-  ALLOWED_EXTENSION_IDS, chromeCandidates, checkPrereqs, claudeConfigPath, doctorLines, entryPath, isNpxEntry, mcpAddArgv, mcpDecision, nativeHostPlan,
-  nextSteps, npmCli, NATIVE_HOST_NAME, parseRegDefault, regAddArgv, regQueryArgv, tokenPlan, userTokenFile,
+  ALLOWED_EXTENSION_IDS, chromeCandidates, checkPrereqs, claudeConfigPath, doctorLines, entryPath, EXTENSION_ID, EXTENSION_ORIGIN, isNpxEntry,
+  manifestOrigins, mcpAddArgv, mcpDecision, nativeHostPlan, nextSteps, npmCli, NATIVE_HOST_NAME, parseRegDefault, regAddArgv, regQueryArgv, tokenPlan, userTokenFile,
 } from "../bridge/lib.mjs";
 
 describe("tokenPlan (#449)", () => {
@@ -95,13 +95,15 @@ describe("MCP entry in the package", () => {
 
 describe("nativeHostPlan", () => {
   const base = { mode: "package" as const, nodePath: "/n/node" };
-  it("linux: manifest under ~/.config/google-chrome, sh launcher beside the token, empty allowed_origins", () => {
+  it("linux: manifest under ~/.config/google-chrome, sh launcher beside the token, allowed_origins = the fixed ID only", () => {
     const p = nativeHostPlan({ ...base, platform: "linux", env: { HOME: "/home/x" }, home: "/home/x", root: "/pk" })!;
     expect(p.manifestPath).toBe(`/home/x/.config/google-chrome/NativeMessagingHosts/${NATIVE_HOST_NAME}.json`);
     expect(p.launcherPath).toBe("/home/x/.config/browser-agent-bridge/native-host.sh");
     expect(p.launcherText).toBe('#!/bin/sh\nexec "/n/node" "/pk/dist/native-host.js" "$@"\n');
     expect(p.launcherMode).toBe(0o755);
-    expect(p.manifest).toEqual({ name: NATIVE_HOST_NAME, description: expect.any(String), path: p.launcherPath, type: "stdio", allowed_origins: [] });
+    expect(p.manifest).toEqual({ name: NATIVE_HOST_NAME, description: expect.any(String), path: p.launcherPath, type: "stdio", allowed_origins: ["chrome-extension://iifofgbdljchbdimlalhphmedfmocela/"] });
+    expect(EXTENSION_ORIGIN).toBe(`chrome-extension://${EXTENSION_ID}/`);
+    expect(ALLOWED_EXTENSION_IDS).toEqual([EXTENSION_ID]);
     expect(p.registry).toBeUndefined();
   });
   it("darwin: Application Support manifest; the clone's script is scripts/native-host/host.mjs", () => {
@@ -136,15 +138,28 @@ describe("doctor lines per OS", () => {
     extensionOlder: null, port: "9234", tokenSource: "user" as const, userTokenFile: "/h/t",
   };
   const nh = (nativeHost: object, platform = "linux") => doctorLines({ ...base, platform, nativeHost } as never).find((l) => l.name === "Native host")!;
-  const host = { manifest: true, manifestPath: "/m", launcher: true, script: true };
-  it("native host: missing, registry missing/elsewhere, placeholder, ok", () => {
-    // A hint, not a failure, while ALLOWED_EXTENSION_IDS is empty (nothing calls the host before S4).
-    expect(ALLOWED_EXTENSION_IDS).toEqual([]);
-    expect(nh({ ...host, manifest: false })).toMatchObject({ level: "hint", fix: expect.stringContaining("npx browser-agent-bridge setup") });
-    expect(nh({ ...host, registry: "missing" }, "win32")).toMatchObject({ level: "hint", detail: "registry key missing" });
+  const host = { manifest: true, manifestPath: "/m", launcher: true, script: true, origins: [`chrome-extension://${EXTENSION_ID}/`] };
+  it("native host (S4): missing, registry missing/elsewhere, wrong origins, missing script or launcher, ok", () => {
+    // Every problem is a hint: a token pasted in Options still works without the host.
+    expect(nh({ ...host, manifest: false, origins: null })).toMatchObject({ level: "hint", detail: expect.stringMatching(/cannot pair/),
+      fix: expect.stringMatching(/npx browser-agent-bridge setup.*paste the token/) });
+    expect(nh({ ...host, registry: "missing" }, "win32")).toMatchObject({ level: "hint", detail: expect.stringMatching(/^registry key missing/) });
     expect(nh({ ...host, registry: "elsewhere" }, "win32")).toMatchObject({ level: "hint", detail: "registry key points at another manifest" });
-    expect(nh({ ...host, script: false })).toMatchObject({ level: "hint", detail: expect.stringMatching(/later version/) });
-    expect(nh({ ...host, registry: "ok" }, "win32").level).toBe("ok");
+    for (const origins of [[], null, ["chrome-extension://aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/"], [host.origins[0], "chrome-extension://x/"]])
+      expect(nh({ ...host, origins }), JSON.stringify(origins)).toMatchObject({ level: "hint", detail: expect.stringMatching(/does not admit/) });
+    expect(nh({ ...host, script: false })).toMatchObject({ level: "hint", detail: expect.stringMatching(/host script is missing/) });
+    expect(nh({ ...host, launcher: false })).toMatchObject({ level: "hint", detail: expect.stringMatching(/launcher is missing/) });
+    expect(nh({ ...host, registry: "ok" }, "win32")).toMatchObject({ level: "ok", detail: "registered for this extension's ID" });
+    expect(nh(host).level).toBe("ok");
+    for (const l of doctorLines({ ...base, platform: "linux", nativeHost: host } as never)) expect(l.detail).not.toMatch(/later version/);
+  });
+  it("manifestOrigins reads allowed_origins, null otherwise", () => {
+    expect(manifestOrigins(JSON.stringify({ allowed_origins: ["a"] }))).toEqual(["a"]);
+    expect(manifestOrigins(JSON.stringify({ allowed_origins: [] }))).toEqual([]);
+    expect(manifestOrigins("{")).toBeNull();
+    expect(manifestOrigins("null")).toBeNull();
+    expect(manifestOrigins(JSON.stringify({ allowed_origins: [1] }))).toBeNull();
+    expect(manifestOrigins(JSON.stringify({}))).toBeNull();
   });
   it("the port-holder hint and the add command follow the platform", () => {
     const d = { daemon: { state: "error" as const, detail: "x" } };

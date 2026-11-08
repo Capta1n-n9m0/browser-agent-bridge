@@ -12,15 +12,16 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   `daemon.status` over the SDK's own socket, never spawns or hands over a daemon, never calls the `claude` CLI.
 - `scripts/test/s15-setup-os.test.ts` (S3: per-OS token plan, native-host plan, MCP argv, doctor lines) and `scripts/test/s14-{setup,doctor,update}.test.ts`: vitest over `lib.mjs` with injected facts; no real config or CLI.
 - `scripts/tsconfig.json`: extends `tsconfig.base.json` with `allowJs` and `checkJs`; includes `bridge/*.mjs`,
-  `bridge/*.ts`, `package/manifest.mjs`, `package/cli.mjs`, `test/*.ts`.
+  `bridge/*.ts`, `package/manifest.mjs`, `package/cli.mjs`, `native-host/*.mjs`, `test/*.ts`.
 - `scripts/package/` (Step 15 S2, #449): `build.mjs` (`npm run build:npm` → `build/npm/`, gitignored: esbuild bundles
-  `dist/{index,mcp,daemon,doctor,setup,cli}.js` with `ws` external, the SDK's `.d.ts` under `types/` with `@bridge/shared`
+  `dist/{index,mcp,daemon,doctor,setup,cli,native-host}.js` (the list is `BUNDLE_ENTRIES` in `manifest.mjs`) with `ws` external, the SDK's `.d.ts` under `types/` with `@bridge/shared`
   rewritten to relative paths, `LICENSE`, `LICENSE-APACHE`, `LICENSES.md`, `THIRD-PARTY-NOTICES.txt` from the bundles'
   metafiles; `npm run pack:npm` also runs `npm pack` into `build/`), `manifest.mjs` (pure: the generated
   `package.json` — license `AGPL-3.0-only AND Apache-2.0` per #450 — and `cliAction`), `cli.mjs` (the main bin:
   none/`mcp` → the MCP server, `doctor`, `setup`, `help`), `LICENSES.md` (which file
   falls under which license), `tsconfig.types.json`. The root `package.json` stays `private`. Tests:
   `scripts/test/s15-package.test.ts`, `s15-doctor-package.test.ts`.
+- `scripts/native-host/` (Step 15 S4): `host.mjs` and `pair.mjs`, the native messaging host (Runtime gotchas).
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
 - `examples/list-tabs.ts`: the smallest script outside the repo, using the SDK through a `file:` dependency (#430);
   steps in `docs/setup.md`, "Scripts from any folder".
@@ -52,13 +53,21 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
 - **The package's MCP entry is `npx -y browser-agent-bridge`, wrapped as `cmd /c npx …` on win32**: Claude Code on native
   Windows cannot start npx directly. `mcpDecision` in package mode leaves either form and reports (or, with
   `--replace-mcp`, replaces) anything else, a clone path included.
-- **The native host is registered, not written** (S3; the host is S4's). The plan points at a placeholder script
-  (`dist/native-host.js` in the package, `scripts/native-host/host.mjs` in a clone) that does not exist yet, and
-  `ALLOWED_EXTENSION_IDS` is empty until S4 fixes the extension's ID, so Chrome lets no caller in. The launcher
-  (`native-host.bat`/`.sh`, absolute `process.execPath`) and the manifest live beside the token on Windows; the manifest
-  goes to Chrome's `NativeMessagingHosts` folder on macOS and Linux; Windows also gets the `HKCU` key (`reg add`, argv, no
-  shell). The doctor reads the key with `reg query` and says "registered; the host arrives in a later version" while
-  the script is missing; a missing registration is a hint, not a failure, while `ALLOWED_EXTENSION_IDS` is empty.
+- **The native host** (S3 registers it, S4 wrote it; #449): `scripts/native-host/host.mjs` (thin I/O; bundled to the
+  package's `dist/native-host.js` from `BUNDLE_ENTRIES` in `package/manifest.mjs`) over `pair.mjs` (pure, tested in
+  `test/s15-native-host.test.ts`, a real child process included). Order: the first argument must equal
+  `lib.EXTENSION_ORIGIN` exactly (`chrome-extension://iifofgbdljchbdimlalhphmedfmocela/`), else `forbidden-origin`
+  before stdin or any token file is read; then one frame (declared length over 4096 refused unread, 5 s timeout), only
+  `{"type":"pair"}`; then the token in the ruled order (`BRIDGE_TOKEN`, the per-user file, a clone's `bridge.token`
+  never inside the package) and the port (`BRIDGE_PORT` if 1–65535, else 9234). Reply `{ok:true, token, port}` or
+  `{ok:false, error:<fixed code>}`; a token outside `TOKEN_RE` is `bad-token`. Nothing goes to stderr (an uncaught error
+  exits 1 silently); its one stdout write is in the log allowlist. Chrome starts it with Chrome's environment, not a
+  shell's, so `BRIDGE_TOKEN` set in a terminal does not reach it. `ALLOWED_EXTENSION_IDS = [EXTENSION_ID]`. The
+  launcher (`native-host.bat`/`.sh`, absolute `process.execPath`) and the manifest live beside the token on Windows; the
+  manifest goes to Chrome's `NativeMessagingHosts` folder on macOS and Linux; Windows also gets the `HKCU` key (`reg
+  add`, argv, no shell). The doctor reads the key with `reg query` and the manifest's `allowed_origins`
+  (`manifestOrigins`); every Native host problem is a hint (a token pasted in Options still works), and an S3-era
+  manifest (empty `allowed_origins`) reads "does not admit this extension's ID": run setup again.
 - **Token move (#449):** `tokenPlan` keeps the per-user file, moves a clone's `bridge.token` into it (then deletes the
   clone's copy), keeps both when they differ (the per-user file wins), and never prints a value. Clipboard offer: clip.exe
   on win32, pbcopy on darwin, none on Linux.

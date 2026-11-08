@@ -2,7 +2,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { cliAction, packageManifest, PACKAGE_FILES } from "../package/manifest.mjs";
+import { nativeHostPlan } from "../bridge/lib.mjs";
+import { BUNDLE_ENTRIES, cliAction, packageManifest, PACKAGE_FILES } from "../package/manifest.mjs";
 
 const root = JSON.parse(readFileSync(path.join(__dirname, "..", "..", "package.json"), "utf8"));
 
@@ -35,6 +36,13 @@ describe("packageManifest", () => {
   });
   it("the root package stays private, so a stray npm publish at the root is refused", () => {
     expect(root.private).toBe(true);
+  });
+  it("Step 15 S4: dist/native-host.js is bundled from the host script, at the path the package's registration names", () => {
+    expect(BUNDLE_ENTRIES.map((e) => e.out)).toEqual(["index.js", "mcp.js", "daemon.js", "doctor.js", "setup.js", "cli.js", "native-host.js"]);
+    expect(BUNDLE_ENTRIES.find((e) => e.out === "native-host.js")).toEqual({ in: "scripts/native-host/host.mjs", out: "native-host.js" });
+    const plan = nativeHostPlan({ platform: "linux", env: { HOME: "/h" }, home: "/h", mode: "package", root: "/pk", nodePath: "/n" })!;
+    expect(plan.scriptPath).toBe("/pk/dist/native-host.js");
+    expect(m.files).toContain("dist");
   });
 });
 
