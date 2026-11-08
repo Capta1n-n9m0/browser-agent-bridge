@@ -327,6 +327,12 @@ supported route; a Claude Desktop route (likely a plugin) is for a later release
 
 **S10 — release (the user's approval, 2026-11-08):** version 0.2.0 by `npm run version:set`; `extension/test/manifest.test.ts`
 now reads the version from the root `package.json` instead of pinning `0.1.0`; `npm test` 4333 passed;
-`npm run release:build -- --tag v0.2.0` passed locally.
+`npm run release:build -- --tag v0.2.0` passed locally. The first tag run made the GitHub Release but the npm publish
+failed: npm read `release/<name>.tgz` as a GitHub `owner/repo` and tried git over SSH. Fixed by a `./` path, pinned by a test
+(commit `0f8b3b0`); the Release and the tag were deleted and `v0.2.0` re-tagged on `0f8b3b0` (the user approved the exact
+command). The second run passed every job: the GitHub Release
+(https://github.com/Capta1n-n9m0/browser-agent-bridge/releases/tag/v0.2.0: extension zip with `key`, `.mcpb`, `.tgz`,
+`SHA256SUMS.txt`) and `browser-agent-bridge@0.2.0` on npm with provenance, `latest`; `npx -y browser-agent-bridge@0.2.0 help`
+ran from a scratch folder. The Web Store submission (U3) is next.
 
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
