@@ -35,18 +35,19 @@ const USAGE = [
   `Usage: ${PACKAGE_NAME} [command]`,
   "  (none) | mcp   run the MCP server on stdio (what Claude starts)",
   "  doctor         one line per part of the install; never prints the token",
+  "  setup          create the token, register the MCP entry and the native host (--dry-run shows the plan)",
   "  help           this text",
 ].join("\n");
 
 /**
  * @param {string[]} args process.argv after the script
- * @returns {{ run: "mcp" | "doctor" } | { exit: number, message: string }}
+ * @returns {{ run: "mcp" | "doctor" | "setup" } | { exit: number, message: string }}
  */
 export function cliAction(args) {
   const [cmd] = args;
   if (cmd === undefined || cmd === "mcp") return { run: "mcp" };
   if (cmd === "doctor") return { run: "doctor" };
-  if (cmd === "setup") return { exit: 1, message: "setup is not in the npm package yet (it comes in a later version); from a clone run npm run setup." };
+  if (cmd === "setup") return { run: "setup" };
   if (cmd === "help" || cmd === "--help" || cmd === "-h") return { exit: 0, message: USAGE };
   return { exit: 2, message: `Unknown command.\n${USAGE}` };
 }

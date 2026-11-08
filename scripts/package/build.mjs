@@ -1,5 +1,5 @@
 // Step 15 S2: generate the npm package in build/npm/ (#449): esbuild bundles of the SDK (the main export), the MCP
-// server, the daemon, the doctor and the CLI; the SDK's declarations; both license texts and the note (#450); the
+// server, the daemon, the doctor, setup and the CLI; the SDK's declarations; both license texts and the note (#450); the
 // third-party notices for what the bundles hold. `--pack` then runs `npm pack` into build/. Never publishes.
 // It prints file names and counts only.
 import { execFileSync } from "node:child_process";
@@ -24,7 +24,8 @@ const entries = [
   { in: "mcp/src/index.ts", out: "mcp.js", banner: SHEBANG },
   { in: "daemon/src/index.ts", out: "daemon.js", banner: SHEBANG },
   { in: "scripts/bridge/doctor.ts", out: "doctor.js", banner: SHEBANG },
-  { in: "scripts/package/cli.mjs", out: "cli.js", banner: SHEBANG, external: ["./mcp.js", "./doctor.js"] },
+  { in: "scripts/bridge/setup.mjs", out: "setup.js", banner: SHEBANG },
+  { in: "scripts/package/cli.mjs", out: "cli.js", banner: SHEBANG, external: ["./mcp.js", "./doctor.js", "./setup.js"] },
 ];
 const thirdParty = new Map();
 for (const e of entries) {

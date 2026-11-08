@@ -4,6 +4,7 @@
 //   knock → ECONNREFUSED ─► spawn (once per cycle) ─► knock every 250 ms, ≤ 10 s ─► hello
 //         → connected ─► hello ─► welcome (≤ 2 s, else VERSION: a pre-Step-6 server holds the port)
 //              build == expected ? done
+//              : another install's current, not-older daemon (io.adoptDaemon, Step 15 S3) ? done, as it is
 //              : first mismatch → daemon.shutdown ─► wait close ─► knock until refused ─► spawn ─► …
 //              : mismatch after our own handover → VERSION (one handover per connect())
 //              : mismatch with handover disabled (a reconnect after 4002) → VERSION
@@ -36,6 +37,11 @@ export interface KnockIo {
   sleep(ms: number, signal?: AbortSignal): Promise<void>;
   /** Milliseconds on the same clock `sleep` advances. */
   now(): number;
+  /**
+   * Step 15 S3: on a build mismatch, true means the running daemon is the current daemon of another install that is
+   * not older than ours (sdk/src/adopt.ts): use it as it is — no handover, no VERSION. Absent or false: as before.
+   */
+  adoptDaemon?(o: { port: number; build: string; daemonPath: string }): Promise<boolean>;
 }
 
 export interface KnockOptions {
@@ -220,6 +226,10 @@ export async function knock(options: KnockOptions): Promise<Knocked> {
           );
         }
         if (welcome.build === expected) return { conn, welcome };
+        // Another install's current daemon (a clone beside the npm package): use it, never hand it back and forth.
+        if (io.adoptDaemon && (await io.adoptDaemon({ port, build: welcome.build, daemonPath }).catch(() => false))) {
+          return { conn, welcome };
+        }
 
         if (!allowHandover) {
           // A reconnect after 4002: someone else replaced the daemon on purpose. Never hand it back.

@@ -48,6 +48,7 @@ export const LOG_ALLOWLIST: readonly AllowedLogSite[] = [
   { file: "daemon/src/main.ts", call: "logger.log(`exit ${code} (${why})${counts}`)", prints: "an exit code, a fixed reason and counts" },
   { file: "daemon/src/main.ts", call: "logger.log(`fatal: ${errorName(err)}`)", prints: "an error's class name only" },
   { file: "daemon/src/main.ts", call: "logger.log(`start pid=${pid}`)", prints: "a pid" },
+  { file: "daemon/src/main.ts", call: 'logger.log("daemon record not written — clients of another install may hand this daemon over")', prints: "a fixed text (Step 15 S3; no path)" },
   { file: "daemon/src/main.ts", call: 'logger.log("BRIDGE_PORT is not a port number (1-65535)")', prints: "a fixed text" },
   { file: "daemon/src/main.ts", call: "logger.log(`BRIDGE_DAEMON_IDLE_MS is not a whole number of ms from 1 to ${MAX_IDLE_MS}; using ${DEFAULT_IDLE_MS}`)", prints: "two constants" },
   { file: "daemon/src/main.ts", call: 'logger.log(err instanceof Error ? err.message : "No bridge token")', prints: "resolveToken's 'No bridge token' message: a file path, never a token (none was found)" },

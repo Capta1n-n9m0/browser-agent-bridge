@@ -3,6 +3,7 @@
 // rejects before any socket.
 import { BridgeError, ErrorCodes } from "@bridge/shared";
 import { BridgeClient, onClientFailure, realTimers, type Timers } from "./client.js";
+import { makeAdoptDaemon } from "./adopt.js";
 import { knock, type KnockIo } from "./knock.js";
 import { resolveDaemonPath } from "./paths.js";
 import { hashDaemon, spawnDaemon } from "./spawn.js";
@@ -106,7 +107,9 @@ export async function connect(options: ConnectOptions): Promise<BridgeClient> {
     throw asNotConnected(err);
   }
 
-  const io: KnockIo = { ...realKnockIo, ...options.io };
+  // The adopt check reads the daemon record under the home named by `env` (never os.homedir), so a test's env
+  // reads no real record.
+  const io: KnockIo = { ...realKnockIo, adoptDaemon: makeAdoptDaemon(env, realKnockIo.hashDaemon), ...options.io };
   const client = new BridgeClient({
     // A reconnect after 4002 never hands the daemon over (decision #10's purpose; see knock.ts).
     knock: ({ reconnect }) =>

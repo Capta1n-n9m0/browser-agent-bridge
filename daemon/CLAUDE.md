@@ -7,7 +7,7 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   bind-is-the-lock, idle, signals, exit codes), `wsHost.ts` (binds 127.0.0.1, token gate, roles,
   welcome, heartbeat, `shutdown(code)`), `handshake.ts`, `registry.ts` (clients), `route.ts`
   (`daemon.*` methods, timeout bounds, forwarding), `bridge.ts` + `connection.ts` (the extension
-  socket, id-correlated calls), `build.ts` (sha256 build id), `idle.ts`, `log.ts` (file log + `redact`).
+  socket, id-correlated calls), `build.ts` (sha256 build id), `daemon-record.ts` (Step 15 S3: which file serves the port), `idle.ts`, `log.ts` (file log + `redact`).
   Step 7's tab layer, all pure but the last: `handles.ts` (`HandleTable`: `T<n>` ↔ Chrome tab id,
   remap on `tabReplaced`, dead handles kept 1 h / 1 000 for `TAB_GONE`), `leases.ts` (`LeaseTable`:
   one owner per tab, `TAB_HELD {owner, since}`), `lock.ts` (`VisibilityLock`: FIFO, `LOCK_TIMEOUT
@@ -43,7 +43,10 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   `npm run build` changes that file, the next client's `connect()` sees a different build in the
   welcome, sends `daemon.shutdown` (other clients get close 4002 and reconnect without a handover — a build mismatch on that reconnect
   rejects with `VERSION`; decisions.md · 2026-10-22 · A reconnect after 4002 never hands the daemon over) and spawns the new one —
-  once per `connect()`, then `VERSION`; the 10 s knock budget runs per spawn cycle (`sdk/src/knock.ts`, D4 2026-10-22). Its pre-D3 `console.error`
+  once per `connect()`, then `VERSION`; the 10 s knock budget runs per spawn cycle (`sdk/src/knock.ts`, D4 2026-10-22). Since Step 15 S3 the
+  daemon writes `daemon-<port>.json` {build, path, pid} in its state folder right after the bind (`daemon-record.ts`;
+  a failed write is one pathless log line), and a client of another install uses a current, not-older daemon instead
+  of handing it over (`sdk/CLAUDE.md`). Its pre-D3 `console.error`
   lines in `wsHost.ts` (routing failure, socket error, heartbeat drop) go nowhere, since there is no stdio (open NIT, D3/D5).
 - **The daemon pings the extension socket every 30 s and terminates it on a missed pong** — browsers
   answer pings automatically, so a missed pong means Chrome (or the offscreen document) is gone. Without

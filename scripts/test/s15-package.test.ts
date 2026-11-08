@@ -39,11 +39,11 @@ describe("packageManifest", () => {
 });
 
 describe("cliAction", () => {
-  it("no argument → the MCP server; doctor → the doctor; setup → not in the package yet; else usage", () => {
+  it("no argument → the MCP server; doctor → the doctor; setup → the bundled setup; else usage", () => {
     expect(cliAction([])).toEqual({ run: "mcp" });
     expect(cliAction(["mcp"])).toEqual({ run: "mcp" });
     expect(cliAction(["doctor"])).toEqual({ run: "doctor" });
-    expect(cliAction(["setup"])).toMatchObject({ exit: 1, message: expect.stringMatching(/not in the npm package yet/) });
+    expect(cliAction(["setup", "--dry-run"])).toEqual({ run: "setup" });
     expect(cliAction(["--help"])).toMatchObject({ exit: 0, message: expect.stringMatching(/Usage/) });
     expect(cliAction(["nope"])).toMatchObject({ exit: 2, message: expect.stringMatching(/Usage/) });
   });

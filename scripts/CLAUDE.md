@@ -6,19 +6,19 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
 - `scripts/bridge/lib.mjs`: the pure logic of the three commands (prerequisites, token decision, install and build
   staleness, the MCP entry decision and argv, `finish`, the doctor's lines, the update steps). It reads no file,
   spawns no process and holds no token value. Typed by JSDoc (`// @ts-check`).
-- `scripts/bridge/setup.mjs` (`npm run setup`), `scripts/bridge/update.mjs` (`npm run bridge-update`): the I/O around
+- `scripts/bridge/setup.mjs` (`npm run setup`, and `npx browser-agent-bridge setup` from the package, where it is bundled to `dist/setup.js`; Step 15 S3: Windows, macOS, Linux, `--dry-run`, `--platform=` with `--dry-run` only), `scripts/bridge/update.mjs` (`npm run bridge-update`): the I/O around
   `lib.mjs`.
 - `scripts/bridge/doctor.ts` (`npm run doctor`): runs under `tsx` because it reads the SDK's TypeScript; one hello and
   `daemon.status` over the SDK's own socket, never spawns or hands over a daemon, never calls the `claude` CLI.
-- `scripts/test/s14-{setup,doctor,update}.test.ts`: vitest over `lib.mjs` with injected facts; no real config or CLI.
+- `scripts/test/s15-setup-os.test.ts` (S3: per-OS token plan, native-host plan, MCP argv, doctor lines) and `scripts/test/s14-{setup,doctor,update}.test.ts`: vitest over `lib.mjs` with injected facts; no real config or CLI.
 - `scripts/tsconfig.json`: extends `tsconfig.base.json` with `allowJs` and `checkJs`; includes `bridge/*.mjs`,
   `bridge/*.ts`, `package/manifest.mjs`, `package/cli.mjs`, `test/*.ts`.
 - `scripts/package/` (Step 15 S2, #449): `build.mjs` (`npm run build:npm` → `build/npm/`, gitignored: esbuild bundles
-  `dist/{index,mcp,daemon,doctor,cli}.js` with `ws` external, the SDK's `.d.ts` under `types/` with `@bridge/shared`
+  `dist/{index,mcp,daemon,doctor,setup,cli}.js` with `ws` external, the SDK's `.d.ts` under `types/` with `@bridge/shared`
   rewritten to relative paths, `LICENSE`, `LICENSE-APACHE`, `LICENSES.md`, `THIRD-PARTY-NOTICES.txt` from the bundles'
   metafiles; `npm run pack:npm` also runs `npm pack` into `build/`), `manifest.mjs` (pure: the generated
   `package.json` — license `AGPL-3.0-only AND Apache-2.0` per #450 — and `cliAction`), `cli.mjs` (the main bin:
-  none/`mcp` → the MCP server, `doctor`, `help`; `setup` says it is not in the package yet), `LICENSES.md` (which file
+  none/`mcp` → the MCP server, `doctor`, `setup`, `help`), `LICENSES.md` (which file
   falls under which license), `tsconfig.types.json`. The root `package.json` stays `private`. Tests:
   `scripts/test/s15-package.test.ts`, `s15-doctor-package.test.ts`.
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
@@ -45,3 +45,20 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   variable). Claude Code rewrites `~/.claude.json` on its own, so a guard hashes its `mcpServers` key, not the whole
   file. Rehearse in a scratch clone with a scratch `CLAUDE_CONFIG_DIR`; for the reload script's behaviour there, see
   `recipes/CLAUDE.md`.
+- **Setup knows its platform and mode as injected facts** (Step 15 S3). `lib.mjs` helpers take `platform` (default
+  `"win32"`, what the Step 14 tests pin; setup and doctor pass `process.platform`). Mode is "package" when the first
+  `package.json` above `setup.mjs` is `browser-agent-bridge` without `workspaces`; then there is no git check, `npm ci`
+  or build. `lib.userTokenFile` mirrors `sdk/src/token.ts` (setup cannot import TS); a test compares the two.
+- **The package's MCP entry is `npx -y browser-agent-bridge`, wrapped as `cmd /c npx …` on win32**: Claude Code on native
+  Windows cannot start npx directly. `mcpDecision` in package mode leaves either form and reports (or, with
+  `--replace-mcp`, replaces) anything else, a clone path included.
+- **The native host is registered, not written** (S3; the host is S4's). The plan points at a placeholder script
+  (`dist/native-host.js` in the package, `scripts/native-host/host.mjs` in a clone) that does not exist yet, and
+  `ALLOWED_EXTENSION_IDS` is empty until S4 fixes the extension's ID, so Chrome lets no caller in. The launcher
+  (`native-host.bat`/`.sh`, absolute `process.execPath`) and the manifest live beside the token on Windows; the manifest
+  goes to Chrome's `NativeMessagingHosts` folder on macOS and Linux; Windows also gets the `HKCU` key (`reg add`, argv, no
+  shell). The doctor reads the key with `reg query` and says "registered; the host arrives in a later version" while
+  the script is missing; a missing registration is a hint, not a failure, while `ALLOWED_EXTENSION_IDS` is empty.
+- **Token move (#449):** `tokenPlan` keeps the per-user file, moves a clone's `bridge.token` into it (then deletes the
+  clone's copy), keeps both when they differ (the per-user file wins), and never prints a value. Clipboard offer: clip.exe
+  on win32, pbcopy on darwin, none on Linux.

@@ -4,6 +4,7 @@
 // tokens and ports are compared by equality only. Since Step 15 S2 it also runs from the installed npm package
 // (bundled to dist/doctor.js, mode "package"): the token comes from the SDK's file lookup (the per-user file, then a
 // clone's bridge.token) and the daemon from the SDK's path rule, so both modes read what the clients read.
+import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -34,8 +35,9 @@ const daemonFile = (() => { try { return resolveDaemonPath({ startDir: here }); 
 const pkgVersion = pkgRoot ? (() => { try { return String(JSON.parse(read(at("package.json")) ?? "{}").version); } catch { return undefined; } })() : undefined;
 
 let cfg: any = {};
-try { cfg = JSON.parse(read(lib.claudeConfigPath(process.env, os.homedir())) ?? "{}"); } catch { cfg = null; }
-const mcp = cfg ? lib.mcpDecision(cfg, repo, { tokenFile }) : null;
+const platform = process.platform;
+try { cfg = JSON.parse(read(lib.claudeConfigPath(process.env, os.homedir(), platform)) ?? "{}"); } catch { cfg = null; }
+const mcp = cfg ? lib.mcpDecision(cfg, repo, { tokenFile, mode, platform }) : null;
 const entryEnv = lib.mcpEntry(cfg)?.env ?? {};
 // What the MCP uses: the entry's env wins over the token files and 9234 (sdk/src/token.ts, connect.ts).
 const mcpToken: string | null = typeof entryEnv.BRIDGE_TOKEN === "string" ? entryEnv.BRIDGE_TOKEN.trim() : tokenFile;
@@ -67,13 +69,28 @@ async function probe(): Promise<lib.DaemonFact> {
   return { state: "up", buildSame: reply.status.build === expected, extensionConnected: reply.status.extensionConnected === true };
 }
 
+/** Native host facts (S3): read-only; the registry is read with `reg query` (Windows). */
+function nativeHostFact(): lib.NativeHostFact | undefined {
+  const plan = lib.nativeHostPlan({ platform, env: process.env, home: process.env.HOME?.trim() || null, mode, root: repo, nodePath: process.execPath });
+  if (!plan) return undefined;
+  let registry: lib.NativeHostFact["registry"];
+  if (plan.registry) {
+    const r = spawnSync("reg", lib.regQueryArgv(plan.registry.key), { encoding: "utf8" });
+    const value = r.status === 0 ? lib.parseRegDefault(String(r.stdout)) : null;
+    registry = value === null ? "missing" : value.toLowerCase() === plan.registry.value.toLowerCase() ? "ok" : "elsewhere";
+  }
+  return { manifest: existsSync(plan.manifestPath), manifestPath: plan.manifestPath, registry, launcher: existsSync(plan.launcherPath), script: existsSync(plan.scriptPath) };
+}
+
 const daemon = await probe();
 const daemonLog = read(path.join(os.homedir(), ".browser-agent-bridge", "daemon.log")) ?? "";
 const lines = lib.doctorLines({
   mode,
   pkgVersion,
   tokenSource: tokenHit?.source ?? null,
-  userTokenFile: userTokenFile(process.env),
+  userTokenFile: userTokenFile(process.env, platform),
+  platform,
+  nativeHost: nativeHostFact(),
   node: process.versions.node,
   build: { missing: outputs.some((m) => m === null), stale: lib.buildNeeded(outputs, inputs) },
   token: tokenFile ? "ok" : "missing",

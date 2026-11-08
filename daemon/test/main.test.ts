@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { createServer, type Server } from "node:net";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -391,5 +391,32 @@ describe("runDaemon — the handle mark (Step 8 S2b.9, decisions.md #79)", () =>
     const h2 = harness();
     await runDaemon(h2.deps);
     expect(h2.host().opts.handleNumbers).toBeUndefined();
+  });
+});
+
+describe("runDaemon — the daemon record (Step 15 S3)", () => {
+  it("writes daemon-<port>.json {build, path, pid} in stateDir after the bind; none without stateDir or when the port is taken", async () => {
+    const stateDir = mkdtempSync(path.join(tmpdir(), "bridge-main-record-"));
+    dirs.push(stateDir);
+    const h = harness({ stateDir, env: { BRIDGE_TOKEN: TOKEN, BRIDGE_PORT: "9555" } });
+    await runDaemon(h.deps);
+    const rec = JSON.parse(readFileSync(path.join(stateDir, "daemon-9555.json"), "utf8"));
+    expect(rec).toEqual({ build: buildHash(h.argv1), path: path.resolve(h.argv1), pid: 4242 });
+    expectClean(h.lines);
+    expect(h.lines.some((l) => l.includes(h.argv1))).toBe(false);
+
+    const taken = mkdtempSync(path.join(tmpdir(), "bridge-main-record-"));
+    dirs.push(taken);
+    const h2 = harness({ stateDir: taken, env: { BRIDGE_TOKEN: TOKEN, BRIDGE_PORT: "9556" },
+      listen: (host) => host.listen.mockRejectedValue(addrInUse()) });
+    await runDaemon(h2.deps);
+    expect(existsSync(path.join(taken, "daemon-9556.json"))).toBe(false);
+  });
+
+  it("a record that cannot be written is one pathless log line; the daemon keeps running", async () => {
+    const h = harness({ stateDir: path.join(tmpdir(), "bridge-no-such-dir-" + process.pid, "x") });
+    await runDaemon(h.deps);
+    expect(h.exit).not.toHaveBeenCalled();
+    expect(h.lines.filter((l) => l.startsWith("daemon record not written"))).toHaveLength(1);
   });
 });

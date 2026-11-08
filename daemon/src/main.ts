@@ -9,6 +9,7 @@ import { resolveToken as sdkResolveToken } from "@bridge/sdk/token";
 import { Bridge } from "./bridge.js";
 import { buildHash } from "./build.js";
 import { createHandleMark } from "./handle-mark.js";
+import { writeDaemonRecord } from "./daemon-record.js";
 import { IdleTimer, MAX_IDLE_MS } from "./idle.js";
 import type { Logger } from "./log.js";
 import type { ClientInfo } from "./registry.js";
@@ -188,6 +189,15 @@ export async function runDaemon(deps: DaemonDeps): Promise<void> {
   try {
     const bound = await live.listen();
     logger.log(`listening on 127.0.0.1:${bound}`);
+    // Step 15 S3: written synchronously before any connection is served, so a client's welcome always finds
+    // the record of the daemon that sent it (sdk/src/adopt.ts). No path in the log line.
+    if (deps.stateDir !== undefined) {
+      try {
+        writeDaemonRecord(deps.stateDir, bound, { build, path: path.resolve(deps.argv1), pid });
+      } catch {
+        logger.log("daemon record not written — clients of another install may hand this daemon over");
+      }
+    }
   } catch (err) {
     if (errorCode(err) === "EADDRINUSE") {
       logger.log(`port ${port} in use — another daemon owns it`);

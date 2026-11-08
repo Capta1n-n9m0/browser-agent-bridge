@@ -22,7 +22,7 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
   `report.ts`), `report.ts` (the `@bridge/sdk/report`
   subpath: `attachContext` for the MCP), `policy.ts` (`TRUSTED_INPUT_POLICY = "focusFirst"`),
   `transport.ts` (the `ws` socket), `spawn.ts`,
-  `paths.ts` (daemon path: `BRIDGE_DAEMON`, else `<package>/dist/daemon.js` inside the installed npm package, else the
+  `adopt.ts` (Step 15 S3: the knock's adopt-or-hand-over rule over the daemon record), `paths.ts` (daemon path: `BRIDGE_DAEMON`, else `<package>/dist/daemon.js` inside the installed npm package, else the
   clone's `daemon/dist/index.js`), `token.ts` (`resolveToken`: `BRIDGE_TOKEN`, then the per-user `bridge.token`
   (`userTokenFile`), then a clone's `bridge.token` — skipped inside the installed package (`findPackageRoot`), #449;
   `findFileToken` is the files-only half the doctor uses; also used by the daemon and by scripts outside the repo through
@@ -42,8 +42,12 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
 - **The per-user token file is found from `env` alone** (`userTokenFile`, Step 15 S2): `APPDATA` (else `USERPROFILE`)
   on Windows, `HOME` on macOS, `XDG_CONFIG_HOME` (absolute) or `HOME` elsewhere — never `os.homedir()`. So a test that
   passes `env: {}` reads no real per-user file; keep it that way when adding a reader.
-- **The clone and the npm package run different daemon files**, so their build ids differ: a clone client and a
-  package client on one port hand the daemon over to each other at each `connect()` (by reading `knock.ts`; not run).
+- **The clone and the npm package run different daemon files**, so their build ids differ. Since Step 15 S3 the knock
+  asks `adoptDaemon` (`sdk/src/adopt.ts`) on a mismatch: the daemon's record (`~/.browser-agent-bridge/daemon-<port>.json`,
+  home from `env`: `USERPROFILE` on Windows, `HOME` elsewhere) names the running file; another install's daemon that is
+  still current for that install and not older (package or clone root `version`) is used as it is, on a 4002 reconnect
+  too; anything else hands over as before. So a clone and a package never shut each other down; to force your own
+  build over another install's equal-version daemon, stop that daemon (`daemon.shutdown`) or use another port.
 - **No `console.` text anywhere in `sdk/src`**: `sdk/test/failure-report.test.ts` (the "no 'console.' in any sdk/src
   file" test) fails on the substring, even inside a module path or a comment, so a console-related file or import is
   named without it (`consoleMessages`, a `format/` module named otherwise; seen in Step 12 S3b, 2026-10-27).

@@ -4,7 +4,7 @@ import { cliAction } from "./manifest.mjs";
 
 const action = cliAction(process.argv.slice(2));
 if ("run" in action) {
-  await import(action.run === "mcp" ? "./mcp.js" : "./doctor.js");
+  await import(action.run === "mcp" ? "./mcp.js" : action.run === "setup" ? "./setup.js" : "./doctor.js");
 } else {
   (action.exit === 0 ? process.stdout : process.stderr).write(action.message + "\n");
   process.exitCode = action.exit;
