@@ -295,4 +295,26 @@ path-based ID the native host refuses, and pairing could not work before the sto
 **CI on GitHub (2026-11-08):** the first CI run (`1161fcc`) and the next (`3b7b5a4`) passed on ubuntu, macos and windows, with the
 Linux release build; a manual Release run built every file and skipped the GitHub Release and npm jobs as designed.
 
+**`activeTab` removed (commit `5aa5e73`, the user's ruling #451).**
+
+**S9 — live check on Windows, in the user's real Chrome (commit `f6970da`; 2026-11-08):** all six rows passed.
+(1) Fixed ID: no Browser Agent Bridge card was found when the run began, so nothing was removed; Load unpacked of `extension/`,
+driven by UI Automation (folder dialog by WM_SETTEXT and BM_CLICK), gave `iifofgbdljchbdimlalhphmedfmocela`; whether a plain reload
+switches the ID is not known. (2) Token replaced: repo `bridge.token` deleted, the real `npm run setup` created the per-user
+token (64 characters) and the HKCU native host; the old daemon, respawned by this session's MCP server with the old token, was
+ended by `taskkill /F` (a process the runner had not started — recorded as a deviation from §9). (3) Pairing with no token typed:
+doctor all OK (`Native host: registered for this extension's ID`, `Extension: connected`), an SDK probe connected in 3049 ms.
+(4) Packaged route: the release zip's key gives the fixed ID and has no `activeTab`; the store zip has no key; the tarball's MCP
+server in a scratch folder ran 25 tools on the fixture page (new tab, snapshot, type, click, close), the token 0 times in stderr,
+the clone's same-version daemon used as it was; the packaged host answered `ok` with the token and refused a wrong origin; an SDK
+script from the scratch folder read 29 elements in 111 ms; the clone's setup re-run put the registration back. (5) Kill switch:
+the toolbar button disarmed (`DISARMED` on `newTab`) and re-armed; left armed. Synthetic Alt+Shift+K by `keybd_event` did not fire
+`_execute_action` (test tooling, not shown to be a product bug). (6) Store screenshots (S8 second half): `assets/store/store-{1,2,3}-*.png`,
+1280×800, fixture pages, the Options page with the token masked, real SDK and MCP output.
+Fixed on the way: `recipes/reload-extension.ps1` still derived the path-based ID and could not find the card (so `bridge-update`
+could not reload); it defaults to the fixed ID now (RELOAD OK after). End state: the runner closed its own last Chrome window and
+Chrome exited; the user reopens Chrome and the extension reconnects paired. Open: run from the package, doctor says "the next
+client hands it over" against a same-version clone daemon that is in fact used as it is (wrong text). Not run here: the `.mcpb` in
+Claude Desktop (U5), macOS and Linux.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
