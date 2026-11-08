@@ -1,8 +1,0 @@
-recipes/tsconfig.fe.json exit 0
-recipes/tsconfig.json exit 0
-recipes/tsconfig.s10.json exit 0
-recipes/tsconfig.s11.json exit 0
-recipes/tsconfig.s11b.json exit 0
-recipes/tsconfig.s13.json exit 0
-recipes/tsconfig.s6.json exit 0
-recipes/tsconfig.s9.json exit 0

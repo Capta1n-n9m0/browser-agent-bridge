@@ -1,3 +1,0 @@
-49e1908 docs: Step 13 closes on the user's ruling (#420); Phase G kickoff
- M docs/decisions.md
-?? docs/plans/2026-10-30-step14-phase-g-own-devices-steps/

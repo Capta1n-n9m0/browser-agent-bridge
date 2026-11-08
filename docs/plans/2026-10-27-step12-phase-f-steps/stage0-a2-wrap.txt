@@ -1,4 +1,0 @@
-"(a) => a.rows.length" => "(a) => a.rows.length"
-"(a) => { return a.rows.length; }" => "(async () => {\n(a) => { return a.rows.length; }\n})()"
-"function (a) { return a.x }" => "(async () => {\nfunction (a) { return a.x }\n})()"
-"async (a) => { const r = await fetch(a.u); return r.status }" => "(async () => {\nasync (a) => { const r = await fetch(a.u); return r.status }\n})()"

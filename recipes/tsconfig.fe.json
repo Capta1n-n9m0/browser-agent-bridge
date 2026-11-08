@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "include": ["fe.ts", "fe-rules.ts", "t5-lib.ts"]
-}

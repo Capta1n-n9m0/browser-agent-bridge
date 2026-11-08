@@ -1,3 +1,0 @@
-original: GREEN
-mutant A (onRemoved: gone after send): RED ["onRemoved: gone after tabRemovedParams(","onRemoved: gone after \"tabRemoved\"","onRemoved: gone after sendTabEvent("]
-mutant B (onReplaced: gone after send): RED ["onReplaced: gone after tabReplacedParams(","onReplaced: gone after \"tabReplaced\"","onReplaced: gone after sendTabEvent("]

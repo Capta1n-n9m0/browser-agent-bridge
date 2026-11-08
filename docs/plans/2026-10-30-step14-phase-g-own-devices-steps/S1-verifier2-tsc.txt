@@ -1,4 +1,0 @@
-# npx tsc --noEmit -p sdk / mcp / recipes/tsconfig.s6.json
-sdk exit 0
-mcp exit 0
-recipes s6 exit 0

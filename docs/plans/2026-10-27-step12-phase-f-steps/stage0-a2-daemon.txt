@@ -1,5 +1,0 @@
-takesLock click {trusted:true} = false
-takesLock type {trusted:true} = false
-takesLock focusTab = true
-classify consoleMessages {tab:'T1'} (unlisted) = tab
-classify consoleMessages {} (unlisted) = untargeted

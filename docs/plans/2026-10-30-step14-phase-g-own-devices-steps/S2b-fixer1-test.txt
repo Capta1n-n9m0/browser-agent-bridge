@@ -1,4 +1,0 @@
-$ npm test
- Test Files  255 passed (255)
-      Tests  6089 passed (6089)
-exit 0

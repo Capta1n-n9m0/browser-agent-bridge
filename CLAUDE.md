@@ -11,28 +11,23 @@ lets an AI agent (Claude) or a script drive the user's **real, logged-in Chrome 
 user-data-dir, breaking CDP-against-your-real-profile; this restores it from *inside* the profile via an
 extension. Mental model: "Playwright MCP, but pointed at your real logged-in Chrome."
 
-## Current state (2026-10-30, Step 14 closed and pushed; U.1 waits for the user)
+## Current state (2026-11-08: lean mode in place; Step 15 is next)
 
-- **Shipped:** Steps 1–14, public on GitHub (MIT), pushed. **Step 14 (Phase G, minimal) closed on the user's ruling
-  (#442)** (`docs/plans/2026-10-30-step14-phase-g-own-devices.md` § As built):
-  `npm run setup` / `doctor` / `bridge-update` (`scripts/bridge/`), scripts from any folder (`examples/list-tabs.ts`, a
-  `file:` dependency, #430), the failure report's `~` screenshot path, "Install on a new device" first in
-  `docs/setup.md`. **25 tools, 27 codes (26 on the wire), 28 router methods** (no product change beyond the `~` line).
-- **Exit checks:** every one met (Z.1, P1.1, I2.1–I2.4, S3.1, R4.1, D5.1); the rehearsal ran on a scratch clone with a
-  scratch `CLAUDE_CONFIG_DIR` (`S4-rehearsal.md`); the doctor printed 7 of 7 OK against the running bridge.
-- **Next: U.1**, the user's own install on another device (from GitHub); its findings and the Step 14 follow-ups
-  become a small wave. #442 kept the doctor's build heuristic (#432) and removed a local-path line from unpushed
-  history before the push.
-- **Committed docs** carry no local path and no user name (#374; `docs/docs-writing-guide.md`); evidence files write
-  `<repo>`, `<scratch>`, `~`.
-- **How agents run (#289, #320):** Opus builds contract and safety code and runs every verifier; Sonnet does recipes,
-  fixtures, docs and live runners; every agent at medium effort, passed explicitly; three fix rounds per stage (per
-  slice in a live wave, #367). The first line of every step brief is the in-turn wait rule (#286, #350). Rules:
-  `docs/agent-rules.md` §6–§8, §10.
-- **Reloads need no human:** `recipes/reload-extension.ps1` (#65; one re-run on exit 2, #99). Interactive sessions
-  using the bridge need `/mcp` or a fresh session.
-- Update this block with the `session-closeout` skill whenever a stage/phase completes or the
-  resume point moves.
+- **Shipped:** Steps 1–14, public on GitHub (MIT). 25 tools, 27 codes (26 on the wire), 28 router methods. Windows
+  install by `npm run setup` / `doctor` / `bridge-update`; also run by others on macOS and on Linux over an SSH tunnel.
+- **Renamed Browser Agent Bridge** (#444): the GitHub repo is `browser-agent-bridge` (old URL redirects) and npm
+  `browser-agent-bridge` is claimed (org `@browser-agent-bridge`). The name inside code and docs is still
+  chrome-agent-bridge until Step 15 renames it.
+- **Next: Step 15, distribution** (#445): npm package, extension zip on GitHub Releases plus a public Chrome Web
+  Store listing, a fixed extension ID with pairing by native messaging, installers for less technical users, a
+  product-first README. Network mode waits (#443). No phase doc yet.
+- **Lean mode** (#446): checks by risk, hand-backs instead of report files (`docs/agent-rules.md`). The old step
+  folders, decision archives, cleanup reports, phase docs and live-run helpers are in tag `archive/dev-history`
+  (`git show archive/dev-history:<path>`); code comments and package `CLAUDE.md` files that cite
+  `docs/plans/…`, `docs/decisions-archive/…` or removed `recipes/…` files point into that tag.
+- **Reloads need no human:** `recipes/reload-extension.ps1` (#65; one re-run on exit 2). Interactive sessions using
+  the bridge need `/mcp` or a fresh session.
+- Update this block with the `session-closeout` skill when a stage or step completes.
 
 ## Architecture
 
@@ -109,13 +104,13 @@ Details and measured facts are in the package file named; the integrity floor is
 ```bash
 npm install
 npm run build        # daemon/dist/index.js + mcp/dist/index.js + extension/dist/{sw,options,offscreen,content}.js
-npm test             # vitest — 6089 passed, 255 files (`npm test` 2026-10-30, Step 14; recipes/test and scripts/test included)
+npm test             # vitest — 4112 passed (`npm test` 2026-11-08, after the archive; recipes/test and scripts/test included)
 npm run typecheck    # tsc across shared/daemon/sdk/mcp/extension/scripts (chained with `&&`; see the cross-package gotchas below)
 npm run recipe -- recipes/<file>.ts [args]   # a script against the SDK, run with tsx (= npx tsx recipes/<file>.ts)
 npm run setup        # one-command install on a Windows device; `-- --dry-run`, `-- --replace-mcp` (`scripts/CLAUDE.md`)
 npm run doctor       # one line per part, read-only (`scripts/CLAUDE.md`)
 npm run bridge-update  # pull, rebuild, reload the extension; `-- --no-reload` (`scripts/CLAUDE.md`)
-npx tsc --noEmit -p recipes/tsconfig.s6.json # recipes typecheck separately (tsconfig.json, .fe, .s6, .s9, .s10, .s11, .s11b, .s13 cover the others; all eight exit 0, 2026-10-30 cleanup pass — run them: a code stage can break one, as S3 did)
+npx tsc --noEmit -p recipes/tsconfig.json # recipes typecheck separately (exit 0, 2026-11-08)
 ```
 Load the extension: `chrome://extensions` → Developer mode → Load unpacked → `extension/`, then set the
 token + port `9234` in its Options. The MCP config points at `<repo>/mcp/dist/index.js`; nobody starts
@@ -165,22 +160,18 @@ by `docs/e2e-test-plan.md` against real Chrome. New pure logic → write a faili
 - Don't commit the token (`bridge.token`, `.env` are gitignored). The localhost bind + token are the
   only security boundary — treat the token as a password; never log it.
 
-## Skills (project skills in `.claude/skills/`)
+## Skills (project skills in `.claude/skills/`, lean mode)
 - Rules for every agent: `docs/agent-rules.md`. Briefs point to it and never paste rules, spec text or numbers.
-- `long-run` — the session agent's contract for an autonomous multi-stage run: context discipline, the agent tree,
-  decisions while the user is away, revival.
-- `step-agent` — the STEP BRIEF and leaf-brief templates and the ledger.
-- `phase-kickoff` — writes `docs/plans/next-session-prompt.md` (phase kind) or an entry in `docs/plans/handoffs.md`
-  (wave kind).
-- `session-closeout` — end of significant work: the doc entry, `docs/decisions.md`, `docs/progress-and-roadmap.md`,
-  the Current state block above, a new gotcha with the code it binds (#232), memory, the cleanup pass, the commit.
-- `cleanup-pass` — a lead cleaner runs `node scripts/doc-check.mjs` and sends area cleaners; reports in `docs/cleanup/`.
-- Writing rules for every doc: `docs/docs-writing-guide.md`. Decisions are dated plain-language entries in
-  `docs/decisions.md`, cited by date + title.
+- `long-run` — the session agent: the chain session agent → step agent → executor, decisions while the user is away,
+  the end of a step.
+- `step-agent` — the step brief and the executor brief.
+- `phase-kickoff` — the phase doc (`template-phase.md`) and `docs/plans/next-session-prompt.md`.
+- `session-closeout` — as-built, decisions, roadmap, Current state, gotchas, memory, commit.
+- `cleanup-pass` — one agent runs `node scripts/doc-check.mjs` and fixes; once per step.
+- Writing rules for every doc: `docs/docs-writing-guide.md`.
 
 ## Docs
-`docs/specs/…-design.md` (design of record), `docs/plans/…` (phase docs; beside each, `…-steps/` once a phase runs),
-`docs/agent-rules.md` (rules for every agent), `docs/decisions.md` (open and standing decisions, the current step;
-closed steps in `docs/decisions-archive/`), `docs/docs-writing-guide.md` (how we write), `docs/setup.md`
-(install/usage), `docs/e2e-test-plan.md` (manual suite + fixture), `docs/progress-and-roadmap.md` (status + roadmap),
-`docs/cleanup/` (one report per cleanup pass).
+`README.md` (the product), `docs/specs/` (design of record), `docs/plans/` (the current phase doc and the kickoff),
+`docs/agent-rules.md`, `docs/decisions.md` (the user's rulings and product promises), `docs/roadmap.md` (what's next),
+`docs/history.md` (how we got here), `docs/docs-writing-guide.md`, `docs/setup.md` (install/usage),
+`docs/e2e-test-plan.md` (manual suite + fixture). Older records: tag `archive/dev-history`.

@@ -1,8 +1,0 @@
-R20-POP-BG-3 bg before lines=694 eval=9
-R20-POP-BG-3 bg after lines=789 eval=27 join=0 url=0
-R20-POP-FG-3 fg before lines=801 eval=27
-R20-POP-FG-3 fg after lines=891 eval=45 join=0 url=0
-R20-POP-OTHER-3 third before lines=913 eval=48
-R20-POP-OTHER-3 third after lines=1067 eval=84 join=0 url=0
-R20-POP-OTHER-3 human before lines=1068 eval=84
-R20-POP-OTHER-3 human after lines=1063 eval=84 join=0 url=0

@@ -1,6 +1,0 @@
-# S3.1 evidence (2026-10-30). <repo> = this checkout. Consumer folder outside <repo>.
-npm install <repo>\sdk            -> added 1 package; node_modules\@bridge\sdk is a junction to <repo>\sdk; no node_modules\.bin (tsx NOT brought)
-npm install tsx (registry)        -> added 3 packages; node_modules\.bin\tsx present
-tsc --noEmit (consumer tsconfig, repo's tsc) -> exit 0
-npx tsx list-tabs.ts (real bridge, token found by the SDK) -> exit 0, stderr empty, tabs listed: 1
-(output captured to a scratch file, counted, deleted; no titles or URLs recorded)

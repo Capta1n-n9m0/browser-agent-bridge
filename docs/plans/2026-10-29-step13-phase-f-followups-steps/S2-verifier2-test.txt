@@ -1,6 +1,0 @@
-# npm test, main tree, after fixer 1 (tail)
-   ✓ s12-r18-lib.ps1 sequencing, STOP and restore logic, run with stubbed helpers > mutant "F2: UP-6 is not a banner row" turns "R18-UP-6 applies the same rule: NOT MEASURED, FAIL on another step, FAIL under a passed control" red 1315ms
-   ✓ s12-r18-lib.ps1 sequencing, STOP and restore logic, run with stubbed helpers > mutant "F8: UP-L1 not FAIL under a NOT MEASURED console" turns "R18-UP-L1 under a NOT MEASURED or missing R18-LOGS is FAIL; otherwise its own verdict" red 1248ms
- Test Files  237 passed (237)
-      Tests  5648 passed (5648)
-exit 0

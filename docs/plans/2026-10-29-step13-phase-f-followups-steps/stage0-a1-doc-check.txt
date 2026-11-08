@@ -1,8 +1,0 @@
-
-## Counts in the code (1)
-- tools: 25 · router methods: 28 · codes: 27
-
-## Test counts stated (check against the last `npm test`) (1)
-- CLAUDE.md:110  5596 passed
-
-Checked 38 living docs (6 closed phase docs skipped for paths and status).

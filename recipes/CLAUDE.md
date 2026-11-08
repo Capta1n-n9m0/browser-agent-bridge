@@ -3,44 +3,15 @@
 The root `CLAUDE.md` and `docs/agent-rules.md` also apply.
 
 ## Key files
-- `recipes/` (run with `npm run recipe -- <file>`, i.e. `tsx`; index in `recipes/README.md`):
-  `hello.ts` (SDK smoke script; its output is pinned by MUX rows), `sdk-login.ts` (row SDK-1: the
-  typed `Tab` end to end on the fixture), `reload-extension.ps1` (reloads the Chrome Agent Bridge
-  card by UI Automation and verifies it; exit 2 = pressed nothing), `t5*.ts`/`t5-win.ps1` (the Step 7
-  E2E driver helpers), `fe.ts`/`fe-rules.ts`/`fe-win.ps1` (Step 8 stage FE, focus emulation),
-  `s6.ts`/`s6-rules.ts` (Step 8 S6's SDK rows), `blackboard/` (`boot-bb.ts` loads the
-  blackboard-ultra skill's `bb.js` in a tab of its own; `export-grades.ts` reads a gradebook into
-  gitignored `exports/`; `held.ts` and their helpers `export-file.ts`,
-  `guard.ts`, `readonly.ts`, `session.ts`, `stub-bb.js`; read-only by construction,
-  `failureReports: false`), `bb-login.ps1` (that login step; since Step 10 S5 a condition wait inside one
-  `-WaitSec` bound, #215), `fixtures/` (its Blackboard and SSO stand-in pages; Step 10 S5 added
-  `{bb,sso}-standin-{delayed,stuck,elsewhere}.html`, `elsewhere-landing.html`, `sso-submit-delayed.html`),
-  `bgf-*.ps1` (Chrome quit/relaunch/count: BG-FLAGS, then SM-1), `s9.ts`/`s9-rules.ts`/`s9-actor.ts`/`s9-win.ps1`/`s9-redirect.py` (Step 9 S4, Run 13: SDK rows, their
-  rules, headless MCP actors, UI Automation of the button/shortcut/options page/worker console, the port-8083
-  redirect server, threaded since Step 10 S1), `s9-r14.ps1` (Step 10 S1, Run 14's block runner),
-  `s10.ts`/`s10-rules.ts`/`s10-r15.ps1`/`s10-win.ps1`/`s10-mem.ps1`/`s10-ret1.ts`/`s10-ret1.ps1` (Step 10 S7, Run 15;
-  `s10-ret1.*` kills and relaunches the user's Chrome, only under a grant), `test/` (part of `npm test`),
-  `s11.ts` (SDK actor) / `s11-rules.ts` (pass rules and expected texts) / `s11-evidence.ts` (leak counts) /
-  `s11-csp.py` / `s11-r16.ps1` + `s11-r16-plan.ts`, `s11-r16-opt.ts` (block runner) / `s11-win.ps1` + `s11-win-rules.ts`
-  (Step 11 S5, Run 16), `s11b.ts` (SDK-free actor) / `s11b-rules.ts` (pass rules) / `s11b-r17.ps1` + `s11b-r17-plan.ts`
-  (block runner) / `s11b-win.ps1` + `s11b-win-rules.ts` / `s11b-{delay,flip,slow}.py` (fixture servers) (Step 11b S4,
-  Run 17), `s11b-r17b.ps1` + `s11b-r17b-{plan,build,rules}.ts` (Run 17b's block runner, plan and pass rules; Step 11b S7),
-  `s12-rules.ts` / `s12-win.ps1` / `s12-r18.ps1` + `s12-r18-lib.ps1` (Run 18's pure rules, Windows helpers and block
-  runner; Step 12 S1, §4.26), `s12-forms{,-b,-c}.ts` (Run 19's line forms, pure), `s12-r19.ts` / `s12-r19.ps1` +
-  `s12-r19-lib.ps1` (Run 19's block runner), `s12-r19-{a,b,c,de}.{ts,ps1}` (the per-slice actors and row drivers),
-  `s12-win-{b,c}.ps1` (their Windows helpers), `s12-oldbuild.ts` (the old-build swap and restore, #356) (Step 12 S7,
-  §4.27), `s13-forms.ts` (Run 20's line forms and judges, on the product's own constants), `s13-r20.ts` /
-  `s13-r20.ps1` (Run 20's shared block runner over Run 19's, read-only) and `s13-r20-a.{ts,ps1}` (slice A's rows and
-  entry script; `s13-r20-a2.ts` the rest of liveA20's actors, CON and ARGS-OLD rows), `s13-r20-b.{ts,ps1}` and `s13-r20-b-defs.ps1` (slice B's actor, entry script and blocks),
-  `s13-r20-b4.{ts,ps1}` (the R20-POP-*-3 rows, #407/#410) and `s13-win.ps1` (window placement and coverage for
-  R20-G2-1), `s13-devt.ps1` (liveC20's DevTools helpers: open, dock side by UIA, the bridge-independent control, close
-  and count, FLAG) and `s13-r20-c.{ts,ps1}` / `s13-r20-c-defs.ps1` (slice C's actor, entry script and blocks; the entry
-  script reads `Invoke-R20Serve` and `Test-R20NodeAlive` from `s13-r20-b-defs.ps1` by the parser, never dot-sourcing
-  it) (Step 13 S5, §4.28), `tsconfig{,.fe,.s6,.s9,.s10,.s11,.s11b,.s13}.json` (recipes are not in `npm run
-  typecheck`: `npx tsc --noEmit -p recipes/tsconfig.s6.json`; all eight exit 0, 2026-10-30; `.s11b` also covers
-  `s12-r19-{a,b,c,de}.ts`, `.s13` the `s13-*` files with `"chrome"` in `types`, and `.s6`'s `test/*.test.ts` glob
-  compiles the other `s12-*.ts` through their tests; `.s6` excludes `s13-forms.test.ts`, which needs `chrome` types). Fixtures: `test-fixtures/s10-{cap,mcpf,save}.html`,
-  `test-fixtures/s11-{upload,frame,patched}.*`, `test-fixtures/s13-chooser.*` (reporter `window.__s13ch`).
+- `recipes/` (run with `npm run recipe -- <file>`, i.e. `tsx`; index in `recipes/README.md`): `hello.ts` (SDK smoke
+  script; its output is pinned by MUX rows), `sdk-login.ts` (row SDK-1) with its rules `s6-rules.ts`, `t5-lib.ts`
+  (small SDK helpers), `reload-extension.ps1` (reloads the extension card by UI Automation and verifies it; exit 2 =
+  pressed nothing), `blackboard/` (`boot-bb.ts`, `export-grades.ts` and their pure helpers; read-only by construction,
+  `failureReports: false`), `bb-login.ps1` (that login step, a condition wait inside one `-WaitSec` bound, #215),
+  `fixtures/` (Blackboard and SSO stand-in pages), `test/` (part of `npm test`), `tsconfig.json`
+  (`npx tsc --noEmit -p recipes/tsconfig.json`; recipes are not in `npm run typecheck`).
+- The live-wave helpers of Steps 7–13 (`s6`…`s13`, `t5`, `fe`, `bgf`) were moved to tag `archive/dev-history` on
+  2026-11-08; gotchas below that name them are still measured facts about Chrome and Windows.
 
 ## Runtime gotchas (live runs, Windows tooling, driving Chrome from the outside)
 - **Windows PowerShell 5.1 mangles `—`** (U+2014): it decodes program output with the console code

@@ -1,9 +1,0 @@
-Scratch worktree at 33ba954 (own npm ci, no junction) + the stage's three test files.
-M1 upload.ts pre-stage throw, CHOOSER_BUSY_MESSAGE exported only:
-  x S4 #389 T4.1 -> expected 'Chrome DevTools (or another extension…' to be 'uploadFiles: another file chooser upl…'
-  x (collateral) JavaScript off ... controls -> expected undefined to deeply equal { files: 1 }   Tests 2 failed | 43 passed (45)
-M2 intercept.ts `.finally(release)`:
-  x S4 #390 T4.2 -> expected [ Error: sleep failed ] to deeply equal []   Tests 1 failed | 16 passed (17)
-M3 intercept.ts `.then(release).catch(() => {})`:
-  x S4 #390 T4.2 -> expected 'a' to be undefined   Tests 1 failed | 16 passed (17)
-Stage code copied into the worktree: Test Files 3 passed (3), Tests 63 passed (63)

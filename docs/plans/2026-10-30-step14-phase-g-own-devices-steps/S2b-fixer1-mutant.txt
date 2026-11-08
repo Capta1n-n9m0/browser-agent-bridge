@@ -1,5 +1,0 @@
-$ (mutant: extensionOlder inverted to swMtimeMs < resyncMs) npx vitest run scripts/test/s14-doctor.test.ts
-   × doctor verdict lines > #432 direction: sw.js ≥ 1 s after the last resync → older; same second or before → not; unknown → null 6ms
-⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
- FAIL  scripts/test/s14-doctor.test.ts > doctor verdict lines > #432 direction: sw.js ≥ 1 s after the last resync → older; same second or before → not; unknown → null
-      Tests  1 failed | 23 passed (24)

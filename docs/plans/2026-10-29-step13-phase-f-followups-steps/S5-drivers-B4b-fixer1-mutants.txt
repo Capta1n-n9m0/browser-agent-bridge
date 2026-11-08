@@ -1,9 +1,0 @@
-Mutants on scratch copies of recipes/ outside the repo; vitest from the main tree with S13_R20_REPO at the copy. Summary of s13-r20-b-ps.test.ts (32 tests); a failure = killed.
-serve-unbounded (F1 red, the old unbounded loop): red; the silent live process was never answered, so the PowerShell run hit its 180 s spawn limit and the serve-bound and later tests failed (vitest summary line not captured)
-no-rotate-in-0b:       Tests  2 failed | 30 passed (32)
-teardown-no-copy:       Tests  32 passed (32)
-root-flag-first:       Tests  1 failed | 31 passed (32)
-no-born-check:       Tests  1 failed | 31 passed (32)
-no-idle-bound:       Tests  1 failed | 31 passed (32)
-no-budget-bound:       Tests  1 failed | 31 passed (32)
-teardown-no-copy (redo; the first sed did not match, so its 32 passed line above is void):       Tests  1 failed | 31 passed (32)

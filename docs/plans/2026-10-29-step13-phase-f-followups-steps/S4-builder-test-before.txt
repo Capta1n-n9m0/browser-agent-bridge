@@ -1,8 +1,0 @@
-   [33m[2m✓[22m[39m s12-r18-lib.ps1 sequencing, STOP and restore logic, run with stubbed helpers[2m > [22mmutant "worst verdict lost" turns "the worst verdict wins and slice=B is appended" red [33m610[2mms[22m[39m
-   [33m[2m✓[22m[39m s12-r18-lib.ps1 sequencing, STOP and restore logic, run with stubbed helpers[2m > [22mGet-R18Verdict ranks like carriedVerdict (s11b-r17b-rules.ts) [33m426[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m237 passed[39m[22m[90m (237)[39m
-[2m      Tests [22m [1m[32m5650 passed[39m[22m[90m (5650)[39m
-[2m   Start at [22m 15:55:24
-[2m   Duration [22m 100.09s[2m (transform 8.31s, setup 0ms, collect 126.01s, tests 581.65s, environment 40.92s, prepare 41.54s)[22m
-

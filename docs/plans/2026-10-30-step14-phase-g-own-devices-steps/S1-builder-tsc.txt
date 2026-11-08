@@ -1,2 +1,0 @@
-tsc-sdk=0
-tsc-mcp=0

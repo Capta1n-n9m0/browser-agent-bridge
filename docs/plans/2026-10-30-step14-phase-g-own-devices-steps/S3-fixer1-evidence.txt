@@ -1,8 +1,0 @@
-PowerShell 5.1, new folder under the scratchpad, section followed as written (<repo> = checkout):
-npm init -y                 exit 0
-npm pkg set type=module     exit 0
-npm install <repo>\sdk tsx  exit 0 (added 4 packages, 0 vulnerabilities)
-node <repo>\node_modules\typescript\bin\tsc -p .  (NodeNext, strict, include list-tabs.ts)  exit 0
-junction: node_modules\@bridge\sdk = ReparsePoint (only one)
-cmd /c rmdir node_modules\@bridge\sdk  exit 0; <repo>\sdk\src still present
-folder removed. Example NOT run against the bridge.

@@ -1,8 +1,0 @@
-# pre-A2 (HEAD) facts for the TS finding fixes; no main-tree file was edited or reverted
-grantTiming/PRE_CLICK_TOL_MS/B_WINDOW_CHECK in HEAD recipes/s13-r20-a.ts: 0
-HEAD clamp line:
-97:  const inMs = P.A.grants.length ? Math.max(0, P.A.grants[0]!.at - t0) : null;
-scanExit20 in HEAD s13-r20.ts: 0; HEAD scan exit rule: c.name + c.token === 0 ? 0 : 2
-old inMs for a grant 500 ms before the click stamp (t0=1000, at=500):
-0
-old judgePop counted rounds ignore preClick (field absent in HEAD): 0

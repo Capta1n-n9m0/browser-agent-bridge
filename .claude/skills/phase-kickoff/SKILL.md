@@ -1,48 +1,34 @@
 ---
 name: phase-kickoff
-description: Write the prompt that starts the next session of multi-session work in this repo. Two kinds — a PHASE kickoff for an autonomous build step (spec audit, stages, verifiers, gates; Step 11 and later), and a WAVE handoff for a bounded work package executed by a fresh session (a docs refresh, an E2E pass, a release). Use at a phase or wave close, when pausing mid-phase (resume point), or when the user asks for a "next session prompt", "handoff prompt", "kickoff", or "prompt for the next step".
+description: Write the phase doc and the short prompt that starts the next build step in this repo (lean mode). Use at a step close, when pausing mid-step (resume point), or when the user asks for a "next session prompt", "kickoff", or "prompt for the next step".
 ---
 
-# Kickoff and handoff prompts
+# Kickoff
 
-A fresh session reads the prompt plus the files it points to. **The prompt points; it does not
-paste.** Rules live in `docs/agent-rules.md`, the session agent's contract in the `long-run` skill,
-the work and its pre-registered rules (exit checks, human gates, STOP rules, forbidden fixes) in the
-phase doc, measured facts in the package `CLAUDE.md` files. A kickoff that restates any of them
-creates a second copy that drifts. **Budget: about 1.5k words** for a phase kickoff.
+**The phase doc carries the work; the prompt only points at it.** Rules live in `docs/agent-rules.md`, the session
+agent's side in `long-run`, measured facts in the package `CLAUDE.md` files. Never restate them.
 
-| Kind | Use for | Template | Output |
-|---|---|---|---|
-| **Phase** | an autonomous build step with stages, verifiers and a gate | [`template-phase.md`](template-phase.md) | overwrite `docs/plans/next-session-prompt.md` (the old one stays in git) |
-| **Wave** | a bounded work package whose surfaced decisions return to the user | [`template-wave.md`](template-wave.md) | prepend to `docs/plans/handoffs.md` (newest first) |
+## 1. The phase doc: `docs/plans/<date>-step<N>-<name>.md`
 
-## The wave loop
+Template: [`template-phase.md`](template-phase.md). It holds: why, the outcome, the decisions it builds on (date +
+title), the stages with a **kind** each (safety / ordinary / docs / live, `agent-rules.md` §4) and a size, the exit
+checks, what needs the user (publish, push, accounts, rulings), and an empty § As built. Keep it under ~250 lines.
 
-1. The closing session writes a wave prompt (this skill).
-2. A **fresh execution session** runs it and writes its as-built into the named record doc, ending
-   with **Proposed decisions — for the user**. It does not settle them.
-3. The reviewing session puts each proposed decision to the user as an option question with a
-   recommendation; an unanswered one takes the recommendation as a default, flagged for veto.
-   Ratified ones go to `docs/decisions.md`.
-4. Commit, then write the next prompt. Nothing a previous wave ratified reopens.
+## 2. The prompt: `docs/plans/next-session-prompt.md` (overwrite)
 
-A wave that edits at scale or will not fit one context runs under the `long-run` contract.
+At most ~300 words:
+1. "You are the SESSION AGENT for Step N — <title>. Follow the `long-run` skill." Say whether the user is around or
+   away.
+2. First checks: `git status` clean, `npm test` and `npm run build` green (quote the counts), port 9234.
+3. Read: the phase doc, then the files it names.
+4. What needs the user's hands in this step.
 
-## Procedure
+## 3. Resume point (pausing mid-step)
 
-1. **Gather state** (read, don't re-derive): the phase doc, `docs/decisions.md` (Open decisions,
-   standing decisions), the last as-built and step reports, open user questions.
-2. **Make the phase doc carry the work:** stages with a **risk tier** each (`agent-rules.md` §7),
-   exit checks, human gates, STOP rules and forbidden fixes. If one of these is missing, it goes
-   into the phase doc, not the kickoff.
-3. **Write the prompt** from the template. Plain language; cite decisions by date + title.
-4. **New lessons** from the closing phase go where they bind: a measured runtime fact into the
-   package `CLAUDE.md` it concerns (via `session-closeout`), a process rule into `agent-rules.md`,
-   a phase-specific rule into the phase doc. The kickoff only points at them.
-5. **Resume point** (pausing mid-phase): the state goes where state lives: the root Current state
-   (what is done, the next stage, open user decisions) and the journal (commits, what is running,
-   whether the loaded extension matches `dist/`). The kickoff gets one line: "Resume: read the
-   Current state and `<steps-dir>/journal.md` first".
-6. **Check:** every path the prompt cites exists; every decision it cites exists under that date +
-   title; `node scripts/doc-check.mjs` is clean for the prompt; the word count is within budget.
-7. Commit with the closeout, or alone as `docs: <phase or wave> kickoff`.
+Write the state into the root Current state (done, next stage, open questions) and the phase doc's § As built. The
+prompt gets one line: "Resume: read Current state and the phase doc's § As built first."
+
+## 4. Check and commit
+
+Every path cited exists; every decision cited exists under that date + title. Commit with the closeout, or alone as
+`docs: Step <N> kickoff`.

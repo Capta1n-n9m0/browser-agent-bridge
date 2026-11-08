@@ -1,74 +1,40 @@
 ---
 name: step-agent
-description: Brief templates for the stage level of a long autonomous run in this repo — the STEP BRIEF the session agent hands a step agent, the leaf brief a step agent hands a builder, verifier, fixer or live runner, and the ledger format. Use when spawning a step agent or any builder/verifier/fixer/runner, when acting as one, or when resuming one from its ledger.
+description: Brief templates for this repo's lean agent chain — the STEP BRIEF the session agent hands a step agent and the EXECUTOR BRIEF a step agent hands a builder, verifier, fixer or live runner. Use when spawning a step agent or an executor, or when acting as one.
 ---
 
 # Step agent kit
 
-Roles, report format, models, waiting and commits: **`docs/agent-rules.md`**. The session agent's
-side: the **`long-run`** skill. Ledgers, reports and evidence live in the phase's steps dir
-`docs/plans/<phase>-steps/`; the kickoff names it.
+Rules: **`docs/agent-rules.md`**. The session agent's side: **`long-run`**.
 
-## Brief rules
-
-A brief points; it does not paste.
-- **Must not contain:** rules from `agent-rules.md`, phase-doc or spec text, numbers copied from a
-  record (write "numbers only from `<file>`"), lessons (point to the package `CLAUDE.md` or the
-  phase doc section that holds them).
-- **Over ~1k words is a warning sign:** something was pasted.
-- **Size:** name line ranges and state the slice's size cap (`agent-rules.md` §7); a builder over it reports
-  DONE-PARTIAL. The step agent, not the builder, may accept a finished overrun afterwards, on the conditions in
-  `agent-rules.md` §7. Do not ask for foreground children: the Agent tool may start any child in the background, and
-  `agent-rules.md` §8 says how to wait.
-- **Verifiers get the same READ list as the builder**, plus the builder's report labelled "claims
-  to audit". They read the phase doc and spec themselves.
-- Briefs are not saved as files. The report names the brief's READ list.
-- Pass `model` and `effort` on every `Agent` call, and state both in the brief (`agent-rules.md` §7).
+**A brief points, it doesn't paste:** no rules, no spec or phase-doc text, no copied numbers. Over ~400 words means
+something was pasted. Briefs are not saved as files.
 
 ## STEP BRIEF (session agent → step agent)
 
 ```
-FIRST LINE, BINDING (#286, #350): you never end your turn while a child agent you started is running (agent-rules.md §8).
-You are the STEP AGENT for stage <STAGE> ("<plain name>") of Step <N> (<plain title>) of the
-chrome-agent-bridge repo. Read docs/agent-rules.md first; it applies in full except the
-deviations below. Your role: §6 Step agent.
-RISK: low | standard → model and effort per agent-rules.md §7 (pass both on every Agent call).
-GOAL: <one paragraph: what, and why it matters>.
-READ: <phase doc § stage, with its exit-check IDs>, <spec §§ that bind>, <as-built sections of
-earlier stages it builds on>, <prior step reports>. DO NOT READ: <run records, raw logs>.
-EXIT CRITERIA: the phase doc's exit checks <IDs>; <any stage-specific addition>.
-LANE: <files/packages it may change>. Anything outside escalates.
-DEVIATIONS from agent-rules.md: <only the differences, or "none">.
-RUNNING NOW: <PIDs, or "nothing">.
-OUTPUT: <steps-dir>/<STAGE>.md. Commit via a committer you start after the verifier's verdict, message and
-trailer per `agent-rules.md` §10.
-```
-
-## LEAF BRIEF (step agent → builder / verifier / fixer / runner)
-
-```
-ROLE: builder | verifier | fixer | live runner | committer | checker | investigator | auditor | measurer — stage <STAGE> of Step <N>, chrome-agent-bridge.
-Read docs/agent-rules.md first (your role: §6 <role>); it applies in full except the deviations.
-GOAL: <one paragraph>.
-READ: <same list as the step brief, narrowed to the task>. <Verifier: + "claims to audit:
-<builder report path>". Fixer: + "findings: <verifier report path> items <n>">.
-EXIT CRITERIA: <exit-check IDs from the phase doc>. SIZE CAP: <lines, for a builder>.
-MODEL / EFFORT: <model>, medium (§7).
-LANE: <files>. Committer: the exact file list and the verdict to carry.
+You are the STEP AGENT for stage <STAGE> ("<plain name>") of Step <N>, browser-agent-bridge.
+Read docs/agent-rules.md first. You never end your turn while a child agent you started is running.
+KIND: safety | ordinary | docs | live (agent-rules.md §4 sets the checks).
+GOAL: <what and why, a few sentences>.
+READ: <phase doc § stage>, <spec §§ if any>.
+DONE WHEN: <the phase doc's exit checks for this stage>.
+LANE: <files/packages it may change>.
 DEVIATIONS: <or "none">.
-OUTPUT: <steps-dir>/<STAGE>-<role>[n].md. Commit: yes (trailer per `agent-rules.md` §10) | no.
+Commit the stage yourself; hand back per agent-rules.md §7.
 ```
 
-## Ledger (`<STAGE>.ledger.md`): stages that hold a wait only
+## EXECUTOR BRIEF (step agent → builder / verifier / fixer / live runner)
 
-Append-only, one line per milestone: UTC time (`date -u`) · substep · state (started / done /
-failed) · artifacts (commit hash; evidence path) · PIDs and log paths · watcher state · next
-substep. It is the recovery path after outages and respawns. If you cannot read the clock, write `~` before the time.
+```
+ROLE: <builder | verifier | fixer | live runner> — stage <STAGE> of Step <N>, browser-agent-bridge.
+Read docs/agent-rules.md first (§5, your role).
+GOAL: <one paragraph>.
+READ: <same list as the step brief>. Verifier: + "the builder's claims: <its hand-back, pasted>".
+  Fixer: + "findings: <the verifier's findings, pasted>".
+DONE WHEN: <checks>.   LANE: <files>.   SIZE: <~lines, builder only>.
+Commit: no (the step agent commits). Hand back per agent-rules.md §7.
+```
 
-## What a stage leaves in the steps dir
-
-`<STAGE>.md` (step report); the leaf reports `<STAGE>-<role>[n].md` for builder, verifier, fixer and
-runner (`-verifier2.md` after a fix round; Stage 0 is `Stage0` and its evidence `stage0-…`); a ledger only
-for a waiting stage; and evidence the phase doc asks for (run records, logs as `.txt`). Nothing else: no brief copies, no raw dumps
-pasted into reports.
-A builder may also hand a doc stage a draft section or a proposal file (`S3-doc-section.md`, `S5-claude-md-proposals.md`); the doc stage reads it and the session agent decides.
+A verifier gets the same READ list as the builder and reads the phase doc itself; the builder's hand-back is claims to
+check, not facts.

@@ -1,37 +1,32 @@
-# Phase kickoff — anatomy
+# Step <N> — <plain title>
 
-Sections in this order. About 1.5k words in total. Every section points; none restates a rule
-from `docs/agent-rules.md`, the `long-run` skill, the phase doc or a `CLAUDE.md` file.
+**Date:** <YYYY-MM-DD> · **Status:** Planned | Running | Closed <date> · **Builds on:** <decisions by date + title>
 
-1. **How to start the session** (above the line): the working directory and the launch command
-   (the driver is not a bridge client: `claude --strict-mcp-config --mcp-config <empty config>`).
-2. **Opening** (one paragraph): "You are the SESSION AGENT for Step N — <plain title>", what the
-   step delivers in two or three sentences, and "AUTONOMOUS — I am away; do not block on me".
-3. **First checks** (numbered, each checkable): the precondition (decisions ruled, by date +
-   title); the environment re-checked and dated (baseline commit, `npm test` count, typecheck and
-   build, port 9234, loaded extension vs `dist/`); any one-time check the step needs.
-4. **Binding documents**, in reading order, each with what to take from it: the phase doc (the
-   work, risk tiers, exit checks, human gates, STOP rules, forbidden fixes), the design spec
-   sections, the earlier as-built sections it builds on, the decisions that bind (date + title),
-   `docs/agent-rules.md`, the `long-run` and `step-agent` skills.
-5. **This phase's settings**: the form (three levels, unless a reason is given), parallel lanes,
-   the steps dir, grants for live work beyond the standing ones, and any deviation from
-   `agent-rules.md` (normally none). Models, fix rounds and commits are `agent-rules.md`'s: point,
-   don't state.
-6. **Stage 0 — spec audit**: one line pointing to the phase doc's Stage 0, which holds the lenses
-   (code citations executed, not read; counts recomputed; blind spots with a seed list;
-   testability), the re-execution of the previous phase's contracts, and its exit check. Before
-   it: record the phase doc's proposed decisions so the audit can attack them. After it: the
-   stage split in the journal.
-7. **Close-out**: the `long-run` §5 end of phase, and what follows this step on the roadmap.
+## Why
 
-## Bookkeeping invariants (carry into every phase)
+<A few sentences: what the user gets and why now.>
 
-- Commits: `docs/agent-rules.md` §10; stage reports: §9.
-- The run journal `docs/plans/<phase>-steps/journal.md` is append-only; pre-registered exit checks
-  always precede the results they govern.
-- Anything that changed what the user must do (`docs/setup.md`) or how a tool behaves
-  (`docs/e2e-test-plan.md` rows) is updated in the same stage.
-- At each stage close the session agent writes that stage's **As built** block into the phase doc
-  (format: `docs/docs-writing-guide.md` § Phase doc). There is no separate as-built file from
-  Step 11 on.
+## Outcome
+
+- <Each thing that exists when the step is done, checkable.>
+
+## Decisions
+
+- <One line each: date + title; new proposals marked (proposed) until the user rules.>
+
+## Stages
+
+### S1 — <plain name> (kind: safety | ordinary | docs | live · ~<lines> · after: <stage or none>)
+<What, which files or packages, what "done" means.>
+
+## Exit checks
+
+- <One line each, measurable, written before the work.>
+
+## Needs the user
+
+- <Accounts, publishing, pushing, rulings, anything only the user can do.>
+
+## As built
+
+<Filled in per stage: what shipped, commit, test count with its command, anything surprising.>

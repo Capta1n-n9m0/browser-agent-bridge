@@ -1,49 +1,27 @@
-# Decisions — chrome-agent-bridge
+# Decisions — Browser Agent Bridge
 
-Newest first. Format and rules: [`docs-writing-guide.md`](docs-writing-guide.md#decisions).
-Cite an entry by date + title. Closed steps' entries are in `docs/decisions-archive/` (index below).
+Newest first. Only what the user ruled or what the product promises (`docs/agent-rules.md` §8). Format:
+[`docs-writing-guide.md`](docs-writing-guide.md#decisions). Cite an entry by date + title.
 
-**Earlier decisions** (before 2026-10-21) live where they were made: the design specs in
-`docs/specs/` and the step plans in `docs/plans/`. When one matters again, restate it here
-as a dated entry and point back.
+Entries #1–#442 (Steps 6–14) live in tag `archive/dev-history`: the `decisions-archive/stepN.md` files named below
+and that tag's `docs/decisions.md` (Step 14). Read one with `git show archive/dev-history:docs/decisions-archive/step9.md`.
+Earlier decisions are in `docs/specs/`.
 
 ## Open decisions
 
-None. Step 14's were ruled by #442; Step 15's shape is #443–#445.
+None.
 
 ## Standing decisions
 
-A decision that still governs how we work or what the product promises: one line, its date and title, and where
-its full entry lives. Entries that only
-settled a build detail of one stage, or that a later entry replaced, are not listed; they stay in the archive.
-
 **How we work**
+- 2026-11-08 · Lean mode: checks by risk, hand-backs instead of report files, records archived (#446) — below; `docs/agent-rules.md`
 - 2026-10-22 · Live E2E waves are run by Claude end to end (#33) — `decisions-archive/step6.md`
 - 2026-10-23 · Later extension reloads use `recipes/reload-extension.ps1` (#65) — `decisions-archive/step7.md`
-- 2026-10-24 · The roadmap after Step 8 (#129) — `decisions-archive/step9.md`; amended by #229 (the redirect-rule step after Step 11)
-- 2026-10-24 · S4: Live runners return on every stop; one stop rule for sheet and brief (#193) — `decisions-archive/step9.md`
-- 2026-10-25 · S5: `bb-login.ps1`'s post-submit wait — exit rules and the hard bound (#215) — `decisions-archive/step10.md`
-- 2026-10-25 · Scratch worktrees never share `node_modules` through a junction a recursive delete can follow (#220) — `decisions-archive/step10.md`
 - 2026-10-25 · Fresh agents instead of resumed ones (#225) — `decisions-archive/step10.md`
-- 2026-10-25 · The user rules on Step 10's open decisions; Step 10 closes (#229) — `decisions-archive/step10.md`
-- 2026-10-25 · Lean procedures: rules by pointer, package CLAUDE.md files, risk-tiered models (#230) — `decisions-archive/step11.md`
 - 2026-10-25 · Commits carry exactly one trailer and no Claude-Session line (#231) — `decisions-archive/step11.md`
 - 2026-10-25 · Gotchas follow the code they bind (#232) — `decisions-archive/step11.md`
-- 2026-10-25 · Builders, fixers and live runners run Sonnet at medium effort from S5 on (#270) — `decisions-archive/step11.md`; amended by #289
-- 2026-10-25 · S5 is split into seven slices; the stopped prep is salvaged per slice (#271) — `decisions-archive/step11.md`; its rule for small iterations is in `agent-rules.md` §7
-- 2026-10-29 · S1: mutants and pre-slice runs never touch the main tree (#395) — `decisions-archive/step13.md`
-- 2026-10-26 · Step agents never end their turn on a running child; commits carry the verifier's verdict (#286) — `decisions-archive/step11.md`; made permanent by #289; `agent-rules.md` §8, §10
-- 2026-10-26 · How agents are run from Step 11b on; #286 stands; the cleanup pass's proposals applied (#289) — `decisions-archive/step11b.md`
-- 2026-10-26 · Step 11b: the permission and the rule's scope ruled; Step 11's follow-ups become its stage S0F (#290) — `decisions-archive/step11b.md`
-- 2026-10-26 · Stage 0 measures DNR in a separate scratch Chrome on a temporary profile (#294) — `decisions-archive/step11b.md`
-- 2026-10-26 · Stage 0's incident: a stray `chrome.exe --version` reached the user's Chrome; never run Chrome without an own profile (#297) — `decisions-archive/step11b.md`; reported to the user 2026-10-27
-- 2026-10-27 · The user rules Step 11b's gate: accept, `newTab` on `about:blank` (S6), then Run 17b (#311) — `decisions-archive/step11b.md`
-- 2026-10-27 · The user rules #318 and the cleanup proposals; Step 11b closes (#320) — three fix rounds per stage, the size-cap overrun, wave prompts in `handoffs.md`, the read-only roles; `decisions-archive/step11b.md`; `agent-rules.md` §6, §7
-- 2026-10-27 · The user rules Step 12's scope (G12-0) (#321) — `decisions-archive/step12.md`
-- 2026-10-29 · The user rules Step 12's gate; Step 12 closes (#374) — `webNavigation` granted; no local path or name in new committed docs (`docs-writing-guide.md`); Step 13 = the Phase F follow-ups and Run 19's re-measurement; then a minimal Phase G for the user's own use; `decisions-archive/step12.md`
-- 2026-10-30 · The user rules Step 13's gate; Step 13 closes (#420) — #417 (c): a reply to the calling client is not the log a LOGS row guards, the `~` path fix in Phase G; the wave's own options window is outside `DIALOGS`; next: a minimal Phase G for the user's Windows devices; `decisions-archive/step13.md`
-- 2026-10-30 · The user rules Step 14's gate; Step 14 closes (#442) — the doctor's build heuristic kept; the clone
-  command keeps the public GitHub URL (rule 9's exception)
+- 2026-10-26 · Agents never end their turn on a running child (#286) — `decisions-archive/step11.md`
+- 2026-10-29 · No local path or user name in new committed docs (#374) — `decisions-archive/step12.md`
 
 **Product promises: the daemon, the clients and their lifecycle**
 - 2026-10-21 · The actor name carries the MCP's own process id (#2) — `decisions-archive/step6.md`
@@ -173,26 +151,22 @@ settled a build detail of one stage, or that a later entry replaced, are not lis
 - 2026-10-26 · S5-liveB: the upload works on a background tab; a raw missing-file upload answers ok (#284) — `decisions-archive/step11.md`; changed by #288 (a missing file is an error in the extension too); built in S0F-b (#299)
 - 2026-10-26 · The user rules Step 11's gate; Step 11 closes (#288) — `decisions-archive/step11.md`
 
-## Archive
-
-When a step closes, its entries move to `docs/decisions-archive/` with their numbers unchanged.
-
-| File | Step | Numbers | Entries | Dates |
-|---|---|---|---|---|
-| [`step6.md`](decisions-archive/step6.md) | Step 6: the persistent daemon and protocol v2 | #1–#36 (incl. #2b) | 37 | 2026-10-21 → 2026-10-22 |
-| [`step7.md`](decisions-archive/step7.md) | Step 7: multi-actor tabs | #37–#69 | 33 | 2026-10-22 → 2026-10-23 |
-| [`step8.md`](decisions-archive/step8.md) | Step 8: the SDK surface and the MCP cursor | #70–#127 | 58 | 2026-10-23 → 2026-10-24 |
-| [`step9.md`](decisions-archive/step9.md) | Step 9: Phase E safety | #128–#200, #202 | 74 | 2026-10-24 → 2026-10-24 |
-| [`step10.md`](decisions-archive/step10.md) | Step 10: the Step 8 follow-ups | #201, #203–#229 | 28 | 2026-10-24 → 2026-10-25 |
-| [`step11.md`](decisions-archive/step11.md) | Step 11: D3 file upload (and the lean procedures) | #230–#264, #266–#288 | 58 | 2026-10-25 → 2026-10-26 |
-| [`step11b.md`](decisions-archive/step11b.md) | Step 11b: the block list stops redirected requests | #289–#320 | 32 | 2026-10-26 → 2026-10-27 |
-| [`step12.md`](decisions-archive/step12.md) | Step 12: Phase F, ergonomics | #321–#374 | 54 | 2026-10-27 → 2026-10-29 |
-| [`step13.md`](decisions-archive/step13.md) | Step 13: the Phase F follow-ups and Run 20 | #375–#420 | 46 | 2026-10-29 → 2026-10-30 |
-
 ## Log
 
-The current step's entries, newest first. Step 13's (#375–#420) are in `decisions-archive/step13.md`, Step 12's
-(#321–#374) in `decisions-archive/step12.md`. The next entry is 446.
+The next entry is 447.
+
+### 2026-11-08 · Lean mode: checks by risk, hand-backs instead of report files, records archived (#446)
+**Decided (user):** from Step 15 on, checking follows risk (`docs/agent-rules.md` §4): safety code keeps a builder,
+one independent verifier and at most one fix round; ordinary code is tested and the diff read, with no verifier; docs
+get one writer; Chrome-only behaviour gets one short live checklist at the end of a step. Agents hand back ~20 lines in
+chat instead of writing report and evidence files. `decisions.md` keeps only the user's rulings and product promises.
+The chain session agent → step agent → executor stays, leaner; the skills were rewritten to match. The step folders,
+decision archives, cleanup reports, old phase docs and past live-run helpers moved to tag `archive/dev-history`;
+`docs/history.md` and `docs/roadmap.md` are the condensed versions.
+**Why:** Steps 12–14 produced ~100,000 lines of reports for small changes (Step 14: 117 files, 46 verifier reports for
+~500 lines of scripts); late verifier rounds found minor issues and nits, not defects. **Instead of:** the per-stage builder,
+verifier and up to three fix rounds for every change. **Revisit if:** a defect reaches the user that the dropped checks
+would have caught. **By:** user
 
 ### 2026-11-08 · Distribution to a wider audience: the shape of Step 15 (#445)
 **Decided (user),** in chat 2026-11-03 → 2026-11-08:
@@ -229,135 +203,3 @@ own code and license, nothing of ours), so npm's dispute policy would not apply;
 **Decided (user):** the daemon, Chrome and clients on different machines is a future phase; Step 15 keeps the
 `127.0.0.1` bind and only avoids choices that would block it later (for example a hard-coded host in the protocol).
 **Why:** leaving localhost needs encryption and stronger authentication than one shared token. **By:** user
-
-### 2026-10-30 · The user rules Step 14's gate; Step 14 closes (#442)
-**Decided (user),** on the session agent's plain-language list (chat, 2026-10-30):
-1. **#432 (a):** the doctor keeps its heuristic line for the extension's build; a build id in the hello only if U.1
-   shows the heuristic misleads.
-2. **#441 (a), "a very quick fix with very quick verification":** the eleven unpushed commits were rewritten so the
-   Stage 0 commit carries the already-redacted `kickoff-checker-test.txt`; the final tree is byte-identical to the old
-   tip, history holds no local path, and the commit ids cited in the docs were updated to the new ones.
-3. **G14-1 granted:** push. U.1 (the user's install on another device) follows; its findings become a small follow-up.
-4. **The clone command keeps the public GitHub URL** (`README.md`, `docs/setup.md`): an exception to
-   `docs-writing-guide.md` rule 9, which now says so; a clone command must work as pasted.
-5. **The cleanup pass 2026-10-30-2 proposals P5–P11:** the session agent's recommendations, applied.
-**By:** the user
-
-### 2026-10-30 · Step 14's close: the history line with a local path waits for the user (#441)
-**Decided:** ruled by #442 (a). The Stage 0 commit held one `kickoff-checker-test.txt` line with the checkout's
-absolute path until the history rewrite. **By:** Claude (for the user)
-
-### 2026-10-30 · Two-level stages: the session agent commits each stage after its verifier's verdict (#440)
-**Decided:** in Step 14's two-level form the session agent committed S1–S5 itself, after scanning the files for the
-user's name, instead of starting a committer. **Why:** the first committer stopped (correctly) on unredacted evidence;
-the session agent redacted and committed, and kept that for the small stages. **Instead of:** a Sonnet committer per
-stage (`agent-rules.md` §6). **Revisit if:** a later phase runs two levels again — then write it into `long-run`.
-**By:** Claude
-
-### 2026-10-30 · S2b: an MCP entry whose `BRIDGE_TOKEN` equals the bridge's reads OK (#439)
-**Decided:** the doctor's line is OK with a note that the env entry is optional; only a differing token is flagged.
-**Why:** it works; R4.1 asks for green on a working setup. **By:** Claude
-
-### 2026-10-30 · S2b: the doctor runs under tsx with its own hello probe; update exits 0 or 1 (#438)
-**Decided:** `npm run doctor` = `tsx scripts/bridge/doctor.ts`: one hello and `daemon.status` through the SDK's
-`tryConnect`, never `connect()`/knock (no spawn, no handover); OK / HINT / FAIL lines. `npm run bridge-update` (Node)
-runs npm through `npm-cli.js` with no shell and exits 0 or 1 only, so its exit never means "re-run" as the reload's
-exit 2 does. Amends #427 (the doctor is not plain Node: it needs the SDK). The S2b build's 252 code + 151 test lines
-against a cap of 300 are accepted under `agent-rules.md` §7's 1.5× rule. **By:** Claude
-
-### 2026-10-30 · S2a: setup skips an unneeded build and exits 0 / 1 / 2 (#437)
-**Decided:** the build runs unless every output is newer than every input (any doubt builds), so a second run leaves
-`dist/` and #432's heuristic alone; exit 1 = a prerequisite missing, 2 = the MCP step failed (the other steps still
-run), 0 with a missing `claude` CLI (the next steps say what to add); Node floor 20. Built as #428 and #429 decided.
-**By:** Claude
-
-### 2026-10-30 · S1: the `~` rewrite folds ASCII case only and uses the injected home (#436)
-**Decided:** a Windows home matches case-insensitively for A–Z (length-preserving; a home with `İ` keeps its dot) with
-either separator and prints `~\`; only a path strictly inside the home is rewritten; a throwing `homedir` prints the
-absolute path. **By:** Claude
-
-### 2026-10-30 · S3: the consumer folder runs `npm pkg set type=module` and installs tsx beside the SDK (#435)
-**Decided:** `npm init -y`, `npm pkg set type=module`, `npm install <repo>\sdk tsx`, then `npx tsx list-tabs.ts`.
-Built as #430 decided. **Why:** measured: the `file:` SDK brings no tsx, and npm 11's init writes `commonjs`. **By:** Claude
-
-### 2026-10-30 · S5: the npm.cmd hint for a fresh Windows (#434)
-**Decided:** the install section says to run `npm.cmd run setup` (or Command Prompt) if PowerShell refuses `npm.ps1`;
-nothing changes the machine's execution policy. **Why:** a known Windows default (one web search; not measured here,
-where npm is an `npm.exe`). **Revisit if:** U.1 sees it. **By:** Claude
-
-### 2026-10-30 · S4: the rehearsal's guard hashes the `mcpServers` key, not the whole `~/.claude.json` (#433)
-**Decided:** Claude Code rewrites the file on its own, so a whole-file hash moves without any MCP change; the S4
-verifier measured that `mcpServers` stayed the same. Later rehearsals guard that key only. **By:** Claude
-
-### 2026-10-30 · Stage 0: the doctor reads the extension's build as a heuristic; no protocol change (#432)
-**Decided (kept by #442):** the doctor says "extension connected" from `daemon.status`, compares the daemon's build with the one on
-disk, and, as a heuristic named as such, "the extension may be older than the build — reload it" when
-`extension\dist\sw.js` is newer than the last `extension resync` line in the daemon's log. The doctor never spawns or
-hands over a daemon. The phase doc's Outcome and R4.1 are amended to this wording. **Why:** nothing on the wire reports
-the loaded extension's build (Stage0.md C2); the Outcome forbids a protocol change; the conservative option (§4).
-**Instead of:** a build id in the extension's hello and `daemon.status` (a contract change), or driving a tab.
-**Revisit if:** the user wants an exact check. **By:** Claude (for user review; listed under Open decisions)
-
-### 2026-10-30 · Stage 0: update treats "nothing reloaded" as a hint; `--no-reload` for the rehearsal (#431)
-**Decided:** update prints the reload's outcome; `reload-extension.ps1` exit 2 is a hint ("reload it by hand"), not a
-failure; a `--no-reload` switch, which S4 uses. **Why:** the reload script drives the user's Chrome and finds no card
-for a scratch clone (Stage0.md M2). **Instead of:** running the reload from a scratch clone. **By:** Claude
-
-### 2026-10-30 · Stage 0: scripts outside the repo use a `file:` dependency on the checkout's `sdk`, run with tsx (#430)
-**Decided:** `npm install <repo>\sdk` in the script's folder, then `npx tsx script.ts`; the doc says how to remove the
-junction it leaves (#220). Changes #425's open question. **Why:** measured (Stage0.md 0.6): resolves, typechecks, finds
-the checkout's `bridge.token` from the SDK's own folder, records itself, no global state; `sdk/dist` does not exist and
-plain `node` cannot load the `.ts` SDK. **Instead of:** `npm link`, importing `sdk/src` by path. **Revisit if:** the
-SDK gets a build. **By:** Claude
-
-### 2026-10-30 · Stage 0: the MCP entry is read from the config file and written by `claude mcp add -s user` (#429)
-**Decided:** read `<CLAUDE_CONFIG_DIR or ~>\.claude.json` read-only to decide; register with `claude mcp add -s user
-chrome-agent-bridge -- node <repo>\mcp\dist\index.js`; replace a different entry only with a flag; the doctor reports
-an entry's `BRIDGE_TOKEN` that differs from `bridge.token`, compared by equality, never printed. S4 sets
-`CLAUDE_CONFIG_DIR` to a scratch folder and stops if it does not isolate. Refines #424. **Why:** `claude mcp get`/`list`
-start the server; `add` defaults to local scope; an env token wins over the file (Stage0.md M5, M6). **By:** Claude
-
-### 2026-10-30 · Stage 0: the token goes to the clipboard by `clip.exe` on stdin and is cleared after the paste (#428)
-**Decided:** the install copies `bridge.token` with `clip.exe` (stdin), says so, waits for Enter, then empties the
-clipboard; no Options page is opened; a history-excluded copy is used only if S2 measures it. Settles #423. **Why:**
-measured exact from Node with no profile; the extension is not loaded at install time; clipboard history is on here
-(Stage0.md M4). **Instead of:** `Set-Clipboard -Value` on a command line. **By:** Claude
-
-### 2026-10-30 · Stage 0: the three commands are Node scripts with non-lifecycle names; S2 in two slices (#427)
-**Decided:** `npm run setup`, `npm run doctor`, `npm run bridge-update`, Node `.mjs` (the setup entry on Node built-ins
-only, since it runs before `npm ci`; `npm ci --no-audit --no-fund`); PowerShell only through `spawnSync` for the
-clipboard and the reload; a test pins that no root script takes an npm lifecycle name. S2 splits into S2a (setup and the
-shared logic) and S2b (doctor and update); S4 needs S2b and S3. Changes #422; keeps #421, #426. **Why:** Stage0.md C1,
-M3, 0.3; node, npm and git are on PATH in a profile-less shell (measured). **Instead of:** `.ps1` entry points; a script
-named `install`. **Revisit if:** U.1 finds npm missing from a new shell. **By:** Claude
-
-Entries #421–#426 record the phase doc's proposed decisions 0.2–0.7 (`docs/plans/2026-10-30-step14-phase-g-own-devices.md`
-§ Decisions holds each in full) before Stage 0, so the audit can attack them (kickoff §4). Stage 0's `Stage0.md` keeps
-or changes each; a change is a new entry.
-
-### 2026-10-30 · Step 14 (0.7): what is not in Step 14 (#426)
-**Decided:** a Web Store or signed build, macOS/Linux, a stable extension key, auto-update, R20-G2-1, the Phase F items
-left out and the Run 20 helper proposals stay in Follow-ups. **Why:** #374 item 11, Phase G minimal. **By:** Claude (proposed)
-
-### 2026-10-30 · Step 14 (0.6): scripts from any folder, one measured way (#425)
-**Decided:** Stage 0 measures `npm link`, a `file:` dependency and importing `<repo>/sdk/dist`; one way is documented.
-**Why:** one documented way is what a new device needs. **By:** Claude (proposed)
-
-### 2026-10-30 · Step 14 (0.5): the MCP entry by `claude mcp add`, user scope, idempotent (#424)
-**Decided:** an entry pointing at this checkout is left alone; one pointing elsewhere is reported and replaced only with
-a flag; without the `claude` CLI the command says what to add and where. **Why:** no hand-edited `~/.claude.json`.
-**By:** Claude (proposed)
-
-### 2026-10-30 · Step 14 (0.4): the token reaches the extension unprinted (#423)
-**Decided:** clipboard or the Options page opened; never the console, a log or a committed file; the MCP entry carries
-no `BRIDGE_TOKEN`. Stage 0 decides the mechanism. **Why:** the token is a password (root `CLAUDE.md` invariants).
-**By:** Claude (proposed)
-
-### 2026-10-30 · Step 14 (0.3): Node first, PowerShell 5.1 only for Windows UI or the clipboard (#422)
-**Decided:** `npm run <script>` calling Node where it can do the job; PowerShell with `-NoProfile -ExecutionPolicy Bypass
--File` otherwise; nothing changes the machine's execution policy. Stage 0 decides. **Why:** runs on a fresh Windows 11
-with Node, git and Chrome only. **By:** Claude (proposed)
-
-### 2026-10-30 · Step 14 (0.2): two levels; Stage 0, S1–S5 in order, S1 beside S2 (#421)
-**Decided:** the session agent runs each stage with one builder and one verifier. **Why:** a small phase; three levels
-cost more than they catch here. **By:** Claude (proposed)

@@ -1,4 +1,0 @@
-Scratch mutation of mcp/test/s5-cross.test.ts (worktree only, reverted): line 174 homedir -> root, line 230 expects 'Screenshot: ~<sep>failures'
- ✓ mcp/test/s5-cross.test.ts (3 tests) 115ms
- Test Files  1 passed (1)
-      Tests  3 passed (3)

@@ -1,6 +1,0 @@
-$ npx vitest run   (main tree, S2a files uncommitted)
- ✓ scripts/test/s14-setup.test.ts (17 tests) 15ms
- Test Files  253 passed (253)
-      Tests  6055 passed (6055)
-exit 0
-HEAD baseline = 6055-17 tests, 253-1 files = 6038 / 252 (the only uncommitted test file is scripts/test/s14-setup.test.ts)

@@ -1,7 +1,0 @@
-# npm test at 0ba82f6 (tree: only uncommitted steps-dir docs), run by Stage 0 auditor 1, 2026-10-27; summary lines only
-   ✓ pure PowerShell functions, run on the same cases as their TypeScript twins > Write-R17Row gives PASS, NOT MEASURED, FAIL and STOP in that order of severity, and throws only on STOP 808ms
- Test Files  191 passed (191)
-      Tests  4665 passed (4665)
-   Start at  18:01:17
-   Duration  41.50s (transform 7.00s, setup 0ms, collect 46.01s, tests 161.38s, environment 35.56s, prepare 33.92s)
-exit 0

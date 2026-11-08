@@ -1,5 +1,0 @@
-[31m   [31m×[31m s13-r20.ps1 under PowerShell with stubbed helpers[2m > [22mthe old-build gate is the sheet's proof (keys=sorted or perm=no), not the refusal the row tests: an old build that answers args still runs the row; a page-keyed build that refuses is NOT RUN[90m 8[2mms[22m[31m[39m
-[31m   [31m×[31m s13-r20.ps1 under PowerShell with stubbed helpers[2m > [22ma leg the sheet calls RECORD makes the row RECORD; the next row is PASS again[90m 1[2mms[22m[31m[39m
-[31m   [31m×[31m s13-r20.ps1 under PowerShell with stubbed helpers[2m > [22mR20-LOGS drops the capture's window-title lines before the first scan, and a row's own FAIL stays FAIL when the logs are NOT MEASURED[90m 1[2mms[22m[31m[39m
-[31m⎯⎯⎯⎯⎯⎯⎯[1m[7m Failed Tests 3 [27m[22m⎯⎯⎯⎯⎯⎯⎯[39m
-[2m      Tests [22m [1m[31m3 failed[39m[22m[2m | [22m[1m[32m26 passed[39m[22m[90m (29)[39m

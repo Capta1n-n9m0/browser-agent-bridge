@@ -1,5 +1,0 @@
-{
-  "extends": "./tsconfig.json",
-  "compilerOptions": { "types": ["node", "chrome"], "lib": ["ES2022", "DOM", "DOM.Iterable"] },
-  "include": ["s10.ts", "s10-rules.ts", "s10-ret1.ts", "test/s10-rules.test.ts", "test/s10-fixtures.test.ts"]
-}

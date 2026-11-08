@@ -21,12 +21,17 @@ const words = (s) => s.split(/\s+/).filter(Boolean).length;
 const FROZEN = [/^docs\/plans\/.*-steps\//, /^docs\/decisions-archive\//, /^docs\/cleanup\//, /^node_modules\//,
   /\/node_modules\//, /^\.git\//, /^docs\/specs\//, /-asbuilt\.md$/, /-open-decisions-review\.md$/];
 // Records whose paths may name files since moved or removed: checked for everything but dead paths.
-const PATH_RECORDS = [/^docs\/decisions\.md$/, /^docs\/progress-and-roadmap\.md$/];
+const PATH_RECORDS = [/^docs\/decisions\.md$/, /^docs\/history\.md$/];
+// Moved to tag `archive/dev-history` on 2026-11-08 (decisions.md #446): a citation of these is not a dead path.
+const ARCHIVED = [/^(docs\/)?plans\/20\d\d-(0[6-9]|10)-/, /^docs\/plans\/handoffs\.md/, /^docs\/decisions-archive\//,
+  /^docs\/cleanup\//, /^docs\/progress-and-roadmap\.md/, /^recipes\/(s\d|t5|fe|bgf|tsconfig\.)/, /^recipes\/test\/s\d/];
+// Entries #1–#442 live in the archive tag; only later numbers are checked against docs/decisions.md.
+const ARCHIVED_DECISIONS_MAX = 442;
 // Word budgets (decisions.md · 2026-10-25 · Lean procedures … (#230)). Above budget is a finding.
 const BUDGET = [
   [/^CLAUDE\.md$/, 3000], [/^(extension|daemon|sdk|mcp|shared|recipes)\/CLAUDE\.md$/, 3500], [/\/src\/.*CLAUDE\.md$/, 1200],
   [/^docs\/agent-rules\.md$/, 2500], [/^\.claude\/skills\/.*\.md$/, 1200],
-  [/^docs\/plans\/next-session-prompt\.md$/, 1500], [/^docs\/decisions\.md$/, 10000],
+  [/^docs\/plans\/next-session-prompt\.md$/, 400], [/^docs\/decisions\.md$/, 10000],
 ];
 const PKG_DIRS = ["extension", "daemon", "sdk", "mcp", "shared", "recipes", "test-fixtures", "docs", "scripts", ".claude"];
 const PATH_RE = new RegExp("`((?:" + PKG_DIRS.map((d) => d.replace(".", "\\.")).join("|") + ")/[\\w.\\-/]*)`", "g");
@@ -65,6 +70,7 @@ for (const r of living.filter((r) => !PATH_RECORDS.some((re) => re.test(r)))) {
     for (const [tok, rootRel] of cands) {
       if (/^(https?:|mailto:)/.test(tok) || /[*{}<>…]|\.\.\.|YYYY|<|N\b|\/dist\//.test(tok)) continue;
       const clean = tok.replace(/[.,:;)]+$/, "").replace(/:\d+(-\d+)?$/, "");
+      if (ARCHIVED.some((re) => re.test(clean))) continue;
       const target = rootRel ? join(ROOT, clean) : join(ROOT, dirname(r), clean);
       if (!existsSync(target) && !existsSync(join(ROOT, clean)))
         add(planning(r) ? "Paths a plan names that do not exist yet (planned, or dead)" : "Dead paths", `${r}:${i + 1}  ${clean}`);
@@ -127,7 +133,7 @@ for (const f of decisionFiles) for (const m of read(f).matchAll(/^### .*\(#(\d+)
 const newest = Math.max(0, ...recorded);
 for (const r of living) {
   read(r).split("\n").forEach((line, i) => {
-    for (const m of line.matchAll(/#(\d{1,4})\b/g)) if (!recorded.has(+m[1]) && +m[1] > 0 && +m[1] <= newest + 20)
+    for (const m of line.matchAll(/#(\d{1,4})\b/g)) if (!recorded.has(+m[1]) && +m[1] > ARCHIVED_DECISIONS_MAX && +m[1] <= newest + 20)
       add("Decision numbers with no entry", `${r}:${i + 1}  #${m[1]}`);
   });
 }
