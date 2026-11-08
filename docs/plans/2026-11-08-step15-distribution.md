@@ -284,4 +284,15 @@ extension ID in `docs/e2e-test-plan.md` replaced. The session agent added upload
 cookie line to the network log, and removed "Step 15" from the README. Open: `activeTab` is in the manifest and nothing in the code
 uses it (`<all_urls>` covers it); removing it is a permission change for the user to rule.
 
+**Approved by the user (2026-11-08):** the icons, the tagline, the README, the listing text, `docs/privacy.md` and
+`docs/security.md`. The user granted S9 the use of their real Chrome for the live check.
+
+**Release zip fix (commit `3b7b5a4`, session agent):** the GitHub Release zip had no `key`, so Load unpacked would give a
+path-based ID the native host refuses, and pairing could not work before the store listing is live. The release zip now keeps
+`key`; `browser-agent-bridge-store-<v>.zip` (without it) is built for the dashboard and stays out of the Release and
+`SHA256SUMS.txt`.
+
+**CI on GitHub (2026-11-08):** the first CI run (`1161fcc`) and the next (`3b7b5a4`) passed on ubuntu, macos and windows, with the
+Linux release build; a manual Release run built every file and skipped the GitHub Release and npm jobs as designed.
+
 **Findings for the user (before S2):** item 2 stays the open risk; the Web Store upload (U2) and the public key are needed only when S4 starts; U4 can be done now because the npm name exists; item 6 means S9 uses a hand-loaded scratch profile unless Chrome for Testing is installed.
