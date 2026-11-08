@@ -2,7 +2,8 @@
 // Step 15 S6: `npm run release:build [-- --tag vX.Y.Z]` builds every release file into build/release/ (gitignored):
 //   browser-agent-bridge-<v>.tgz            the npm package (`npm run pack:npm`)
 //   browser-agent-bridge-<v>.mcpb           the Claude Desktop extension (`npm run pack:mcpb`)
-//   browser-agent-bridge-extension-<v>.zip  the Chrome extension, manifest without `key` (S0 item 1), forward slashes
+//   browser-agent-bridge-extension-<v>.zip  the Chrome extension for Load unpacked, manifest with `key` (the fixed ID)
+//   browser-agent-bridge-store-<v>.zip      the same without `key` (S0 item 1), for the Web Store dashboard only
 //   release-notes.md                        the CHANGELOG.md section for <v>
 //   SHA256SUMS.txt
 // .github/workflows/release.yml calls it with the tag. With --tag, the tag must equal the version and a full release
@@ -60,28 +61,39 @@ const zip = `${name}-extension-${version}.zip`;
 copyFileSync(at("build", tgz), path.join(out, tgz));
 copyFileSync(at("build", mcpb), path.join(out, mcpb));
 
-// The extension zip: manifest without `key`, the pages, dist/*.js, icons/*.png.
+// Two extension zips with the pages, dist/*.js and icons/*.png. The release zip keeps `key`: loaded unpacked it gets the
+// fixed ID, which the native host admits, so pairing works before the store listing is live. The store zip drops `key`
+// (S0 item 1: the dashboard refuses it); it goes to the dashboard by hand and stays out of the GitHub Release.
 const ext = at("extension");
 const listing = [
   ...readdirSync(ext).filter((f) => statSync(path.join(ext, f)).isFile()),
   ...["dist", "icons"].filter((d) => existsSync(path.join(ext, d))).flatMap((d) => readdirSync(path.join(ext, d)).map((f) => `${d}/${f}`)),
 ];
-const manifestText = storeManifest(readFileSync(path.join(ext, "manifest.json"), "utf8"));
-const files = extensionZipFiles(listing).map((f) => ({
-  name: f,
-  data: f === "manifest.json" ? Buffer.from(manifestText, "utf8") : readFileSync(path.join(ext, ...f.split("/"))),
-}));
-const zipped = makeZip(files);
-const names = zipEntries(zipped).map((e) => e.name);
-for (const need of manifestFiles(JSON.parse(manifestText))) if (!names.includes(need)) fail(`the zip lacks ${need}, which the manifest names`);
-if (names.some((n) => n.includes("\\"))) fail("a zip entry has a backslash");
-if ("key" in JSON.parse(manifestText)) fail("the zip manifest still has key");
+const repoManifest = readFileSync(path.join(ext, "manifest.json"), "utf8");
+if (!("key" in JSON.parse(repoManifest))) fail("extension/manifest.json has no key, so the release zip would not get the fixed ID");
+/** @param {string} manifestText */
+const buildZip = (manifestText) => {
+  const files = extensionZipFiles(listing).map((f) => ({
+    name: f,
+    data: f === "manifest.json" ? Buffer.from(manifestText, "utf8") : readFileSync(path.join(ext, ...f.split("/"))),
+  }));
+  const zipped = makeZip(files);
+  const entries = zipEntries(zipped).map((e) => e.name);
+  for (const need of manifestFiles(JSON.parse(manifestText))) if (!entries.includes(need)) fail(`the zip lacks ${need}, which the manifest names`);
+  if (entries.some((n) => n.includes("\\"))) fail("a zip entry has a backslash");
+  return { zipped, entries };
+};
+const { zipped, entries: names } = buildZip(repoManifest);
 writeFileSync(path.join(out, zip), zipped);
+const storeText = storeManifest(repoManifest);
+if ("key" in JSON.parse(storeText)) fail("the store zip manifest still has key");
+const storeZip = `${name}-store-${version}.zip`;
+writeFileSync(path.join(out, storeZip), buildZip(storeText).zipped);
 
 writeFileSync(path.join(out, "release-notes.md"), notes + "\n");
 const sums = [tgz, mcpb, zip].map((f) => `${createHash("sha256").update(readFileSync(path.join(out, f))).digest("hex")}  ${f}`);
 writeFileSync(path.join(out, "SHA256SUMS.txt"), sums.join("\n") + "\n");
 
 for (const f of readdirSync(out).sort()) console.log(`build/release/${f}  ${statSync(path.join(out, f)).size} bytes`);
-console.log(`extension zip: ${names.length} files, no key`);
+console.log(`extension zip: ${names.length} files, with key (fixed ID); store zip: without key, not in SHA256SUMS`);
 console.log(sums.join("\n"));

@@ -38,8 +38,10 @@ The root `CLAUDE.md` and `docs/agent-rules.md` also apply. Also covers `examples
   the `.mcpb` take the root's version), `zip.mjs` (pure zip writer: sorted forward-slash names, fixed 2020-01-01 time;
   `storeManifest` drops `key`; `extensionZipFiles`: `manifest.json`, top-level `*.html`, `dist/*.js`, `icons/*.png`),
   `build.mjs` (`npm run release:build [-- --tag vX.Y.Z]` → `build/release/`: the `.tgz`, the `.mcpb`,
-  `browser-agent-bridge-extension-<v>.zip`, `release-notes.md`, `SHA256SUMS.txt`; fails when a manifest-named file is
-  missing from the zip, and on a full-release tag without its `CHANGELOG.md` section). Called by
+  `browser-agent-bridge-extension-<v>.zip` (manifest WITH `key`: Load unpacked gets the fixed ID, so pairing works before
+  the store listing is live), `browser-agent-bridge-store-<v>.zip` (without `key`, for the dashboard by hand; not in the
+  GitHub Release or `SHA256SUMS.txt`), `release-notes.md`, `SHA256SUMS.txt`; fails when a manifest-named file is
+  missing from a zip, and on a full-release tag without its `CHANGELOG.md` section). Called by
   `.github/workflows/release.yml` (the name npm trusted publishing expects, U4; a `-pre` tag makes a draft prerelease and
   no npm publish; `workflow_dispatch` only builds) and by `ci.yml`'s Linux dry run. Test: `scripts/test/s15-release.test.ts`.
 - `scripts/doc-check.mjs`: the cleanup pass's objective checks (`cleanup-pass` skill).
